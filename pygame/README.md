@@ -1,4 +1,4 @@
-# pygame.py shows how to draw image to a hdmi port
+# hdmi_drawer.py shows how to draw image to a hdmi port
 
 
 ## now it only periodically read & display the images in folder Image_Set
