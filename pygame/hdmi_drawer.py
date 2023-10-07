@@ -38,9 +38,9 @@ def rendering():
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--display_mode', type=str, default='1920, 1080', help='HDMI display mode (Resolution here)')
+    parser.add_argument('--display_mode', type=str, default='3840, 2160', help='HDMI display mode (Resolution here)')
     parser.add_argument('--display_port', type=int, default='1', help='HDMI display port')
-    parser.add_argument('--fps', type=int, default='1', help='frame rate')
+    parser.add_argument('--fps', type=int, default='60', help='frame rate')
     args = parser.parse_args()
     return args
 
