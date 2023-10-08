@@ -25,7 +25,8 @@ def rendering():
 
         # ==================== Your Video Reading code here ====================
         i = i%10
-        image = pygame.image.load("./Image_Set/"+ str(i) + ".jpg")
+        image = pygame.image.load("./Image_Set/"+ str(i) + "_tile_to_row" + ".jpg")
+        # image = pygame.image.load("./Image_Set/"+ str(i) + ".jpg")
         i=i+1
 
 
@@ -40,7 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--display_mode', type=str, default='3840, 2160', help='HDMI display mode (Resolution here)')
     parser.add_argument('--display_port', type=int, default='1', help='HDMI display port')
-    parser.add_argument('--fps', type=int, default='60', help='frame rate')
+    parser.add_argument('--fps', type=int, default='1', help='frame rate')
     args = parser.parse_args()
     return args
 
