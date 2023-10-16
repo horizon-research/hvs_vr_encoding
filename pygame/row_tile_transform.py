@@ -4,7 +4,7 @@ import ipdb
 
 def tile_to_row(img_path, tile_size, output_size):
 # img: image to be converted
-# tile_size: size of the tile (4x4)
+# tile_size: size of the tile (8x8)
 # output_size: size of the output image (2160x3840x3)
 # transforme image tile to row-order
     # read image
@@ -35,8 +35,8 @@ def tile_to_row(img_path, tile_size, output_size):
 
 def row_to_tile(img_path, tile_size, output_size):
 # img: image to be converted
-# tile_size: size of the tile (4x4)
-# output_size: size of the output image (2160x3840x1)
+# tile_size: size of the tile (8x8)
+# output_size: size of the output image (2160x3840x3)
 # transforme image tile to row-order
     # read image
     img = cv2.imread(img_path)
