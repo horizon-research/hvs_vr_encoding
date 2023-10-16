@@ -6,7 +6,7 @@ def tile_to_row(img_path, tile_size, output_size):
 # img: image to be converted
 # tile_size: size of the tile (8x8)
 # output_size: size of the output image (2160x3840x3)
-# transforme image tile to row-order
+# transforme image tile_order to row_direction
     # read image
     img = cv2.imread(img_path)
     img = cv2.resize(img, (output_size[1], output_size[0]) ) # W and H   not   H and W
@@ -37,7 +37,7 @@ def row_to_tile(img_path, tile_size, output_size):
 # img: image to be converted
 # tile_size: size of the tile (8x8)
 # output_size: size of the output image (2160x3840x3)
-# transforme image tile to row-order
+# transforme image row_direction to tile_order
     # read image
     img = cv2.imread(img_path)
 
