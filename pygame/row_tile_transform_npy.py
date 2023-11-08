@@ -5,11 +5,13 @@ import ipdb
 def tile_to_row(img_path, tile_size, output_size):
 # img: image to be converted
 # tile_size: size of the tile (8x8)
-# output_size: size of the output image (2160x3840x3)
+# output_size: size of the output image (2160x3840x3) HxW
 # transforme image tile_order to row_direction
     # read image
-    img = cv2.imread(img_path)
-    img = cv2.resize(img, (output_size[1], output_size[0]) ) # W and H   not   H and W
+    # img = cv2.imread(img_path)
+    # img = cv2.resize(img, (output_size[1], output_size[0]) ) # W and H   not   H and W
+
+    img = np.load(img_path)
 
     # split image into tiles
     tiles = []
@@ -76,11 +78,17 @@ def row_to_tile(img_path, tile_size, output_size):
 
     return new_img
 
+import os
+
 if __name__ == "__main__":
-    for i in range(10):
+    in_dir = "./hogrider_20s_4k_out"
+    out_dir = "./hogrider_20s_4k_out_t2r"
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+    for i in range(1, 10):
         print(i)
-        img_t2r, img_raw = tile_to_row("./Image_Set/"+ str(i) + ".jpg", (8,8), (2160, 3840, 3))
-        cv2.imwrite("./Image_Set/"+ str(i) + "_tile_to_row.jpg", img_t2r)
+        img_t2r, img_raw = tile_to_row(in_dir + "/"+ str(i) + ".npy", (8,8), (2160, 3840, 3))
+        np.save(out_dir + "/"+ str(i) + ".npy", img_t2r)
         # img_r2t = row_to_tile("./Image_Set/"+ str(i) + "_tile_to_row.jpg", (8,8), (2160, 3840, 3))
         # cv2.imwrite("./Image_Set/"+ str(i) + "_row_to_tile.jpg", img_r2t)
         # import ipdb; ipdb.set_trace()
