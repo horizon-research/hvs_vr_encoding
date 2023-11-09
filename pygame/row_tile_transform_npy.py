@@ -85,10 +85,11 @@ if __name__ == "__main__":
     out_dir = "./hogrider_20s_4k_out_t2r"
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
-    for i in range(1, 10):
+    for i in range(1, 180):
         print(i)
         img_t2r, img_raw = tile_to_row(in_dir + "/"+ str(i) + ".npy", (8,8), (2160, 3840, 3))
-        np.save(out_dir + "/"+ str(i) + ".npy", img_t2r)
+        cv2.imwrite(out_dir + "/"+ str(i) + ".png", img_t2r)
+        # np.save(out_dir + "/"+ str(i) + ".npy", img_t2r)
         # img_r2t = row_to_tile("./Image_Set/"+ str(i) + "_tile_to_row.jpg", (8,8), (2160, 3840, 3))
         # cv2.imwrite("./Image_Set/"+ str(i) + "_row_to_tile.jpg", img_r2t)
         # import ipdb; ipdb.set_trace()
