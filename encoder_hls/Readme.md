@@ -33,6 +33,10 @@ Author: Weikai Lin;  &nbsp;  Date: 11/13/2023
 
 ### 5. Integrate to Vivado Block design
 
+## Progressing:
+
+1. Reading the python codes and ASPLOS 2024 paper
+2. Generating one tile gold seq
 
 
 ## TODOs
