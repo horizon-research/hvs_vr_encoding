@@ -204,6 +204,8 @@ def optimize_tile(tile, ecc_tile, out):
             # find minimum points in the colors' ellipsoids along min_vec
             min_lmn = (RGB2DKL @ (min_vec).T).T
             min_p = line_ell_inter(dkl_centers, min_lmn, As)
+
+            # import ipdb; ipdb.set_trace()
             
             fix_bounds(min_p, col1, col2, rgb_centers, min_vec)
             
