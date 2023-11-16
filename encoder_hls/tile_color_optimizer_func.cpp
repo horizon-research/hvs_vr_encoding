@@ -3,8 +3,8 @@
 namespace vr_prototype
 {
 	void tile_color_optimizer_func(
-		hls::stream< agg_outputs > &dout,
-		hls::stream< agg_inputs > &din
+		hls::stream< vr_prototype::agg_outputs > &dout,
+		hls::stream< vr_prototype::agg_inputs > &din
         )
 	{	// HLS INTERFACE stram setting
         #pragma HLS AGGREGATE compact=bit variable=dout
@@ -17,56 +17,18 @@ namespace vr_prototype
         #pragma HLS INTERFACE ap_ctrl_none port=return
 		#pragma HLS DATAFLOW disable_start_propagation
 
-		// optimizer initailization
-		const 
+		// Initialization
+		vr_prototype::Tile_color_optimizer<2, 0 ,1> blue_optimizer; // Blue opt
 
+		vr_prototype::agg_outputs out;
+		vr_prototype::agg_inputs in;
 
-
-
-
-
-
-
-
-
-
-
-	//#pragma HLS INTERFACE ap_ctrl_none port = return
-	#pragma HLS DATAFLOW disable_start_propagation
-		hls::stream<ap_uint<3>> tx_ctrl_rx("tx_ctrl_rx_ldpc_enc");
-	#pragma HLS STREAM variable = tx_ctrl_rx depth = 8
-
-		hls::stream<ap_uint<64>> _din1("_din1_ldpc_enc");
-		hls::stream<ap_uint<40>> _ctrl1("_ctrl1_ldpc_enc");
-		hls::stream<ap_uint<64>> _din2("_din2_ldpc_enc");
-		hls::stream<ap_uint<40>> _ctrl2("_ctrl2_ldpc_enc");
-		sdfec_enc_tx(
-			din,
-			ctrl,
-			_din1,
-			_din2,
-			_ctrl1,
-			_ctrl2,
-			tx_ctrl_rx
-			);
-
-		hls::stream<ap_uint<64>> sdfec_out1;
-		hls::stream<ap_uint<64>> sdfec_out2;
-
-		sdfec_enc_multicore_hls(
-			_ctrl1,
-			_din1,
-			sdfec_out1,
-			_ctrl2,
-			_din2,
-			sdfec_out2);
-
-		sdfec_enc_rx(
-			tx_ctrl_rx,
-			sdfec_out1,
-			sdfec_out2,
-			dout);
-
-
+		// Main loop
+		for (int i = 0; i < 16; i++){
+			#pragma HLS PIPELINE II=1
+			din >> in;
+			blue_optimizer(out, in);
+			dout << out;
+		}
 	}
 }

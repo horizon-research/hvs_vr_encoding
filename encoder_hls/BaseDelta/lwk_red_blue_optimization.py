@@ -56,6 +56,8 @@ class Tile_color_optimizer_hw_part:
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
 
+        # import ipdb; ipdb.set_trace()
+
         # ddelete skip of compression when pixels are all same for efficient hardware 
         opt_points = self.adjust_tile(dkl_centers)
 
@@ -95,7 +97,8 @@ class Tile_color_optimizer_hw_part:
     def line_ell_inter(self, ell_center, _vec):
     # find point where line and DKL ellipse intersect
         t = 1 / np.sqrt( np.sum(_vec**2 * self.inv_square_abc, axis = 1) )
-        p = ell_center + np.tile(t.reshape(16,1), (1, 3)) * _vec
+        # import ipdb; ipdb.set_trace()
+        p = ell_center + np.tile(t.reshape(16, 1), (1, 3)) * _vec
         rgb_p = (DKL2RGB @ p.T).T
         return rgb_p
     
