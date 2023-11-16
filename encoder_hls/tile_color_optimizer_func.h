@@ -17,9 +17,9 @@ namespace vr_prototype
 {
 
 struct agg_outputs {
-	ap_uint8_t sr[16];
-	ap_uint8_t sg[16];
-	ap_uint8_t sb[16];
+	ufixed_16_0_t r[16];
+	ufixed_16_0_t g[16];
+	ufixed_16_0_t b[16];
 };
 
 struct agg_inputs {
@@ -102,9 +102,9 @@ struct agg_inputs {
 
 			for(int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
-				out.sr[i] = opt_points[i][0];
-				out.sg[i] = opt_points[i][1];
-				out.sb[i] = opt_points[i][2];
+				out.r[i] = opt_points[i][0];
+				out.g[i] = opt_points[i][1];
+				out.b[i] = opt_points[i][2];
 			}
 
 		}

@@ -15,7 +15,7 @@ namespace vr_prototype
 		#pragma HLS INTERFACE axis register both port=din
         // module setting
         #pragma HLS INTERFACE ap_ctrl_none port=return
-		#pragma HLS DATAFLOW disable_start_propagation
+//		#pragma HLS DATAFLOW disable_start_propagation
 
 		// Initialization
 		vr_prototype::Tile_color_optimizer<2, 0 ,1> blue_optimizer; // Blue opt
@@ -26,9 +26,9 @@ namespace vr_prototype
 		// Main loop
 		for (int i = 0; i < 16; i++){
 			#pragma HLS PIPELINE II=1
-			din >> in;
+			in = din.read();
 			blue_optimizer(out, in);
-			dout << out;
+			dout.write(out);
 		}
 	}
 }
