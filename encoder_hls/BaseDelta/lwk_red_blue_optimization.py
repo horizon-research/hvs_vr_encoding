@@ -51,6 +51,8 @@ class Tile_color_optimizer_hw_part:
 
         self.min_vec_dkl = (RGB2DKL @ (self.min_vec_rgb).T).T
         self.max_vec_dkl = (RGB2DKL @ (self.max_vec_rgb).T).T
+
+        # import ipdb; ipdb.set_trace()
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
 
