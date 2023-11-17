@@ -16,6 +16,11 @@ typedef ap_uint<8> ap_uint8_t;
 namespace vr_prototype
 {
 
+void tile_color_optimizer_func(
+		hls::stream< vr_prototype::agg_outputs > &dout,
+		hls::stream< vr_prototype::agg_inputs > &din
+        )
+
 struct agg_outputs {
 	ufixed_16_0_t r[16];
 	ufixed_16_0_t g[16];
