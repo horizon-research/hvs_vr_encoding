@@ -3,28 +3,19 @@
 #include <ap_fixed.h>
 #include <hls_math.h>
 
-// Top entity
 typedef ap_ufixed<16, 0> ufixed_16_0_t;
 typedef ap_ufixed<16, 16> ufixed_16_16_t;
+typedef ap_ufixed<16, 16> ufixed_17_16_t;
 typedef ap_ufixed<16, 6> ufixed_16_6_t;
 typedef ap_fixed<16, 0> fixed_16_0_t;
 typedef ap_fixed<16, 8> fixed_16_8_t;
-typedef ap_ufixed<16, 16> ufixed_16_16_t;
+typedef ap_fixed<16, 9> fixed_16_9_t;
+typedef ap_ufixed<33, 16> ufixed_33_16_t;
 typedef ap_uint<8> ap_uint8_t;
 
 
-namespace vr_prototype
-{
-
-void tile_color_optimizer_func(
-		hls::stream< vr_prototype::agg_outputs > &dout,
-		hls::stream< vr_prototype::agg_inputs > &din
-        )
-
 struct agg_outputs {
-	ufixed_16_0_t r[16];
-	ufixed_16_0_t g[16];
-	ufixed_16_0_t b[16];
+	ufixed_16_0_t rgb[16][3];
 };
 
 struct agg_inputs {
@@ -36,6 +27,13 @@ struct agg_inputs {
 	fixed_16_0_t ls[16];
 };
 
+namespace vr_prototype
+{
+
+void tile_color_optimizer_func(
+		hls::stream< agg_outputs > &dout,
+		hls::stream< agg_inputs > &din
+        );
 	enum Color {
 		RED,    // 0
 		GREEN,  // 1
@@ -48,11 +46,11 @@ struct agg_inputs {
 	{
 		public:
 		fixed_16_0_t max_vec_rgb[3], min_vec_rgb[3], max_vec_dkl[3], min_vec_dkl[3];
-		fixed_16_8_t DKL2RGB[3][3] ;
+		fixed_16_9_t DKL2RGB[3][3] ;
 
 		ufixed_16_0_t rgb_centers [16][3];
 		fixed_16_0_t dkl_centers [16][3];
-		ufixed_16_16_t inv_square_abc [16][3];
+		ufixed_17_16_t inv_square_abc [16][3];
 
 
 
@@ -97,19 +95,45 @@ struct agg_inputs {
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
 				// divide 0 check is needed
-				inv_square_abc[i][0] = hls::recip(rgb_centers[i][0] * rgb_centers[i][0]);
-				inv_square_abc[i][1] = hls::recip(rgb_centers[i][1] * rgb_centers[i][1]);
-				inv_square_abc[i][2] = hls::recip(rgb_centers[i][2] * rgb_centers[i][2]);
+				inv_square_abc[i][0] = hls::recip(ufixed_33_16_t(in.as[i] * in.as[i]));
+				inv_square_abc[i][1] = hls::recip(ufixed_33_16_t(in.bs[i] * in.bs[i]));
+				inv_square_abc[i][2] = hls::recip(ufixed_33_16_t(in.cs[i] * in.cs[i]));
 			}
+
+			// print dkl, rgb, inv_square_abc for debugging
+			// 打印 DKL 数据
+// for(int i = 0; i < 16; i++) {
+//     std::cout << "DKL[" << i << "] = {" << dkl_centers[i][0] << ", " << dkl_centers[i][1] << ", " << dkl_centers[i][2] << "}\n";
+// }
+
+// // ...DKL 到 RGB 的转换代码...
+
+// // 打印 RGB 数据
+// for(int i = 0; i < 16; i++) {
+//     std::cout << "RGB[" << i << "] = {" << rgb_centers[i][0] << ", " << rgb_centers[i][1] << ", " << rgb_centers[i][2] << "}\n";
+// }
+
+// // print abc 
+// for(int i = 0; i < 16; i++) {
+// 	std::cout << "abc[" << i << "] = {" << in.as[i] << ", " << in.bs[i] << ", " << in.cs[i] << "}\n";
+// }
+
+// ...计算 inv_square_abc 代码...
+
+// 打印 inv_square_abc 数据
+// for(int i = 0; i < 16; i++) {
+//     std::cout << "inv_square_abc[" << i << "] = {" << inv_square_abc[i][0] << ", " << inv_square_abc[i][1] << ", " << inv_square_abc[i][2] << "}\n";
+// }
+
 
 			ufixed_16_0_t opt_points[16][3] ;
 			adjust_tile(opt_points);
 
 			for(int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
-				out.r[i] = opt_points[i][0];
-				out.g[i] = opt_points[i][1];
-				out.b[i] = opt_points[i][2];
+				out.rgb[i][0] = opt_points[i][0];
+				out.rgb[i][1] = opt_points[i][1];
+				out.rgb[i][2] = opt_points[i][2];
 			}
 
 		}
@@ -126,6 +150,11 @@ struct agg_inputs {
 			fixed_16_0_t min_p[16][3], max_p[16][3];
 			line_ell_inter(min_p, dkl_centers, min_vec_dkl);
 			fix_bounds(min_p);
+
+// for(int i = 0; i < 16; i++) {
+//     std::cout << "min_p[" << i << "] = {" << min_p[i][0] << ", " << min_p[i][1] << ", " << min_p[i][2] << "}\n";
+// }
+
 
 			line_ell_inter(max_p, dkl_centers, max_vec_dkl);
 			fix_bounds(max_p);
@@ -161,23 +190,35 @@ struct agg_inputs {
 		}
 
 		void line_ell_inter( fixed_16_0_t inter_points[16][3], fixed_16_0_t in_points[16][3],  fixed_16_0_t _vec[3]){
+			ufixed_16_16_t sum[16];
+			ufixed_16_0_t t[16];
+
+			for (int i = 0; i < 3; i++) {
+				std::cout << "_vec[" << i << "] = {" << _vec[i] << "}\n";
+			}
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
-				ufixed_16_16_t sum = 0;
 				for (int j = 0; j < 3; j++) {
 					#pragma HLS UNROLL
-					sum += _vec[j] * _vec[j] * inv_square_abc[i][j];
+					sum[i] += _vec[j] * _vec[j] * inv_square_abc[i][j];
 				}
 
-				ufixed_16_0_t t = hls::rsqrt<16,16>(sum);
+				t[i] = hls::rsqrt<16,16>(sum[i]);
 
 				ufixed_16_0_t _inter_points[16][3];
 				for (int j = 0; j < 3; j++) {
 					#pragma HLS UNROLL
-					_inter_points[i][j] = in_points[i][j] + t * _vec[j];
+					_inter_points[i][j] = in_points[i][j] + t[i] * _vec[j];
 				}
 				// DKL2RGB
 				mm_3x3to3(inter_points[i], DKL2RGB, _inter_points[i]);
+
+				for(int i = 0; i < 16; i++) {
+    						std::cout << "sum[" << i << "] = {" << sum[i] << "}\n";
+							std::cout << "t[" << i << "] = {" << t[i] << "}\n";
+							std::cout << "inter_points[" << i << "] = {" << _inter_points[i][0] << ", " << _inter_points[i][1] << ", " << _inter_points[i][2] << "}\n";
+
+				}
 			}
 		}
 

@@ -58,6 +58,8 @@ class Tile_color_optimizer_hw_part:
 
         # import ipdb; ipdb.set_trace()
 
+        # import ipdb; ipdb.set_trace()
+
         # ddelete skip of compression when pixels are all same for efficient hardware 
         opt_points = self.adjust_tile(dkl_centers)
 
@@ -100,6 +102,8 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
         p = ell_center + np.tile(t.reshape(16, 1), (1, 3)) * _vec
         rgb_p = (DKL2RGB @ p.T).T
+
+        import ipdb; ipdb.set_trace()
         return rgb_p
     
     def correct_bound(self, pts, bound, col, floor):
@@ -130,10 +134,19 @@ class Tile_color_optimizer_hw_part:
 
 
 class Tile_color_optimizer:
-    def __init__(self, color_channel, r_max_vec, b_max_vec):
+    def __init__(self, color_channel, r_max_vec, b_max_vec, dump_io = False, dump_dir = None):
         # init the hardware
         self.hw_tile_optimizer = Tile_color_optimizer_hw_part(color_channel, r_max_vec, b_max_vec)
         self.color_channel = color_channel
+        self.dump_io = dump_io
+        self.dump_dir = dump_dir
+        self.dump_id = 0
+    def dump_nums(self, nums, name):
+        with open(self.dump_dir + name + str(self.dump_id) + ".txt", "w") as f:
+            for i in range(len(nums)):
+                f.write(str(nums[i]))
+                if i != len(nums) - 1:
+                    f.write("\n")
     def optimize_tile(self, tile, ecc_tile):
     #   takes a 4x4 pixel tile from an image and optimizes its colors 
     # along the blue or red direction
@@ -144,6 +157,16 @@ class Tile_color_optimizer:
         tile = tile.reshape(16,3)
         dkl_centers, centers_abc = self.generate_ellipsoids(tile, ecc_tile)
 
+        
+        if self.dump_io:
+            # import ipdb; ipdb.set_trace()
+            self.dump_nums(dkl_centers[:, 0].reshape(-1), "d")
+            self.dump_nums(dkl_centers[:, 1].reshape(-1), "k")
+            self.dump_nums(dkl_centers[:, 2].reshape(-1), "l")
+            self.dump_nums(centers_abc[:, 0].reshape(-1), "a")
+            self.dump_nums(centers_abc[:, 1].reshape(-1), "b")
+            self.dump_nums(centers_abc[:, 2].reshape(-1), "c")
+            
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
         blue_srgb_pts = (RGB2sRGB(blue_opt_points)*255).round().astype("uint8")
@@ -152,6 +175,10 @@ class Tile_color_optimizer:
         
         blue_len = self.compute_tile_bitlen(blue_srgb_pts)
         red_len = self.compute_tile_bitlen(red_srgb_pts)
+
+        if self.dump_io:
+            self.dump_nums(blue_opt_points.reshape(-1), "ref")
+            self.dump_id += 1
 
         if (blue_len < red_len):
             return blue_srgb_pts.reshape(4,4,3)
@@ -167,7 +194,7 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL @ rgb_centers.T).T
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
-        centers_abc[centers_abc <= 0] = 1e-6  ## fix devided by zero error
+        centers_abc[centers_abc <= 5*1e-3] = 5*1e-3  ## fix devided by zero error
 
         return dkl_centers, centers_abc
     
@@ -180,7 +207,7 @@ class Tile_color_optimizer:
         return bitlen_sum
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35):
+    def __init__(self, foveated = True, max_ecc = 35, dump_io = False, dump_dir = None):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -190,7 +217,7 @@ class Image_color_optimizer:
         self.r_max_vec = np.array([[0.61894476, -0.24312686,  0.62345751]])  
         self.b_max_vec = np.array([[0.14766317, -0.13674196, 0.97936063]]) 
 
-        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec)
+        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, dump_io, dump_dir)
 
         self.img_height = 0
         self.img_width = 0
@@ -237,7 +264,11 @@ if __name__ == "__main__":
 
     # optimize colors
     start = timer()
-    image_color_optimizer = Image_color_optimizer()
+
+    if not os.path.exists("dump/"):
+        os.makedirs("dump/")
+    image_color_optimizer = Image_color_optimizer(dump_io = False, dump_dir = "dump/")
+
     opt_img = image_color_optimizer.color_conversion(img)
     end = timer()
     print("Time taken: ", end-start)
