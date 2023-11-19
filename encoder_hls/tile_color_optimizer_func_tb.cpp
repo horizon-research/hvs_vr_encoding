@@ -38,9 +38,9 @@ void load(hls::stream<T> &s, int load_num, std::string dname)
 
 int main()
 {
-    hls::stream<ufixed_16_0_t> as("as"), bs("bs"), cs("cs");
-    hls::stream<fixed_16_0_t>  ds("ds"), ks("ks"), ls("ls");
-    hls::stream<ufixed_16_0_t> ref("ref");
+    hls::stream<abc_t> as("as"), bs("bs"), cs("cs");
+    hls::stream<dkl_t>  ds("ds"), ks("ks"), ls("ls");
+    hls::stream<rgb_t> ref("ref");
     // Read input and ref GT
     load(as, 4*4, "dump/a0.txt");
     load(bs, 4*4, "dump/b0.txt");
@@ -78,17 +78,25 @@ int main()
     // Compare output
     float err = 1000;
     agg_outputs _os;
+
+    float acc_err = 0;
+    int count = 0;
     while(!os.empty())
     {
         _os = os.read();
         for(int i = 0; i < 16; i++)
         {
-            std::cout << "rgb: " << _os.rgb[i][0] << " " << _os.rgb[i][1] << " " << _os.rgb[i][2] << std::endl;
-            std::cout << "ref.read(): " << ref.read()  << " " << ref.read() << " " << ref.read() << std::endl;
+            // std::cout << "rgb: " << _os.rgb[i][0] << " " << _os.rgb[i][1] << " " << _os.rgb[i][2] << std::endl;
+            // std::cout << "ref.read(): " << ref.read()  << " " << ref.read() << " " << ref.read() << std::endl;
             // assert( std::fabs( float(_os.rgb[i][0] - ref.read()) < err)   ); //r
             // assert( std::fabs( float(_os.rgb[i][1] - ref.read()) < err)   ); //g
             // assert( std::fabs( float(_os.rgb[i][2] - ref.read()) < err)   ); //b
+            acc_err += std::fabs( float(_os.rgb[i][0] - ref.read()) ); //r
+            acc_err += std::fabs( float(_os.rgb[i][1] - ref.read()) ); //g
+            acc_err += std::fabs( float(_os.rgb[i][2] - ref.read()) ); //b
+            count += 3;
         }
     }
+    std::cout << "avg_err: " << acc_err / float(count) << std::endl;
 
 }

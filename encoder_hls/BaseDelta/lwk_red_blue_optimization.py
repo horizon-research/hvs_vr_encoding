@@ -49,12 +49,13 @@ class Tile_color_optimizer_hw_part:
             self.col1 = self.color_channel["R"]
             self.col2 = self.color_channel["G"]
 
-        self.min_vec_dkl = (RGB2DKL @ (self.min_vec_rgb).T).T
-        self.max_vec_dkl = (RGB2DKL @ (self.max_vec_rgb).T).T
+        self.min_vec_dkl = (RGB2DKL @ (self.min_vec_rgb).T).T * 100
+        self.max_vec_dkl = (RGB2DKL @ (self.max_vec_rgb).T).T * 100
 
         # import ipdb; ipdb.set_trace()
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
+        # import ipdb; ipdb.set_trace()
 
         # import ipdb; ipdb.set_trace()
 
@@ -69,11 +70,16 @@ class Tile_color_optimizer_hw_part:
 
         # find minimum points in the colors' ellipsoids along min_vec
         min_p = self.line_ell_inter(dkl_centers, self.min_vec_dkl)
+        # import ipdb; ipdb.set_trace()
         self.fix_bounds(min_p)
+        # import ipdb; ipdb.set_trace()
+        
 
         # find maximum points in the colors' ellipsoids along max_vec
         max_p = self.line_ell_inter(dkl_centers, self.max_vec_dkl)
+        # import ipdb; ipdb.set_trace()
         self.fix_bounds(max_p)
+        # import ipdb; ipdb.set_trace()
 
         max_min = max(min_p[:, self.opt_channel]) # maximum of the minimum points
         min_max = min(max_p[:, self.opt_channel]) # minimum of the maximum points
@@ -83,6 +89,8 @@ class Tile_color_optimizer_hw_part:
             col_plane = 0   
         elif (col_plane > 1): 
             col_plane = 1
+
+        # import ipdb; ipdb.set_trace()
 
         opt_points = np.zeros((dkl_centers.shape))
         # set points with minimum value greater than col_plane to min_p
@@ -103,7 +111,7 @@ class Tile_color_optimizer_hw_part:
         p = ell_center + np.tile(t.reshape(16, 1), (1, 3)) * _vec
         rgb_p = (DKL2RGB @ p.T).T
 
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         return rgb_p
     
     def correct_bound(self, pts, bound, col, floor):
@@ -114,7 +122,9 @@ class Tile_color_optimizer_hw_part:
         
         t_correct = np.array( [ (bound - self.rgb_centers[oob_is][:,col] ) / self.min_vec_rgb[0, col] ] ).T
         new_p = self.rgb_centers[oob_is] + t_correct * self.min_vec_rgb
+        # import ipdb; ipdb.set_trace()
         pts[oob_is] = new_p
+        # import ipdb; ipdb.set_trace()
 
     # correct out of bound points in red and green directions
     def fix_bounds(self, pts):
@@ -129,6 +139,8 @@ class Tile_color_optimizer_hw_part:
         center_line = lambda t: rgb_centers + t[:, 0] * self.min_vec_rgb
         t_plane = np.array([[(plane - rgb_centers[:, self.opt_channel]) / self.min_vec_rgb[0, self.opt_channel]]]).T
         plane_centers = center_line(t_plane)
+
+        import ipdb; ipdb.set_trace()
         return plane_centers
 
 
@@ -169,16 +181,18 @@ class Tile_color_optimizer:
             
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
+
+        if self.dump_io:
+            self.dump_nums(blue_opt_points.reshape(-1), "ref")
+            self.dump_id += 1
+
+        # import ipdb; ipdb.set_trace()
         blue_srgb_pts = (RGB2sRGB(blue_opt_points)*255).round().astype("uint8")
         red_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["R"], dkl_centers, centers_abc)
         red_srgb_pts = (RGB2sRGB(red_opt_points)*255).round().astype("uint8")
         
         blue_len = self.compute_tile_bitlen(blue_srgb_pts)
         red_len = self.compute_tile_bitlen(red_srgb_pts)
-
-        if self.dump_io:
-            self.dump_nums(blue_opt_points.reshape(-1), "ref")
-            self.dump_id += 1
 
         if (blue_len < red_len):
             return blue_srgb_pts.reshape(4,4,3)
@@ -194,7 +208,7 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL @ rgb_centers.T).T
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
-        centers_abc[centers_abc <= 5*1e-3] = 5*1e-3  ## fix devided by zero error
+        centers_abc[centers_abc <= 1e-2] = 1e-2  ## fix devided by zero error and too much inv_square
 
         return dkl_centers, centers_abc
     

@@ -3,28 +3,33 @@
 #include <ap_fixed.h>
 #include <hls_math.h>
 
-typedef ap_ufixed<16, 0> ufixed_16_0_t;
-typedef ap_ufixed<16, 16> ufixed_16_16_t;
-typedef ap_ufixed<16, 16> ufixed_17_16_t;
-typedef ap_ufixed<16, 6> ufixed_16_6_t;
-typedef ap_fixed<16, 0> fixed_16_0_t;
-typedef ap_fixed<16, 8> fixed_16_8_t;
-typedef ap_fixed<16, 9> fixed_16_9_t;
-typedef ap_ufixed<33, 16> ufixed_33_16_t;
-typedef ap_uint<8> ap_uint8_t;
+typedef ap_ufixed<16, 0> abc_t;
+typedef ap_ufixed<16, 0, AP_RND, AP_SAT> rgb_t; // prevent SAT in DKL to RGB
+typedef ap_ufixed<32, 14> inv_square_t; // 14 for 1e4 int out, 
+										// 14 point for 1e-4 in   16 is because type casting default is TRN, we need to preserve the abc
+										// add 2 point for precision
+typedef ap_ufixed<16, 14, AP_RND, AP_SAT> line_ell_inter_sum_t;
+typedef ap_ufixed<28, 14> rsqrt_t; // add 2 point for precision 
+typedef ap_ufixed<9, 0, AP_RND, AP_SAT> line_ell_inter_t_t;
 
+typedef ap_fixed<16, 1, AP_TRN, AP_SAT> dkl_t;
+typedef ap_fixed<17, 1> vec_t;
+typedef ap_fixed<20, 10> dkl2rgb_t;
+typedef ap_fixed<16, 5, AP_RND, AP_SAT> converge_t_t; // -10 - 10
+typedef ap_fixed<16, 5, AP_RND, AP_SAT> fix_bound_t_t; // -10 - 10
+typedef ap_fixed<20, 4, AP_RND, AP_SAT> rgb_not_fixed_t; // prevent SAT in DKL to RGB
 
 struct agg_outputs {
-	ufixed_16_0_t rgb[16][3];
+	rgb_t rgb[16][3];
 };
 
 struct agg_inputs {
-	ufixed_16_0_t as[16];
-	ufixed_16_0_t bs[16];
-	ufixed_16_0_t cs[16];
-	fixed_16_0_t ds[16];
-	fixed_16_0_t ks[16];
-	fixed_16_0_t ls[16];
+	abc_t as[16];
+	abc_t bs[16];
+	abc_t cs[16];
+	dkl_t ds[16];
+	dkl_t ks[16];
+	dkl_t ls[16];
 };
 
 namespace vr_prototype
@@ -45,12 +50,12 @@ void tile_color_optimizer_func(
 	class Tile_color_optimizer
 	{
 		public:
-		fixed_16_0_t max_vec_rgb[3], min_vec_rgb[3], max_vec_dkl[3], min_vec_dkl[3];
-		fixed_16_9_t DKL2RGB[3][3] ;
+		vec_t max_vec_rgb[3], min_vec_rgb[3], max_vec_dkl[3], min_vec_dkl[3];
+		dkl2rgb_t DKL2RGB[3][3] ;
 
-		ufixed_16_0_t rgb_centers [16][3];
-		fixed_16_0_t dkl_centers [16][3];
-		ufixed_17_16_t inv_square_abc [16][3];
+		rgb_t rgb_centers [16][3];
+		dkl_t dkl_centers [16][3];
+		inv_square_t inv_square_abc [16][3];
 
 
 
@@ -58,7 +63,7 @@ void tile_color_optimizer_func(
 			#pragma HLS PIPELINE II=1
 			#pragma HLS INLINE recursive
 
-			DKL2RGB[0][0] = 10.60864043;  DKL2RGB[0][1] = 23.50260678;  DKL2RGB[0][2] = 21.01613594;
+		DKL2RGB[0][0] = 10.60864043;  DKL2RGB[0][1] = 23.50260678;  DKL2RGB[0][2] = 21.01613594;
         DKL2RGB[1][0] = -3.17452434;  DKL2RGB[1][1] = -22.53568763; DKL2RGB[1][2] = -20.37323115;
         DKL2RGB[2][0] = 0.20807273;   DKL2RGB[2][1] = 154.02866473; DKL2RGB[2][2] = 153.78039361;
 		
@@ -85,48 +90,55 @@ void tile_color_optimizer_func(
 				dkl_centers[i][2] = in.ls[i];
 			}
 
-			// DKL to RGB
+			// DKL to RGB - done
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
 				mm_3x3to3(rgb_centers[i], DKL2RGB, dkl_centers[i]);
 			}
 
-			// compute inv_square_abc
+			// compute inv_square_abc - done
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
-				// divide 0 check is needed
-				inv_square_abc[i][0] = hls::recip(ufixed_33_16_t(in.as[i] * in.as[i]));
-				inv_square_abc[i][1] = hls::recip(ufixed_33_16_t(in.bs[i] * in.bs[i]));
-				inv_square_abc[i][2] = hls::recip(ufixed_33_16_t(in.cs[i] * in.cs[i]));
+				// no need to gate, gate is done in the software
+				// in range : 1e-2 ~1
+				inv_square_abc[i][0] = hls::recip(inv_square_t(in.as[i] * in.as[i]));
+				inv_square_abc[i][1] = hls::recip(inv_square_t(in.bs[i] * in.bs[i]));
+				inv_square_abc[i][2] = hls::recip(inv_square_t(in.cs[i] * in.cs[i]));
+				// out range : 1 ~ 1e4, u<16, 14> is enough, log2(1e4) = 13.28
 			}
+
+
 
 			// print dkl, rgb, inv_square_abc for debugging
 			// 打印 DKL 数据
 // for(int i = 0; i < 16; i++) {
-//     std::cout << "DKL[" << i << "] = {" << dkl_centers[i][0] << ", " << dkl_centers[i][1] << ", " << dkl_centers[i][2] << "}\n";
+//    std::cout << "DKL[" << i << "] = {" << dkl_centers[i][0] << ", " << dkl_centers[i][1] << ", " << dkl_centers[i][2] << "}\n";
 // }
 
-// // ...DKL 到 RGB 的转换代码...
 
-// // 打印 RGB 数据
 // for(int i = 0; i < 16; i++) {
-//     std::cout << "RGB[" << i << "] = {" << rgb_centers[i][0] << ", " << rgb_centers[i][1] << ", " << rgb_centers[i][2] << "}\n";
+//    std::cout << "RGB[" << i << "] = {" << rgb_centers[i][0] << ", " << rgb_centers[i][1] << ", " << rgb_centers[i][2] << "}\n";
 // }
 
-// // print abc 
 // for(int i = 0; i < 16; i++) {
 // 	std::cout << "abc[" << i << "] = {" << in.as[i] << ", " << in.bs[i] << ", " << in.cs[i] << "}\n";
 // }
 
-// ...计算 inv_square_abc 代码...
-
-// 打印 inv_square_abc 数据
 // for(int i = 0; i < 16; i++) {
-//     std::cout << "inv_square_abc[" << i << "] = {" << inv_square_abc[i][0] << ", " << inv_square_abc[i][1] << ", " << inv_square_abc[i][2] << "}\n";
+//    std::cout << "abc**2[" << i << "] = {" << in.as[i] * in.as[i] << ", " << in.bs[i] * in.bs[i] << ", " <<  in.cs[i] * in.cs[i] << "}\n";
+// }
+
+// for(int i = 0; i < 16; i++) {
+//    std::cout << "abc**2[" << i << "] = {" <<inv_square_t(in.as[i] * in.as[i]) << ", " << inv_square_t(in.bs[i] * in.bs[i]) << ", " << inv_square_t(in.cs[i] * in.cs[i]) << "}\n";
 // }
 
 
-			ufixed_16_0_t opt_points[16][3] ;
+// for(int i = 0; i < 16; i++) {
+//    std::cout << "inv_square_abc[" << i << "] = {"  << inv_square_abc[i][0] << ", " << inv_square_abc[i][1] << ", " << inv_square_abc[i][2] << "}\n";
+// }
+
+
+			rgb_t opt_points[16][3] ;
 			adjust_tile(opt_points);
 
 			for(int i = 0; i < 16; i++) {
@@ -146,25 +158,42 @@ void tile_color_optimizer_func(
 			}
 		}
 
-		void adjust_tile( ufixed_16_0_t opt_points[16][3] ){
-			fixed_16_0_t min_p[16][3], max_p[16][3];
-			line_ell_inter(min_p, dkl_centers, min_vec_dkl);
+		template<typename T>
+		void gate( T &out, T max, T min) {
+			if (out > max) {
+				out = max;
+			}
+			else if (out < min) {
+				out = min;
+			}
+		}
+
+		void adjust_tile( rgb_t opt_points[16][3] ){
+			rgb_not_fixed_t min_p[16][3], max_p[16][3];
+			line_ell_inter(min_p, dkl_centers, min_vec_dkl); // done
 			fix_bounds(min_p);
 
-// for(int i = 0; i < 16; i++) {
-//     std::cout << "min_p[" << i << "] = {" << min_p[i][0] << ", " << min_p[i][1] << ", " << min_p[i][2] << "}\n";
+// 			for(int i = 0; i < 16; i++) {
+//    std::cout << "min_p[" << i << "] = {" << min_p[i][0] << ", " << min_p[i][1] << ", " << min_p[i][2] << "}\n";
 // }
 
+			line_ell_inter(max_p, dkl_centers, max_vec_dkl); // done
+			fix_bounds(max_p);    // No fix bound for now
 
-			line_ell_inter(max_p, dkl_centers, max_vec_dkl);
-			fix_bounds(max_p);
 
-			fixed_16_0_t min_max, max_min;
+// 			for(int i = 0; i < 16; i++) {
+//    std::cout << "max_p[" << i << "] = {" << max_p[i][0] << ", " << max_p[i][1] << ", " << max_p[i][2] << "}\n";
+// }
+
+			rgb_not_fixed_t min_max, max_min;
 			treeMaxOpt_16_3(max_min, min_p);
 			treeMinOpt_16_3(min_max, max_p);
 
-			ufixed_16_0_t col_plane = (max_min + min_max) << 1;
-			
+			// std::cout << "max_min = {" << max_min << "}\n";
+			// std::cout << "min_max = {" << min_max << "}\n";
+
+			rgb_not_fixed_t col_plane = (max_min + min_max) / 2;
+			// std::cout << "col_plane = {" << col_plane << "}\n";
 
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
@@ -180,49 +209,65 @@ void tile_color_optimizer_func(
 				}
 				else {
 					// converged on a plane
-					ufixed_16_6_t t = col_plane - rgb_centers[i][opt_channel] / min_vec_rgb[opt_channel];
+					converge_t_t t = (col_plane - rgb_centers[i][opt_channel]) / min_vec_rgb[opt_channel];
 					for (int j = 0; j < 3; j++) {
 						#pragma HLS UNROLL
-						opt_points[i][j] = rgb_centers[i][j]  + t * min_vec_dkl[j];
+						// rgb has SAT
+						opt_points[i][j] = rgb_centers[i][j]  + t * min_vec_rgb[j];
+						// std::cout << "t = {" << t << "}\n";
+						// std::cout << "rgb_centers = {" << rgb_centers[i][j] << "}\n";
+						// std::cout << "min_vec_rgb = {" << min_vec_rgb[j] << "}\n";
 					}
 				}
 			}
 		}
 
-		void line_ell_inter( fixed_16_0_t inter_points[16][3], fixed_16_0_t in_points[16][3],  fixed_16_0_t _vec[3]){
-			ufixed_16_16_t sum[16];
-			ufixed_16_0_t t[16];
+		void line_ell_inter( rgb_not_fixed_t inter_points[16][3],  dkl_t in_points[16][3],  vec_t _vec[3]){
+			line_ell_inter_sum_t sum[16];
+			line_ell_inter_t_t t[16];
+			dkl_t _inter_points[16][3];
 
-			for (int i = 0; i < 3; i++) {
-				std::cout << "_vec[" << i << "] = {" << _vec[i] << "}\n";
-			}
+			// for (int i = 0; i < 3; i++) {
+			// 	std::cout << "_vec[" << i << "] = {" << _vec[i] << "}\n";
+			// }
+
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
+				sum[i] = 0;
 				for (int j = 0; j < 3; j++) {
 					#pragma HLS UNROLL
 					sum[i] += _vec[j] * _vec[j] * inv_square_abc[i][j];
 				}
 
-				t[i] = hls::rsqrt<16,16>(sum[i]);
 
-				ufixed_16_0_t _inter_points[16][3];
+				
+
+				gate(sum[i], line_ell_inter_sum_t(1e4), line_ell_inter_sum_t(1)); // gate sum to 1-1e4
+
+				rsqrt_t _t = hls::rsqrt<28, 14>(rsqrt_t(sum[i])); // rsqrt: In   1-1e4: 14 int,   out: 1e-2 - 1: 7 point
+
+
+				t[i] = line_ell_inter_t_t(_t) ;// leave only 9 point
+
+
+				// dkl inter, dkl has SAT
 				for (int j = 0; j < 3; j++) {
 					#pragma HLS UNROLL
 					_inter_points[i][j] = in_points[i][j] + t[i] * _vec[j];
 				}
-				// DKL2RGB
+				// DKL2RGB, rgb has SAT
 				mm_3x3to3(inter_points[i], DKL2RGB, _inter_points[i]);
-
-				for(int i = 0; i < 16; i++) {
-    						std::cout << "sum[" << i << "] = {" << sum[i] << "}\n";
-							std::cout << "t[" << i << "] = {" << t[i] << "}\n";
-							std::cout << "inter_points[" << i << "] = {" << _inter_points[i][0] << ", " << _inter_points[i][1] << ", " << _inter_points[i][2] << "}\n";
-
-				}
 			}
+			// for(int i = 0; i < 16; i++) {
+			// 		std::cout << "inv_square_abc [" << i << "] = {" << inv_square_abc[i][0] << ", " << inv_square_abc[i][1] << ", " << inv_square_abc[i][2] << "}\n";
+   			// 			std::cout << "sum[" << i << "] = {" << sum[i] << "}\n";
+			// 				std::cout << "t[" << i << "] = {" << t[i] << "}\n";
+			// 				std::cout << "_inter_points[" << i << "] = {" << _inter_points[i][0] << ", " << _inter_points[i][1] << ", " << _inter_points[i][2] << "}\n";
+			// 				std::cout << "inter_points[" << i << "] = {" << inter_points[i][0] << ", " << inter_points[i][1] << ", " << inter_points[i][2] << "}\n";
+			// 	}
 		}
 
-		void fix_bounds(fixed_16_0_t in_points[16][3]){
+		void fix_bounds(rgb_not_fixed_t in_points[16][3]){
 			correct_bounds<0, color1, true>(in_points);
 			correct_bounds<0, color2, true>(in_points);
 			correct_bounds<1, color1, false>(in_points);
@@ -230,30 +275,51 @@ void tile_color_optimizer_func(
 		}
 
 		template<int bound = 0, int col = 0, bool floor = true>
-		void correct_bounds(fixed_16_0_t in_points[16][3])
+		void correct_bounds(rgb_not_fixed_t in_points[16][3])
 		{
-			const auto _bound = ap_uint<1>(bound);
+
+			// 			for(int i = 0; i < 16; i++) {
+			// 	std::cout << "in_points[" << i << "] = {" << in_points[i][0] << ", " << in_points[i][1] << ", " << in_points[i][2] << "}\n";
+			// }
+			const auto _bound = rgb_not_fixed_t(bound);
+			fix_bound_t_t t[16];
 			for (int i = 0; i < 16; i++) {
 				#pragma HLS UNROLL
 				if (floor == true) {
 					if (in_points[i][col] < _bound ) {
-						ufixed_16_6_t t = _bound - in_points[i][col] / min_vec_dkl[col];
+						t[i] = (_bound - rgb_centers[i][col]) / min_vec_rgb[col];
+						// std::cout << "_bound[" << i << "][" << "] = {" << _bound << "}\n";
+						// std::cout << "in_points[" << i << "][" << "col] = {" << in_points[i][col] << "}\n";
+						// std::cout << "min_vec_rgb[" << col << "] = {" << min_vec_rgb[col] << "}\n";
+
 						for (int j = 0; j < 3; j++) {
 							#pragma HLS UNROLL
-							in_points[i][j] += t * min_vec_dkl[j];
+							in_points[i][j] = rgb_centers[i][j] +  t[i] * min_vec_rgb[j];
+							// std::cout << "rgb_centers[" << i << "][" << j << "] = {" << rgb_centers[i][j] << "}\n";
+							// std::cout << "t[" << i << "] = {" << t[i] << "}\n";
+							// std::cout << "min_vec_rgb[" << j << "] = {" << min_vec_rgb[j] << "}\n";
+							// std::cout << "in_points[" << i << "][" << j << "] = {" << in_points[i][j] << "}\n";
 						}
 					}
 				}
 				else {
 					if (in_points[i][col] > _bound ) {
-						ufixed_16_6_t t = _bound - in_points[i][col], min_vec_dkl[col];
+						t[i] = (_bound - rgb_centers[i][col]) / min_vec_rgb[col];
 						for (int j = 0; j < 3; j++) {
 							#pragma HLS UNROLL
-							in_points[i][j] += t * min_vec_dkl[j];
+							in_points[i][j] = rgb_centers[i][j] + t[i] * min_vec_rgb[j];
 						}
 					}
 				}
 			}
+			// print ti and in_points for debugging
+			
+			// for(int i = 0; i < 16; i++) {
+			// 	std::cout << "t[" << i << "] = {" << t[i] << "}\n";
+			// }
+			// for(int i = 0; i < 16; i++) {
+			// 	std::cout << "in_points[" << i << "] = {" << in_points[i][0] << ", " << in_points[i][1] << ", " << in_points[i][2] << "}\n";
+			// }
 		}
 
 		template<typename T>
