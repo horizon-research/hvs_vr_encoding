@@ -72,7 +72,7 @@ int main()
     } // end
 
 
-    vr_prototype::tile_color_optimizer_func(os, is);
+    tile_color_optimizer_func(os, is);
 
 
     // Compare output
