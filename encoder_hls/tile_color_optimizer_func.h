@@ -4,7 +4,7 @@
 #include <hls_math.h>
 
 
-//#define HLS_PIPELINE_II_Set _Pragma("HLS PIPELINE")
+#define HLS_PIPELINE_II_Set _Pragma("HLS PIPELINE II=16")
 
 typedef ap_ufixed<16, 0> abc_t;
 typedef ap_ufixed<16, 0, AP_RND, AP_SAT> rgb_t; // prevent SAT in DKL to RGB
@@ -64,29 +64,25 @@ namespace vr_prototype
 
 
 		void operator()(agg_outputs &out , agg_inputs &in) {
-		// HLS_PIPELINE_II_Set
+		HLS_PIPELINE_II_Set
 		// #pragma HLS INLINE
-		#pragma HLS PIPELINE II=16
-			// #pragma HLS INLINE recursive
+		// #pragma HLS INLINE recursive
 
-		#pragma HLS ARRAY_PARTITION variable=max_vec_rgb complete
-		#pragma HLS ARRAY_PARTITION variable=min_vec_rgb complete
-		#pragma HLS ARRAY_PARTITION variable=max_vec_dkl complete
-		#pragma HLS ARRAY_PARTITION variable=min_vec_dkl complete
-		#pragma HLS ARRAY_PARTITION variable=rgb_centers complete
-		#pragma HLS ARRAY_PARTITION variable=dkl_centers complete
-		#pragma HLS ARRAY_PARTITION variable=inv_square_abc complete
+		#pragma HLS ARRAY_PARTITION variable=max_vec_rgb dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=min_vec_rgb dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=max_vec_dkl dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=min_vec_dkl dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=rgb_centers dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=dkl_centers dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=inv_square_abc dim=0 complete
 
-		#pragma HLS ARRAY_PARTITION variable=out.rgb complete
-		#pragma HLS ARRAY_PARTITION variable=in.as complete
-		#pragma HLS ARRAY_PARTITION variable=in.bs complete
-		#pragma HLS ARRAY_PARTITION variable=in.cs complete
-		#pragma HLS ARRAY_PARTITION variable=in.ds complete
-		#pragma HLS ARRAY_PARTITION variable=in.ks complete
-		#pragma HLS ARRAY_PARTITION variable=in.ls complete
-
-
-
+		#pragma HLS ARRAY_PARTITION variable=out.rgb dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=in.as dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=in.bs dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=in.cs dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=in.ds dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=in.ks dim=0 complete
+		#pragma HLS ARRAY_PARTITION variable=in.ls dim=0 complete
 
 		DKL2RGB[0][0] = 10.60864043;  DKL2RGB[0][1] = 23.50260678;  DKL2RGB[0][2] = 21.01613594;
         DKL2RGB[1][0] = -3.17452434;  DKL2RGB[1][1] = -22.53568763; DKL2RGB[1][2] = -20.37323115;
@@ -109,8 +105,7 @@ namespace vr_prototype
 
 			// Read dkl from input
 			for(int i = 0; i < 16; i++) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
+				#pragma HLS UNROLL
 				dkl_centers[i][0] = in.ds[i];
 				dkl_centers[i][1] = in.ks[i];
 				dkl_centers[i][2] = in.ls[i];
@@ -118,61 +113,28 @@ namespace vr_prototype
 
 			// DKL to RGB - done
 			for (int i = 0; i < 16; i++) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=1
+				// #pragma HLS allocation function instances=mm_3x3to3<T1, T2, T3> limit=1
 				mm_3x3to3(rgb_centers[i], DKL2RGB, dkl_centers[i]);
 			}
 
 			// compute inv_square_abc - done
 			for (int i = 0; i < 16; i++) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=1
+				// HLS_PIPELINE_II_Set
+				// #pragma HLS allocation function instances=inv_square<T1, T2> limit=1
 				// no need to gate, gate is done in the software
 				// in range : 1e-2 ~1
-				inv_square_abc[i][0] = hls::recip(inv_square_t(in.as[i] * in.as[i]));
-				inv_square_abc[i][1] = hls::recip(inv_square_t(in.bs[i] * in.bs[i]));
-				inv_square_abc[i][2] = hls::recip(inv_square_t(in.cs[i] * in.cs[i]));
+				inv_square(inv_square_abc[i], in.as[i], in.bs[i], in.cs[i]);
 				// out range : 1 ~ 1e4, u<16, 14> is enough, log2(1e4) = 13.28
 			}
 
-
-
-			// print dkl, rgb, inv_square_abc for debugging
-			// 打印 DKL 数据
-// for(int i = 0; i < 16; i++) {
-//    std::cout << "DKL[" << i << "] = {" << dkl_centers[i][0] << ", " << dkl_centers[i][1] << ", " << dkl_centers[i][2] << "}\n";
-// }
-
-
-// for(int i = 0; i < 16; i++) {
-//    std::cout << "RGB[" << i << "] = {" << rgb_centers[i][0] << ", " << rgb_centers[i][1] << ", " << rgb_centers[i][2] << "}\n";
-// }
-
-// for(int i = 0; i < 16; i++) {
-// 	std::cout << "abc[" << i << "] = {" << in.as[i] << ", " << in.bs[i] << ", " << in.cs[i] << "}\n";
-// }
-
-// for(int i = 0; i < 16; i++) {
-//    std::cout << "abc**2[" << i << "] = {" << in.as[i] * in.as[i] << ", " << in.bs[i] * in.bs[i] << ", " <<  in.cs[i] * in.cs[i] << "}\n";
-// }
-
-// for(int i = 0; i < 16; i++) {
-//    std::cout << "abc**2[" << i << "] = {" <<inv_square_t(in.as[i] * in.as[i]) << ", " << inv_square_t(in.bs[i] * in.bs[i]) << ", " << inv_square_t(in.cs[i] * in.cs[i]) << "}\n";
-// }
-
-
-// for(int i = 0; i < 16; i++) {
-//    std::cout << "inv_square_abc[" << i << "] = {"  << inv_square_abc[i][0] << ", " << inv_square_abc[i][1] << ", " << inv_square_abc[i][2] << "}\n";
-// }
-
-
 			rgb_t opt_points[16][3] ;
-			#pragma HLS ARRAY_PARTITION variable=opt_points complete
+			#pragma HLS ARRAY_PARTITION variable=opt_points dim=0 complete
 			adjust_tile(opt_points);
 
 			for(int i = 0; i < 16; i++) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
+				#pragma HLS UNROLL
 				out.rgb[i][0] = opt_points[i][0];
 				out.rgb[i][1] = opt_points[i][1];
 				out.rgb[i][2] = opt_points[i][2];
@@ -180,12 +142,20 @@ namespace vr_prototype
 
 		}
 
+		template<typename T1, typename T2>
+		void inv_square(T1 inv_square_abc_i[3], T2 &a, T2 &b, T2 &c){
+			#pragma HLS PIPELINE II=1
+			inv_square_abc_i[0] = hls::recip(inv_square_t(a * a));
+			inv_square_abc_i[1] = hls::recip(inv_square_t(b * b));
+			inv_square_abc_i[2] = hls::recip(inv_square_t(c * c));
+		}
+
 		template<typename T1, typename T2, typename T3>
 		void mm_3x3to3 (  T1 m3_out[3], T2 m33[3][3], T3 m3_in[3]) {
 			// //HLS_PIPELINE_II_Set
-			#pragma HLS ARRAY_PARTITION variable=m3_out complete
-			#pragma HLS ARRAY_PARTITION variable=m33 complete
-			#pragma HLS ARRAY_PARTITION variable=m3_in complete
+			#pragma HLS ARRAY_PARTITION variable=m3_out dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=m33 dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=m3_in dim=0 complete
 			for (int i = 0; i < 3; i++) {
 				#pragma HLS UNROLL
 				m3_out[i] = m33[i][0] * m3_in[0] + m33[i][1] * m3_in[1] + m33[i][2] * m3_in[2];
@@ -194,7 +164,7 @@ namespace vr_prototype
 
 		template<typename T>
 		void gate( T &out, T max, T min) {
-			//HLS_PIPELINE_II_Set
+			#pragma HLS PIPELINE II=1
 			if (out > max) {
 				out = max;
 			}
@@ -204,220 +174,155 @@ namespace vr_prototype
 		}
 
 		void adjust_tile( rgb_t opt_points[16][3] ){
-			#pragma HLS ARRAY_PARTITION variable=opt_points complete
-			//HLS_PIPELINE_II_Set
+			#pragma HLS ARRAY_PARTITION variable=opt_points dim=0 complete
+			HLS_PIPELINE_II_Set
 			rgb_not_fixed_t min_p[16][3], max_p[16][3];
-			#pragma HLS ARRAY_PARTITION variable=min_p complete
-			#pragma HLS ARRAY_PARTITION variable=max_p complete
+			#pragma HLS ARRAY_PARTITION variable=min_p dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=max_p dim=0 complete
 
-			line_ell_inter1:
-			{line_ell_inter(min_p, dkl_centers, min_vec_dkl); } 
-			fix_bounds1:
-			{fix_bounds(min_p);}
-			
-
-// 			for(int i = 0; i < 16; i++) {
-//    std::cout << "min_p[" << i << "] = {" << min_p[i][0] << ", " << min_p[i][1] << ", " << min_p[i][2] << "}\n";
-// }
-			line_ell_inter2:
-			{
-			line_ell_inter(max_p, dkl_centers, max_vec_dkl); // done
+			for (int i=0; i < 16; i++)
+			{	
+				// #pragma HLS allocation function instances=line_ell_inter limit=1
+				// #pragma HLS allocation function instances=fix_bounds limit=1
+				#pragma HLS UNROLL factor=1
+				line_ell_inter(min_p[i], dkl_centers[i], min_vec_dkl, inv_square_abc[i]); 
+				fix_bounds(min_p[i], rgb_centers[i]);
 			}
-			fix_bounds2:
-			{fix_bounds(max_p);}
 
-
-// 			for(int i = 0; i < 16; i++) {
-//    std::cout << "max_p[" << i << "] = {" << max_p[i][0] << ", " << max_p[i][1] << ", " << max_p[i][2] << "}\n";
-// }
+			for (int i=0; i < 16; i++)
+			{	
+				// #pragma HLS allocation function instances=line_ell_inter limit=1
+				// #pragma HLS allocation function instances=fix_bounds limit=1
+				#pragma HLS UNROLL factor=1
+				line_ell_inter(max_p[i], dkl_centers[i], max_vec_dkl, inv_square_abc[i]);
+				fix_bounds(max_p[i], rgb_centers[i]);
+			}
 
 			rgb_not_fixed_t min_max, max_min;
-			Max:
-			{treeMaxOpt_16_3(max_min, min_p);}
-			Min:
-			{treeMinOpt_16_3(min_max, max_p);}
-
-			// std::cout << "max_min = {" << max_min << "}\n";
-			// std::cout << "min_max = {" << min_max << "}\n";
+			treeMaxOpt_16_3(max_min, min_p);
+			treeMinOpt_16_3(min_max, max_p);
 
 			rgb_not_fixed_t col_plane = (max_min + min_max) / 2;
-			// std::cout << "col_plane = {" << col_plane << "}\n";
-			Converge_Loop:
 			for (int i = 0; i < 16; i++) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
-				if (col_plane < min_p[i][opt_channel]) {
-					opt_points[i][0] = min_p[i][0];
-					opt_points[i][1] = min_p[i][1];
-					opt_points[i][2] = min_p[i][2];
+				#pragma HLS UNROLL factor=1
+				converge_plane(col_plane, min_p[i], max_p[i], opt_points[i], rgb_centers[i]);
+			}
+		}
+
+		void converge_plane(rgb_not_fixed_t &col_plane, rgb_not_fixed_t min_p_i[3], 
+									rgb_not_fixed_t max_p_i[3], rgb_t opt_points_i[3], rgb_t rgb_centers_i[3]){
+			#pragma HLS PIPELINE II=1
+			if (col_plane < min_p_i[opt_channel]) {
+					opt_points_i[0] = min_p_i[0];
+					opt_points_i[1] = min_p_i[1];
+					opt_points_i[2] = min_p_i[2];
 				}
-				else if (col_plane > max_p[i][opt_channel]) {
-					opt_points[i][0] = max_p[i][0];
-					opt_points[i][1] = max_p[i][1];
-					opt_points[i][2] = max_p[i][2];
+				else if (col_plane > max_p_i[opt_channel]) {
+					opt_points_i[0] = max_p_i[0];
+					opt_points_i[1] = max_p_i[1];
+					opt_points_i[2] = max_p_i[2];
 				}
 				else {
 					// converged on a plane
-					converge_t_t t = (col_plane - rgb_centers[i][opt_channel]) / min_vec_rgb[opt_channel];
+					converge_t_t t = (col_plane - rgb_centers_i[opt_channel]) / min_vec_rgb[opt_channel];
 					for (int j = 0; j < 3; j++) {
-						//HLS_PIPELINE_II_Set
-						//#pragma HLS UNROLL
+						#pragma HLS UNROLL
 						// rgb has SAT
-						opt_points[i][j] = rgb_centers[i][j]  + t * min_vec_rgb[j];
-						// std::cout << "t = {" << t << "}\n";
-						// std::cout << "rgb_centers = {" << rgb_centers[i][j] << "}\n";
-						// std::cout << "min_vec_rgb = {" << min_vec_rgb[j] << "}\n";
+						opt_points_i[j] = rgb_centers_i[j]  + t * min_vec_rgb[j];
 					}
 				}
+		}
+
+		void line_ell_inter( rgb_not_fixed_t inter_points[3],  dkl_t in_points[3],  vec_t _vec[3], inv_square_t inv_square_abc_i[3]){
+			#pragma HLS PIPELINE II=1
+			#pragma HLS ARRAY_PARTITION variable=inter_points dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=in_points dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=_vec dim=0 complete
+			line_ell_inter_sum_t sum = 0;
+			line_ell_inter_t_t t;
+			dkl_t _inter_points[3];
+
+			for (int j = 0; j < 3; j++) {
+				// //HLS_PIPELINE_II_Set
+				#pragma HLS UNROLL
+				sum += _vec[j] * _vec[j] * inv_square_abc_i[j];
 			}
-		}
 
-		void line_ell_inter( rgb_not_fixed_t inter_points[16][3],  dkl_t in_points[16][3],  vec_t _vec[3]){
-	
-			//HLS_PIPELINE_II_Set
+			gate(sum, line_ell_inter_sum_t(1e4), line_ell_inter_sum_t(1)); // gate sum to 1-1e4
 
-			// for (int i = 0; i < 3; i++) {
-			// 	std::cout << "_vec[" << i << "] = {" << _vec[i] << "}\n";
-			// }
-			#pragma HLS ARRAY_PARTITION variable=inter_points complete
-			#pragma HLS ARRAY_PARTITION variable=in_points complete
-			#pragma HLS ARRAY_PARTITION variable=_vec complete
-
-			for (int i = 0; i < 16; i++) {
-				// #pragma HLS UNROLL
-				//HLS_PIPELINE_II_Set
-				line_ell_inter_sum_t sum = 0;
-				line_ell_inter_t_t t;
-				dkl_t _inter_points[3];
-
-				for (int j = 0; j < 3; j++) {
-					// //HLS_PIPELINE_II_Set
-					#pragma HLS UNROLL
-					sum += _vec[j] * _vec[j] * inv_square_abc[i][j];
-				}
-
-
-				
-
-				gate(sum, line_ell_inter_sum_t(1e4), line_ell_inter_sum_t(1)); // gate sum to 1-1e4
-
-
-				rsqrt_t _t;
-				rsqrt:{
-					_t = hls::rsqrt<23, 14>(rsqrt_t(sum)); // rsqrt: In   1-1e4: 14 int,   out: 1e-2 - 1: 7 point
-				}
-				
-
-
-				t = line_ell_inter_t_t(_t) ;// leave only 9 point
-
-
-				// dkl inter, dkl has SAT
-				for (int j = 0; j < 3; j++) {
-					// //HLS_PIPELINE_II_Set
-					#pragma HLS UNROLL
-					_inter_points[j] = in_points[i][j] + t * _vec[j];
-				}
-				// DKL2RGB, rgb has SAT
-				mm_3x3to3(inter_points[i], DKL2RGB, _inter_points);
+			rsqrt_t _t;
+			rsqrt:{
+				_t = hls::rsqrt<23, 14>(rsqrt_t(sum)); // rsqrt: In   1-1e4: 14 int,   out: 1e-2 - 1: 7 point
 			}
-			// for(int i = 0; i < 16; i++) {
-			// 		std::cout << "inv_square_abc [" << i << "] = {" << inv_square_abc[i][0] << ", " << inv_square_abc[i][1] << ", " << inv_square_abc[i][2] << "}\n";
-   			// 			std::cout << "sum[" << i << "] = {" << sum[i] << "}\n";
-			// 				std::cout << "t[" << i << "] = {" << t[i] << "}\n";
-			// 				std::cout << "_inter_points[" << i << "] = {" << _inter_points[i][0] << ", " << _inter_points[i][1] << ", " << _inter_points[i][2] << "}\n";
-			// 				std::cout << "inter_points[" << i << "] = {" << inter_points[i][0] << ", " << inter_points[i][1] << ", " << inter_points[i][2] << "}\n";
-			// 	}
+			
+			t = line_ell_inter_t_t(_t) ;// leave only 9 point
+
+			// dkl inter, dkl has SAT
+			for (int j = 0; j < 3; j++) {
+				#pragma HLS UNROLL
+				_inter_points[j] = in_points[j] + t * _vec[j];
+			}
+			// DKL2RGB, rgb has SAT
+			// #pragma HLS allocation function instances=mm_3x3to3 limit=1
+			mm_3x3to3(inter_points, DKL2RGB, _inter_points);
 		}
 
-		void fix_bounds(rgb_not_fixed_t in_points[16][3]){
-					#pragma HLS ARRAY_PARTITION variable=in_points complete
-			//HLS_PIPELINE_II_Set
-			correct_bounds<0, color1, true>(in_points);
-			correct_bounds<0, color2, true>(in_points);
-			correct_bounds<1, color1, false>(in_points);
-			correct_bounds<1, color2, false>(in_points);
+		void fix_bounds(rgb_not_fixed_t in_point[3], rgb_t rgb_center[3]){
+			#pragma HLS ARRAY_PARTITION variable=in_point dim=0 complete
+			#pragma HLS PIPELINE II=1
+			correct_bounds<0, color1, true>(in_point, rgb_center);
+			correct_bounds<0, color2, true>(in_point, rgb_center);
+			correct_bounds<1, color1, false>(in_point, rgb_center);
+			correct_bounds<1, color2, false>(in_point, rgb_center);
 		}
+
+		
 
 		template<int bound = 0, int col = 0, bool floor = true>
-		void correct_bounds(rgb_not_fixed_t in_points[16][3])
+		void correct_bounds(rgb_not_fixed_t in_point[3], rgb_t rgb_center[3])
 		{
-			#pragma HLS ARRAY_PARTITION variable=in_points complete
-			//HLS_PIPELINE_II_Set
-
-			// 			for(int i = 0; i < 16; i++) {
-			// 	std::cout << "in_points[" << i << "] = {" << in_points[i][0] << ", " << in_points[i][1] << ", " << in_points[i][2] << "}\n";
-			// }
+			#pragma HLS PIPELINE II=1
+			#pragma HLS ARRAY_PARTITION variable=in_point dim=0 complete
 			const auto _bound = rgb_not_fixed_t(bound);
-			for (int i = 0; i < 16; i++) {
-				//HLS_PIPELINE_II_Set
-				fix_bound_t_t t;
-				//#pragma HLS UNROLL
-				if (floor == true) {
-					if (in_points[i][col] < _bound ) {
-						t = (_bound - rgb_centers[i][col]) / min_vec_rgb[col];
-						// std::cout << "_bound[" << i << "][" << "] = {" << _bound << "}\n";
-						// std::cout << "in_points[" << i << "][" << "col] = {" << in_points[i][col] << "}\n";
-						// std::cout << "min_vec_rgb[" << col << "] = {" << min_vec_rgb[col] << "}\n";
-
-						for (int j = 0; j < 3; j++) {
-							//HLS_PIPELINE_II_Set
-							//#pragma HLS UNROLL
-							in_points[i][j] = rgb_centers[i][j] +  t * min_vec_rgb[j];
-							// std::cout << "rgb_centers[" << i << "][" << j << "] = {" << rgb_centers[i][j] << "}\n";
-							// std::cout << "t[" << i << "] = {" << t[i] << "}\n";
-							// std::cout << "min_vec_rgb[" << j << "] = {" << min_vec_rgb[j] << "}\n";
-							// std::cout << "in_points[" << i << "][" << j << "] = {" << in_points[i][j] << "}\n";
-						}
-					}
-				}
-				else {
-					if (in_points[i][col] > _bound ) {
-						t = (_bound - rgb_centers[i][col]) / min_vec_rgb[col];
-						for (int j = 0; j < 3; j++) {
-							//HLS_PIPELINE_II_Set
-							//#pragma HLS UNROLL
-							in_points[i][j] = rgb_centers[i][j] + t * min_vec_rgb[j];
-						}
+			fix_bound_t_t t;
+			if (floor == true) {
+				if (in_point[col] < _bound ) {
+					t = (_bound - rgb_center[col]) / min_vec_rgb[col];
+					for (int j = 0; j < 3; j++) {
+						#pragma HLS UNROLL
+						in_point[j] = rgb_center[j] +  t * min_vec_rgb[j];
 					}
 				}
 			}
-			// print ti and in_points for debugging
-			
-			// for(int i = 0; i < 16; i++) {
-			// 	std::cout << "t[" << i << "] = {" << t[i] << "}\n";
-			// }
-			// for(int i = 0; i < 16; i++) {
-			// 	std::cout << "in_points[" << i << "] = {" << in_points[i][0] << ", " << in_points[i][1] << ", " << in_points[i][2] << "}\n";
-			// }
+			else {
+				if (in_point[col] > _bound ) {
+					t = (_bound - rgb_center[col]) / min_vec_rgb[col];
+					for (int j = 0; j < 3; j++) {
+						#pragma HLS UNROLL
+						in_point[j] = rgb_center[j] + t * min_vec_rgb[j];
+					}
+				}
+			}
 		}
 
 		template<typename T>
 		void treeMinOpt_16_3(T &min, T array[16][3]) {
-			#pragma HLS ARRAY_PARTITION variable=array complete
-			//HLS_PIPELINE_II_Set
+			#pragma HLS ARRAY_PARTITION variable=array dim=0 complete
 			T temp1[8], temp2[4], temp3[2];
-			#pragma HLS ARRAY_PARTITION variable=temp1 complete
-			#pragma HLS ARRAY_PARTITION variable=temp2 complete
-			#pragma HLS ARRAY_PARTITION variable=temp3 complete
-			// Initial comparisons (level 1)
+			#pragma HLS ARRAY_PARTITION variable=temp1 dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=temp2 dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=temp3 dim=0 complete
 			for (int i = 0; i < 8; ++i) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
 				my_min(temp1[i], array[2 * i][opt_channel], array[2 * i + 1][opt_channel]);
 			}
 
 			// Second level of comparisons
 			for (int i = 0; i < 4; ++i) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
 				my_min(temp2[i], temp1[2 * i], temp1[2 * i + 1] );
 			}
 
 			// Third level of comparisons
 			for (int i = 0; i < 2; ++i) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
 				my_min(temp3[i] , temp2[2 * i], temp2[2 * i + 1]);
 			}
 
@@ -450,31 +355,25 @@ namespace vr_prototype
 		template<typename T>
 		void treeMaxOpt_16_3(T &max, T array[16][3]) {
 			//HLS_PIPELINE_II_Set
-			#pragma HLS ARRAY_PARTITION variable=array complete
+			#pragma HLS ARRAY_PARTITION variable=array dim=0 complete
 			
 			T temp1[8], temp2[4], temp3[2];
-						#pragma HLS ARRAY_PARTITION variable=temp1 complete
-			#pragma HLS ARRAY_PARTITION variable=temp2 complete
-			#pragma HLS ARRAY_PARTITION variable=temp3 complete
+						#pragma HLS ARRAY_PARTITION variable=temp1 dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=temp2 dim=0 complete
+			#pragma HLS ARRAY_PARTITION variable=temp3 dim=0 complete
 
 			// Initial comparisons (level 1)
 			for (int i = 0; i < 8; ++i) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
 				my_max( temp1[i], array[2 * i][opt_channel], array[2 * i + 1][opt_channel] );
 			}
 
 			// Second level of comparisons
 			for (int i = 0; i < 4; ++i) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
 				my_max( temp2[i], temp1[2 * i], temp1[2 * i + 1] );
 			}
 
 			// Third level of comparisons
 			for (int i = 0; i < 2; ++i) {
-				//HLS_PIPELINE_II_Set
-				//#pragma HLS UNROLL
 				my_max(temp3[i], temp2[2 * i], temp2[2 * i + 1]);
 			}
 

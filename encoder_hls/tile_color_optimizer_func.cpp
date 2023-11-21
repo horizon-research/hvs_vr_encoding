@@ -21,15 +21,8 @@ void tile_color_optimizer_func(
 	agg_outputs out;
 	agg_inputs in;
 
-	// Main loop
-	// for (int i = 0; i < 3; i++){
-		#pragma HLS PIPELINE II=16
-		in = din.read();
-		// print abc 
-// for(int i = 0; i < 16; i++) {
-// 	std::cout << "abc[" << i << "] = {" << in.as[i][0] << ", " << in.bs[i][1] << ", " << in.cs[i][2] << "}\n";
-// }		
-		blue_optimizer(out, in);
-		dout.write(out);
-	// }
+	#pragma HLS PIPELINE II=16
+	in = din.read();
+	blue_optimizer(out, in);
+	dout.write(out);
 }

@@ -4,22 +4,26 @@
 #include <fstream>
 #include <string>
 template<typename T>
-void load(hls::stream<T> &s, int load_num, std::string dname)
+void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 {
-	std::cout << " ...loading: " + dname << std::endl;
-    std::ifstream data;
-    data.open(dname);
+	// std::cout << " ...loading: " + dname << std::endl;
 //    assert(!data.fail());
 
     int loaded_num = 0;
-    while(!data.eof())
+    while(!ifdata.eof())
     {
         std::string line;
-        std::getline(data, line);
-//        std::cout << line << std::endl;
+        std::getline(ifdata, line);
+    //    std::cout << line << std::endl;
 
         // std::cout << "line: " << line << std::endl;
-        float d = std::stof(line);
+        float d=0;
+        if (line == "\n") {
+            std::cout << "Meet final \n" << std::endl;
+            break;
+        } else {
+            d = std::stof(line);
+        }
         // std::cout << "d: " << d << std::endl;
 
 
@@ -28,7 +32,7 @@ void load(hls::stream<T> &s, int load_num, std::string dname)
 
         s.write(T(d));
         loaded_num = loaded_num + 1;
-        if(data.eof()) 
+        if(loaded_num == load_num) 
             break;
     }
 
@@ -38,65 +42,94 @@ void load(hls::stream<T> &s, int load_num, std::string dname)
 
 int main()
 {
-    hls::stream<abc_t> as("as"), bs("bs"), cs("cs");
-    hls::stream<dkl_t>  ds("ds"), ks("ks"), ls("ls");
-    hls::stream<rgb_t> ref("ref");
-    // Read input and ref GT
-    load(as, 4*4, "dump/a0.txt");
-    load(bs, 4*4, "dump/b0.txt");
-    load(cs, 4*4, "dump/c0.txt");
-    load(ds, 4*4, "dump/d0.txt");
-    load(ks, 4*4, "dump/k0.txt");
-    load(ls, 4*4, "dump/l0.txt");
-    load(ref, 4*4*3, "dump/ref0.txt");
-
-    // Call Hardware
-    hls::stream<agg_inputs> is("is");
-    hls::stream<agg_outputs> os("os");
-
-    //Construct input
-    for(int i = 0; i < 1; i++)
-    {
-        agg_inputs in;
-        for(int j = 0; j < 16; j++)
-        {
-            in.as[j] = as.read();
-            // std::cout << "in.as[j]: " << in.as[j] << std::endl;
-            in.bs[j] = bs.read();
-            in.cs[j] = cs.read();
-            in.ds[j] = ds.read();
-            in.ks[j] = ks.read();
-            in.ls[j] = ls.read();
-        }
-        is.write(in);
-    } // end
-
-
-    tile_color_optimizer_func(os, is);
-
-
-    // Compare output
-    float err = 1000;
-    agg_outputs _os;
+    int image_tiles_num = 129600;
+    int tile_num_one_time = 100;
+    std::ifstream ifa, ifb, ifc, ifd, ifk, ifl, ifref;
+    ifa.open("dump/a0.txt");
+    ifb.open("dump/b0.txt");
+    ifc.open("dump/c0.txt");
+    ifd.open("dump/d0.txt");
+    ifk.open("dump/k0.txt");
+    ifl.open("dump/l0.txt");
+    ifref.open("dump/ref0.txt");
 
     float acc_err = 0;
     int count = 0;
-    while(!os.empty())
-    {
-        _os = os.read();
-        for(int i = 0; i < 16; i++)
+    float max_err = 0;
+
+    for (int ti = 0; ti < image_tiles_num; ti+=tile_num_one_time) {
+        std::cout << "progress: " << float(ti) / float(image_tiles_num) << std::endl;
+        std::cout << "current max_err: " << float(max_err) << std::endl;
+        std::cout << "current avg_err: " << acc_err / float(count) << std::endl;
+
+        hls::stream<abc_t> as("as"), bs("bs"), cs("cs");
+        hls::stream<dkl_t>  ds("ds"), ks("ks"), ls("ls");
+        hls::stream<rgb_t> ref("ref");
+        load(as, tile_num_one_time*4*4, ifa);
+        load(bs, tile_num_one_time*4*4, ifb);
+        load(cs, tile_num_one_time*4*4, ifc);
+        load(ds, tile_num_one_time*4*4, ifd);
+        load(ks, tile_num_one_time*4*4, ifk);
+        load(ls, tile_num_one_time*4*4, ifl);
+        load(ref, tile_num_one_time*4*4*3, ifref);
+
+        // Call Hardware
+        hls::stream<agg_inputs> is("is");
+        hls::stream<agg_outputs> os("os");
+
+        //Construct input
+        for(int i = 0; i < tile_num_one_time; i++)
         {
-            // std::cout << "rgb: " << _os.rgb[i][0] << " " << _os.rgb[i][1] << " " << _os.rgb[i][2] << std::endl;
-            // std::cout << "ref.read(): " << ref.read()  << " " << ref.read() << " " << ref.read() << std::endl;
-            // assert( std::fabs( float(_os.rgb[i][0] - ref.read()) < err)   ); //r
-            // assert( std::fabs( float(_os.rgb[i][1] - ref.read()) < err)   ); //g
-            // assert( std::fabs( float(_os.rgb[i][2] - ref.read()) < err)   ); //b
-            acc_err += std::fabs( float(_os.rgb[i][0] - ref.read()) ); //r
-            acc_err += std::fabs( float(_os.rgb[i][1] - ref.read()) ); //g
-            acc_err += std::fabs( float(_os.rgb[i][2] - ref.read()) ); //b
-            count += 3;
+            agg_inputs in;
+            for(int j = 0; j < 16; j++)
+            {
+                in.as[j] = as.read();
+                // std::cout << "in.as[j]: " << in.as[j] << std::endl;
+                in.bs[j] = bs.read();
+                in.cs[j] = cs.read();
+                in.ds[j] = ds.read();
+                in.ks[j] = ks.read();
+                in.ls[j] = ls.read();
+            }
+            is.write(in);
+        } // end
+
+
+        // Call the top function
+        for(int i = 0; i < tile_num_one_time; i++)
+        {
+            tile_color_optimizer_func(os, is);
+        }
+
+        // std::cout << "os.size(): " << os.size() << std::endl;
+        // std::cout << "ref.size(): " << ref.size() << std::endl;
+
+
+        // Compare output
+        for (int i = 0; i < tile_num_one_time; i++)
+        {
+            agg_outputs _os;
+            _os = os.read();
+            for(int i2 = 0; i2 < 16; i2++)
+            {
+                for (int j = 0; j < 3; j++) { //r,g,b]
+                    rgb_t ref_read = ref.read();
+                    float err = std::fabs( float(_os.rgb[i2][j] - ref_read) ); 
+                    // std::cout << "_os.rgb[i2][j]: " << _os.rgb[i2][j] << std::endl;
+                    // std::cout << "ref.read(): " << ref_read << std::endl;
+                    // std::cout << "err: " << err << std::endl;
+                    if (err > max_err) {
+                        max_err = err;
+                    }
+                    acc_err += err;
+                    count += 1;
+                }
+            }
         }
     }
-    std::cout << "avg_err: " << acc_err / float(count) << std::endl;
+
+
+
+    std::cout << "final avg_err: " << acc_err / float(count) << std::endl;
 
 }

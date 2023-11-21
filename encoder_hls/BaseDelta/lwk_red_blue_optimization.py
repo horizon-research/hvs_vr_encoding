@@ -140,7 +140,7 @@ class Tile_color_optimizer_hw_part:
         t_plane = np.array([[(plane - rgb_centers[:, self.opt_channel]) / self.min_vec_rgb[0, self.opt_channel]]]).T
         plane_centers = center_line(t_plane)
 
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         return plane_centers
 
 
@@ -153,12 +153,21 @@ class Tile_color_optimizer:
         self.dump_io = dump_io
         self.dump_dir = dump_dir
         self.dump_id = 0
+
+        self.max_dump_id = 100
     def dump_nums(self, nums, name):
-        with open(self.dump_dir + name + str(self.dump_id) + ".txt", "w") as f:
-            for i in range(len(nums)):
-                f.write(str(nums[i]))
-                if i != len(nums) - 1:
+        if self.dump_id == 0:
+            with open(self.dump_dir + name + str(0) + ".txt", "w") as f:
+                for i in range(len(nums)):
+                    f.write(str(nums[i]))
                     f.write("\n")
+            self.dump_id += 1
+        else:
+            with open(self.dump_dir + name + str(0) + ".txt", "a") as f:
+                for i in range(len(nums)):
+                    f.write(str(nums[i]))
+                    f.write("\n")
+
     def optimize_tile(self, tile, ecc_tile):
     #   takes a 4x4 pixel tile from an image and optimizes its colors 
     # along the blue or red direction
@@ -170,7 +179,7 @@ class Tile_color_optimizer:
         dkl_centers, centers_abc = self.generate_ellipsoids(tile, ecc_tile)
 
         
-        if self.dump_io:
+        if self.dump_io and self.dump_id < self.max_dump_id:
             # import ipdb; ipdb.set_trace()
             self.dump_nums(dkl_centers[:, 0].reshape(-1), "d")
             self.dump_nums(dkl_centers[:, 1].reshape(-1), "k")
@@ -182,9 +191,9 @@ class Tile_color_optimizer:
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
 
-        if self.dump_io:
+        if self.dump_io and self.dump_id < self.max_dump_id:
             self.dump_nums(blue_opt_points.reshape(-1), "ref")
-            self.dump_id += 1
+            # self.dump_id += 1
 
         # import ipdb; ipdb.set_trace()
         blue_srgb_pts = (RGB2sRGB(blue_opt_points)*255).round().astype("uint8")
@@ -281,7 +290,7 @@ if __name__ == "__main__":
 
     if not os.path.exists("dump/"):
         os.makedirs("dump/")
-    image_color_optimizer = Image_color_optimizer(dump_io = False, dump_dir = "dump/")
+    image_color_optimizer = Image_color_optimizer(dump_io = True, dump_dir = "dump/")
 
     opt_img = image_color_optimizer.color_conversion(img)
     end = timer()
