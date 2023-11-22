@@ -42,8 +42,8 @@ void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 
 int main()
 {
-    int image_tiles_num = 129600;
-    int tile_num_one_time = 100;
+    int image_tiles_num = 1;
+    int tile_num_one_time = 1;
     std::ifstream ifa, ifb, ifc, ifd, ifk, ifl, ifref;
     ifa.open("dump/a0.txt");
     ifb.open("dump/b0.txt");
@@ -75,7 +75,7 @@ int main()
 
         // Call Hardware
         hls::stream<agg_inputs> is("is");
-        hls::stream<agg_outputs> os("os");
+        hls::stream<agg_outputs_srgb> os("os");
 
         //Construct input
         for(int i = 0; i < tile_num_one_time; i++)
@@ -108,13 +108,27 @@ int main()
         // Compare output
         for (int i = 0; i < tile_num_one_time; i++)
         {
-            agg_outputs _os;
+            agg_outputs_srgb _os;
             _os = os.read();
             for(int i2 = 0; i2 < 16; i2++)
             {
                 for (int j = 0; j < 3; j++) { //r,g,b]
                     rgb_t ref_read = ref.read();
-                    float err = std::fabs( float(_os.rgb[i2][j] - ref_read) ); 
+                    float ref_read_f = float(ref_read);
+                    if (ref_read_f < 0.0031308) {
+                        ref_read_f = ref_read_f * 12.92 * 255;
+                    } 
+                    else {
+                        ref_read_f = (1.055 * std::pow(ref_read_f, 1.0/2.4) - 0.055)*255;
+                    }
+                    ap_uint<8> ref_read_uint8 = ap_uint<8>(ref_read_f);
+
+                    // std::cout << "ref.read(): " << float(ref_read) << std::endl;
+                    // std::cout << "ref_read_f: " << ref_read_f << std::endl;
+                    // std::cout << "ref_read_uint8: " << ref_read_uint8 << std::endl;
+                    // std::cout << "_os.rgb[i2][j]: " << _os.rgb[i2][j] << std::endl;
+
+                    float err = std::fabs( float(_os.rgb[i2][j] - ref_read_uint8) ); 
                     // std::cout << "_os.rgb[i2][j]: " << _os.rgb[i2][j] << std::endl;
                     // std::cout << "ref.read(): " << ref_read << std::endl;
                     // std::cout << "err: " << err << std::endl;

@@ -55,6 +55,8 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
+
+        import ipdb; ipdb.set_trace()
         # import ipdb; ipdb.set_trace()
 
         # import ipdb; ipdb.set_trace()
@@ -290,7 +292,7 @@ if __name__ == "__main__":
 
     if not os.path.exists("dump/"):
         os.makedirs("dump/")
-    image_color_optimizer = Image_color_optimizer(dump_io = True, dump_dir = "dump/")
+    image_color_optimizer = Image_color_optimizer(dump_io = False, dump_dir = "dump/")
 
     opt_img = image_color_optimizer.color_conversion(img)
     end = timer()
