@@ -2,11 +2,6 @@
 #include <ap_int.h>
 #include <ap_fixed.h>
 #include <hls_math.h>
-// #include "hls_streamofblocks.h"
-// #define TB
-#define TB_SMALL_BLOCKS_NUM 16
-#define TB_BIG_BLOCKS_NUM 1
-
 typedef ap_ufixed<16, 0> abc_t;
 typedef ap_ufixed<16, 0, AP_RND, AP_SAT> rgb_t; // prevent SAT in DKL to RGB
 typedef ap_ufixed<29, 14> inv_square_t; // 14 for 1e4 int out, 
@@ -94,6 +89,7 @@ namespace vr_prototype
 			};
 
 		void operator()(hls::stream<rgb_t_array> &opt_points_stream, hls::stream<agg_inputs> &din) {
+			// Partitioning const arrays inside the class
 			#pragma HLS ARRAY_PARTITION variable=max_vec_rgb dim=0 complete
 			#pragma HLS ARRAY_PARTITION variable=min_vec_rgb dim=0 complete
 			#pragma HLS ARRAY_PARTITION variable=max_vec_dkl dim=0 complete
@@ -101,174 +97,96 @@ namespace vr_prototype
 			#pragma HLS ARRAY_PARTITION variable=DKL2RGB dim=0 complete
 			#pragma HLS DATAFLOW disable_start_propagation
 
-
-
-			 
-
 			// Stage 0
 
 			hls::stream<agg_inputs> din_stream1, din_stream2;
-			duplicate_stream<agg_inputs, TB_BIG_BLOCKS_NUM>(din_stream1, din_stream2, din);
+			duplicate_stream<agg_inputs, 1>(din_stream1, din_stream2, din);
 
 			// Stage 1
 
 			// Read dkl from input stream and comress it to 3 * ele_size width
 			hls::stream<dkl_t_array> dkl_stream;
-			read_dkl_loop<TB_SMALL_BLOCKS_NUM>(dkl_stream, din_stream1);
+			read_dkl_loop(dkl_stream, din_stream1);
 
 			// Find inv_square of a, b, c, and compress it to 3 * ele_size width
 			hls::stream<inv_square_t_array> inv_square_abc_stream;
-			inv_square_abc_loop<TB_SMALL_BLOCKS_NUM>(inv_square_abc_stream, din_stream2);
+			inv_square_abc_loop(inv_square_abc_stream, din_stream2);
 
 			// Stage 2
 
 			hls::stream<dkl_t_array> dkl_stream1, dkl_stream2;
-			duplicate_stream<dkl_t_array, TB_SMALL_BLOCKS_NUM>(dkl_stream1, dkl_stream2, dkl_stream);
+			duplicate_stream<dkl_t_array, 16>(dkl_stream1, dkl_stream2, dkl_stream);
 
 			// Stage 3
 
 			hls::stream<rgb_t_array> rgb_stream;
-			dkl2rgb_loop<TB_SMALL_BLOCKS_NUM>(rgb_stream, dkl_stream1);
+			dkl2rgb_loop(rgb_stream, dkl_stream1);
 
 			// Stage 4
+
 			#pragma HLS STREAM variable=dkl_stream2 depth=16
+			#pragma HLS STREAM variable=inv_square_abc_stream depth=16
 			adjust_tile(opt_points_stream, rgb_stream, dkl_stream2, inv_square_abc_stream);
 
 			// Stage 5
 		}
 
 
-		template<typename T, int TB_TIMES>
+		template<typename T, int TIMES>
 		void duplicate_stream(hls::stream<T> &duplicated_stream1, hls::stream<T> &duplicated_stream2, hls::stream<T> &original_stream) {
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true) 
-			#endif
+			for(int i = 0; i < TIMES; i++)
 			{
-				 #pragma HLS PIPELINE II=1   rewind
-				 T data;
-				 if (original_stream.read_nb(data)) {
-					 duplicated_stream1.write(data);
-					 duplicated_stream2.write(data);
-				 }
+				#pragma HLS PIPELINE II=1 rewind
+				T data = original_stream.read();
+				duplicated_stream1.write(data);
+				duplicated_stream2.write(data);
 			}
 		}
 
-		template<int TB_TIMES>
 		void read_dkl_loop(hls::stream<dkl_t_array> &dkl_stream, hls::stream<agg_inputs> &din_stream) {
-			ap_uint<4> count = 0;
 			agg_inputs din;
-			#pragma HLS ARRAY_PARTITION variable=din.as dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=din.bs dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=din.cs dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=din.ds dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=din.ks dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=din.ls dim=0 complete
-			bool in_ready = false;
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true) 
-			#endif
-			{
-				#pragma HLS PIPELINE II=1   rewind
-
-				if (in_ready == false){
-					in_ready = din_stream.read_nb(din);
+			for (int i = 0; i < 16; i++) {
+				#pragma HLS PIPELINE II=1 rewind
+				if (i == 0){
+					din = din_stream.read();
 				}
-
-				if (in_ready){
-					dkl_t_array dkl_t_array_i;
-					#pragma HLS ARRAY_PARTITION variable=dkl_t_array_i.data dim=0 complete
-					dkl_t_array_i.data[0] = din.ds[count];
-					dkl_t_array_i.data[1] = din.ks[count];
-					dkl_t_array_i.data[2] = din.ls[count];
-					dkl_stream.write(dkl_t_array_i);
-					if (count == 15) {
-						count = 0;
-						in_ready = false;
-					}
-					else {
-						count++;
-					}
-				}
+				dkl_t_array dkl_t_array_i;
+				#pragma HLS ARRAY_PARTITION variable=dkl_t_array_i.data dim=0 complete
+				dkl_t_array_i.data[0] = din.ds[i];
+				dkl_t_array_i.data[1] = din.ks[i];
+				dkl_t_array_i.data[2] = din.ls[i];
+				dkl_stream.write(dkl_t_array_i);
 			}
 		}
 
-
-
-		template<int TB_TIMES>
-		void inv_square_abc_loop( hls::stream<inv_square_t_array> &inv_square_abc_stream, hls::stream<agg_inputs> &in_stream){
-			ap_uint<4> count = 0;
-			agg_inputs in;
-			inv_square_t_array inv_square_abcs_i;
-			#pragma HLS ARRAY_PARTITION variable=in.as dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=in.bs dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=in.cs dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=in.ds dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=in.ks dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=in.ls dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=inv_square_abcs_i.data dim=0 complete
-			bool in_ready = false;
-			bool ready = false;
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true) 
-			#endif
-			{
-				#pragma HLS PIPELINE II=1   rewind
-				if (in_ready == false){
-					in_ready = in_stream.read_nb(in);
+		void inv_square_abc_loop( hls::stream<inv_square_t_array> &inv_square_abc_stream, hls::stream<agg_inputs> &din_stream){
+			agg_inputs din;
+			for (int i = 0; i < 16; i++) {
+				#pragma HLS PIPELINE II=1 rewind
+				if (i == 0){
+					din = din_stream.read();
 				}
-				ready = in_ready;
-
-				if (ready) {
-					inv_square(inv_square_abcs_i.data, in.as[count], in.bs[count], in.cs[count]);
-
-					if (count == 15) {
-						count = 0;
-						in_ready = false;
-					}
-					else {
-						count++;
-					}
-
-					inv_square_abc_stream.write(inv_square_abcs_i);
-				}
-				else {
-					// pass
-				}
+				inv_square_t_array inv_square_abcs_i;
+				#pragma HLS ARRAY_PARTITION variable=inv_square_abcs_i.data dim=0 complete
+				inv_square(inv_square_abcs_i.data, din.as[i], din.bs[i], din.cs[i]);
+				inv_square_abc_stream.write(inv_square_abcs_i);
 			}
 		}
 
-		template<int TB_TIMES>
 		void dkl2rgb_loop(hls::stream<rgb_t_array> &rgb_stream, hls::stream<dkl_t_array> &dkl_stream) {
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true) 
-			#endif
-			{
-				#pragma HLS PIPELINE II=1   rewind
-				dkl_t_array dkl_centers_i;
-				#pragma HLS ARRAY_PARTITION variable=dkl_centers_i.data dim=0 complete
-				if (dkl_stream.read_nb(dkl_centers_i)){
-					rgb_t_array rgb_centers_i;
-					#pragma HLS ARRAY_PARTITION variable=rgb_centers_i.data dim=0 complete
-					mm_3x3to3(rgb_centers_i.data, DKL2RGB, dkl_centers_i.data);
-					rgb_stream.write(rgb_centers_i);
-				}
-				else {
-					// pass
-				}
+			for (int i = 0; i < 16; i++) {
+				#pragma HLS PIPELINE II=1 rewind
+				dkl_t_array dkl_centers_i = dkl_stream.read();
+				rgb_t_array rgb_centers_i;
+				#pragma HLS ARRAY_PARTITION variable=rgb_centers_i.data dim=0 complete
+				mm_3x3to3(rgb_centers_i.data, DKL2RGB, dkl_centers_i.data);
+				rgb_stream.write(rgb_centers_i);
 			}
 		}
 
 		template<typename T1, typename T2, typename T3>
 		void mm_3x3to3 (  T1 m3_out[3], const T2 m33[3][3], const T3 m3_in[3]) {
-			#pragma HLS PIPELINE  II=1 
+			#pragma HLS PIPELINE II=1 
 			for (int i = 0; i < 3; i++) {
 				#pragma HLS UNROLL
 				m3_out[i] = m33[i][0] * m3_in[0] + m33[i][1] * m3_in[1] + m33[i][2] * m3_in[2];
@@ -277,7 +195,7 @@ namespace vr_prototype
 
 		template<typename T1, typename T2>
 		void inv_square(T1 inv_square_abcs_i[3], T2 &a, T2 &b, T2 &c){
-			 #pragma HLS PIPELINE   II=1 
+			 #pragma HLS PIPELINE II=1 
 			inv_square_abcs_i[0] = hls::recip(inv_square_t(a * a));
 			inv_square_abcs_i[1] = hls::recip(inv_square_t(b * b));
 			inv_square_abcs_i[2] = hls::recip(inv_square_t(c * c));
@@ -285,7 +203,7 @@ namespace vr_prototype
 
 		template<typename T>
 		void gate( T &out, T max, T min) {
-			 #pragma HLS PIPELINE   II=1 
+			 #pragma HLS PIPELINE II=1 
 			if (out > max) {
 				out = max;
 			}
@@ -302,95 +220,55 @@ namespace vr_prototype
 			// stage 0 
 
 			hls::stream<rgb_t_array> rgb_stream1, rgb_stream2;
-			duplicate_stream<rgb_t_array, TB_SMALL_BLOCKS_NUM>(rgb_stream1, rgb_stream2, rgb_stream);
+			duplicate_stream<rgb_t_array, 16>(rgb_stream1, rgb_stream2, rgb_stream);
 
 			// stage 1
 
 			hls::stream<rgb_not_fixed_t_array> min_p_stream, max_p_stream;
-			min_p_max_p_loop<TB_SMALL_BLOCKS_NUM>(max_p_stream, min_p_stream, rgb_stream1, dkl_stream, inv_square_abc_stream);
+			min_p_max_p_loop(max_p_stream, min_p_stream, rgb_stream1, dkl_stream, inv_square_abc_stream);
 
-			// print max_p_stream, min_p_stream for debug
-			// for (int i = 0; i < 16; i++) {
-			// 	rgb_not_fixed_t_array max_p_i = max_p_stream.read();
-			// 	rgb_not_fixed_t_array min_p_i = min_p_stream.read();
-			// 	std::cout << "max_p_i.data" << i << ":" << max_p_i.data[0] << " " <<  max_p_i.data[1] << " " <<  max_p_i.data[2] << std::endl;
-			// 	std::cout << "min_p_i.data" << i << ":" << min_p_i.data[0] << " " <<  min_p_i.data[1] << " " <<  min_p_i.data[2] << std::endl;
-			// 	//write backsss
-			// }
-			
 			// stage 2
 
 			hls::stream<rgb_not_fixed_t_array> min_p_stream1, min_p_stream2, max_p_stream1, max_p_stream2;
-			duplicate_stream<rgb_not_fixed_t_array, TB_SMALL_BLOCKS_NUM>(min_p_stream1, min_p_stream2, min_p_stream);
-			duplicate_stream<rgb_not_fixed_t_array, TB_SMALL_BLOCKS_NUM>(max_p_stream1, max_p_stream2, max_p_stream);
+			duplicate_stream<rgb_not_fixed_t_array, 16>(min_p_stream1, min_p_stream2, min_p_stream);
+			duplicate_stream<rgb_not_fixed_t_array, 16>(max_p_stream1, max_p_stream2, max_p_stream);
 
 			// stage 3
+
 			hls::stream<rgb_not_fixed_t> min_max_stream, max_min_stream;
-			loopMax_16_3<rgb_not_fixed_t, rgb_not_fixed_t_array, TB_SMALL_BLOCKS_NUM>(max_min_stream, min_p_stream1);
-			loopMin_16_3<rgb_not_fixed_t, rgb_not_fixed_t_array, TB_SMALL_BLOCKS_NUM>(min_max_stream, max_p_stream1);
+			loopMax_16_3(max_min_stream, min_p_stream1);
+			loopMin_16_3(min_max_stream, max_p_stream1);
 
 			// stage 4
-			#pragma HLS STREAM variable=min_p_stream2 depth=100
-			#pragma HLS STREAM variable=max_p_stream2 depth=100
-			#pragma HLS STREAM variable=rgb_stream2 depth=200
-			converge_plane_loop<TB_SMALL_BLOCKS_NUM>(opt_points_stream, max_min_stream, min_max_stream, min_p_stream2, max_p_stream2, rgb_stream2);
+			
+			#pragma HLS STREAM variable=min_p_stream2 depth=128
+			#pragma HLS STREAM variable=max_p_stream2 depth=128
+			#pragma HLS STREAM variable=rgb_stream2 depth=256
+			converge_plane_loop(opt_points_stream, max_min_stream, min_max_stream, min_p_stream2, max_p_stream2, rgb_stream2);
 
 			// stage 5
 		}
 
-
-		template<int TB_TIMES>
 		void min_p_max_p_loop( hls::stream<rgb_not_fixed_t_array> &max_p_stream,  
 								hls::stream<rgb_not_fixed_t_array> &min_p_stream,
 								hls::stream<rgb_t_array> &rgb_stream,
 								hls::stream<dkl_t_array> &dkl_stream,
 								hls::stream<inv_square_t_array> &inv_square_abc_stream)
 		{
-
-			rgb_t_array rgb_centers_i;
-			dkl_t_array dkl_centers_i;
-			inv_square_t_array inv_square_abcs_i;
-			#pragma HLS ARRAY_PARTITION variable=rgb_centers_i.data dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=dkl_centers_i.data dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=inv_square_abcs_i.data dim=0 complete
-			bool rgb_centers_ready = false;
-			bool dkl_centers_ready = false;
-			bool inv_square_abc_ready = false;
-			bool ready;
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true) 
-			#endif
-			{
-				#pragma HLS PIPELINE II=1   rewind
-				if (rgb_centers_ready == false){
-					rgb_centers_ready = rgb_stream.read_nb(rgb_centers_i);
-				}
-				if (dkl_centers_ready == false){
-					dkl_centers_ready = dkl_stream.read_nb(dkl_centers_i);
-				}
-				if (inv_square_abc_ready == false){
-					inv_square_abc_ready = inv_square_abc_stream.read_nb(inv_square_abcs_i);
-				}
-				ready = rgb_centers_ready && dkl_centers_ready && inv_square_abc_ready;
-				if (ready) {
-					rgb_centers_ready = false;
-					dkl_centers_ready = false;
-					inv_square_abc_ready = false;
-					rgb_not_fixed_t_array min_p_i, max_p_i;
-					#pragma HLS ARRAY_PARTITION variable=min_p_i.data dim=0 complete
-					#pragma HLS ARRAY_PARTITION variable=max_p_i.data dim=0 complete
-					line_ell_inter(min_p_i.data, dkl_centers_i.data, min_vec_dkl, inv_square_abcs_i.data);
-					line_ell_inter(max_p_i.data, dkl_centers_i.data, max_vec_dkl, inv_square_abcs_i.data);
-					fix_bounds(max_p_i.data, rgb_centers_i.data);
-					fix_bounds(min_p_i.data, rgb_centers_i.data);
-					max_p_stream.write(max_p_i);
-					min_p_stream.write(min_p_i);
-				}
-				else {
-					// pass
-				}
+			for (int i = 0; i < 16; i++) {
+				#pragma HLS PIPELINE II=1 rewind
+				rgb_t_array rgb_centers_i = rgb_stream.read();
+				dkl_t_array dkl_centers_i = dkl_stream.read();
+				inv_square_t_array inv_square_abcs_i = inv_square_abc_stream.read();
+				rgb_not_fixed_t_array min_p_i, max_p_i;
+				#pragma HLS ARRAY_PARTITION variable=min_p_i.data dim=0 complete
+				#pragma HLS ARRAY_PARTITION variable=max_p_i.data dim=0 complete
+				line_ell_inter(min_p_i.data, dkl_centers_i.data, min_vec_dkl, inv_square_abcs_i.data);
+				line_ell_inter(max_p_i.data, dkl_centers_i.data, max_vec_dkl, inv_square_abcs_i.data);
+				fix_bounds(max_p_i.data, rgb_centers_i.data);
+				fix_bounds(min_p_i.data, rgb_centers_i.data);
+				max_p_stream.write(max_p_i);
+				min_p_stream.write(min_p_i);
 			}
 		}
 
@@ -415,7 +293,7 @@ namespace vr_prototype
 		}
 
 		void fix_bounds(rgb_not_fixed_t in_point[3], const rgb_t rgb_center[3]){
-			 #pragma HLS PIPELINE II=1    
+			#pragma HLS PIPELINE II=1    
 			correct_bounds<0, color1, true>(in_point, rgb_center);
 			correct_bounds<0, color2, true>(in_point, rgb_center);
 			correct_bounds<1, color1, false>(in_point, rgb_center);
@@ -446,88 +324,29 @@ namespace vr_prototype
 			}
 		}
 
-
-		template<int TB_TIMES>
 		void converge_plane_loop( hls::stream<rgb_t_array> &opt_points_stream, hls::stream<rgb_not_fixed_t> &max_min_stream, 
 											hls::stream<rgb_not_fixed_t> &min_max_stream, 
 											hls::stream<rgb_not_fixed_t_array> &min_p_stream, 
 											hls::stream<rgb_not_fixed_t_array> &max_p_stream,  
 											hls::stream<rgb_t_array> &rgb_centers_stream)
 		{
-			 
-			ap_uint<4> count = 0;
-			rgb_not_fixed_t max_min ;
-			rgb_not_fixed_t min_max;
-			rgb_not_fixed_t col_plane;
-			rgb_not_fixed_t_array min_p_i;
-			rgb_not_fixed_t_array max_p_i;
-			rgb_t_array rgb_centers_i;
-			#pragma HLS ARRAY_PARTITION variable=min_p_i.data dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=max_p_i.data dim=0 complete
-			#pragma HLS ARRAY_PARTITION variable=rgb_centers_i.data dim=0 complete
-			bool max_min_ready = false;
-			bool min_max_ready = false;
-			bool min_p_ready = false;
-			bool max_p_ready = false;
-			bool rgb_centers_ready = false;
-			bool ready;
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true) 
-			#endif
-			{
-				// ready signal collection
-				#pragma HLS PIPELINE II=1   rewind
-				if (min_p_ready == false){
-					min_p_ready = min_p_stream.read_nb(min_p_i);
+			rgb_not_fixed_t max_min, min_max;
+			for (int i = 0; i < 16; i++) {
+				#pragma HLS PIPELINE II=1 rewind
+				rgb_not_fixed_t_array min_p_i = min_p_stream.read();
+				rgb_not_fixed_t_array max_p_i = max_p_stream.read();
+				rgb_t_array rgb_centers_i = rgb_centers_stream.read();
+				if (i==0) {
+					max_min = max_min_stream.read();
+					min_max = min_max_stream.read();
 				}
-				if (max_p_ready == false){
-					max_p_ready = max_p_stream.read_nb(max_p_i);
-				}
-				if (rgb_centers_ready == false){
-					rgb_centers_ready = rgb_centers_stream.read_nb(rgb_centers_i);
-				}
-				if (max_min_ready == false){
-						max_min_ready = max_min_stream.read_nb(max_min);
-				}
-				if (min_max_ready == false){
-					min_max_ready = min_max_stream.read_nb(min_max);
-				}
-				ready = min_p_ready && max_p_ready && rgb_centers_ready && max_min_ready && min_max_ready;
-
-				if(ready){
-					col_plane = (max_min + min_max) / 2;
-					if (col_plane < 0){
-						col_plane = 0;
-					}
-					else if (col_plane > 1) {
-						col_plane = 1;
-					}
-
-					rgb_t_array opt_points_i;
-					#pragma HLS ARRAY_PARTITION variable=opt_points_i.data dim=0 complete
-					converge_plane( opt_points_i.data, col_plane, min_p_i.data, max_p_i.data, rgb_centers_i.data);
-					opt_points_stream.write(opt_points_i);
-
-
-					min_p_ready = false;
-					max_p_ready = false;
-					rgb_centers_ready = false;
-					if (count == 15) {
-						max_min_ready = false;
-						min_max_ready = false;
-						count = 0;
-					}
-					else {
-						count++;
-					}
-				}
-				else {
-					// pass
-				}
+				rgb_not_fixed_t col_plane = (max_min + min_max) / 2;
+				gate(col_plane, rgb_not_fixed_t(1), rgb_not_fixed_t(0));
+				rgb_t_array opt_points_i;
+				#pragma HLS ARRAY_PARTITION variable=opt_points_i.data dim=0 complete
+				converge_plane( opt_points_i.data, col_plane, min_p_i.data, max_p_i.data, rgb_centers_i.data);
+				opt_points_stream.write(opt_points_i);
 			}
-			
 		}
 
 		void converge_plane(rgb_t opt_points_i[3], const rgb_not_fixed_t &col_plane, const rgb_not_fixed_t min_p_i[3], 
@@ -552,70 +371,38 @@ namespace vr_prototype
 			}
 		}
 
-		template<typename T1, typename T2, int TB_TIMES>
+		template<typename T1, typename T2>
 		void loopMax_16_3(hls::stream<T1> &max_stream, hls::stream<T2> &in_stream) {
-			ap_uint<4> count = 0;
 			T1 max;
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true)
-			#endif
-			{
+			for (int i = 0; i < 16; i++) {
 				#pragma HLS PIPELINE II=1   rewind
-				T2 in;
-				#pragma HLS ARRAY_PARTITION variable=in.data dim=0 complete
-				if (in_stream.read_nb(in)) {
-					if(count == 0) {
-						max = in.data[opt_channel];
-					}
-					else {
-						my_max(max, max, in.data[opt_channel]);
-					}
-					if (count == 15) {
-						max_stream.write(max);
-						count = 0;
-					}
-					else {
-						count++;
-					}
+				T2 in = in_stream.read();
+				if (i == 0) {
+					max = in.data[opt_channel];
 				}
 				else {
-					// pass
+					my_max(max, max, in.data[opt_channel]);
+				}
+				if (i == 15) {
+					max_stream.write(max);
 				}
 			}
 		}
 
-		template<typename T1, typename T2, int TB_TIMES>
+		template<typename T1, typename T2>
 		void loopMin_16_3(hls::stream<T1> &min_stream, hls::stream<T2> &in_stream) {
-			ap_uint<4> count = 0;
 			T1 min;
-			#ifndef __SYNTHESIS__
-			for (int ti = 0; ti < TB_TIMES; ti++)
-			#else
-			while (true)
-			#endif
-			{
+			for (int i = 0; i < 16; i++) {
 				#pragma HLS PIPELINE II=1   rewind
-				T2 in;
-				#pragma HLS ARRAY_PARTITION variable=in.data dim=0 complete
-				if (in_stream.read_nb(in)) {
-					if(count == 0) {
-						min = in.data[opt_channel];
-					}
-					else {
-						my_min(min, min, in.data[opt_channel]);
-					}
-					if (count == 15) {
-						min_stream.write(min);
-						count = 0;
-					}
-					else {
-						count++;
-					}
+				T2 in = in_stream.read();
+				if (i == 0) {
+					min = in.data[opt_channel];
 				}
 				else {
-					// pass
+					my_min(min, min, in.data[opt_channel]);
+				}
+				if (i == 15) {
+					min_stream.write(min);
 				}
 			}
 		}

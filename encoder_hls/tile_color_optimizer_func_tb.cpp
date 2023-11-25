@@ -99,7 +99,10 @@ int main()
 
 
         // Call the top function
-        tile_color_optimizer_func(os, is);
+        for (int i = 0; i < tile_num_one_time; i++)
+        {
+            tile_color_optimizer_func(os, is);
+        }
         // std::cout << "os.size(): " << os.size() << std::endl;
         // std::cout << "ref.size(): " << ref.size() << std::endl;
 

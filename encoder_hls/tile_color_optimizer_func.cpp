@@ -4,33 +4,22 @@
 //    LIBRARY_PATH
 
 
-template<int TB_TIMES>
 void rgb2srgb(hls::stream<agg_outputs_srgb> &dout, hls::stream<rgb_t_array> &opt_points_stream)
 {
-	ap_uint<4> count = 0;
-	#ifndef __SYNTHESIS__
-	for(int i = 0; i < TB_TIMES; i++)
-	#else
-	while(true) 
-	#endif
+	agg_outputs_srgb out_srgb;
+	#pragma HLS ARRAY_PARTITION variable=out_srgb.rgb complete dim=0
+	for (int i = 0; i < 16; i++)
 	{
-		#pragma HLS PIPELINE II=1
+		#pragma HLS PIPELINE II=1 rewind
 		rgb_t_array opt_points_i = opt_points_stream.read();
-		agg_outputs_srgb out_srgb;
 		for(int j = 0; j < 3; j++)
 		{
-			#pragma HLS UNROLL
-			#pragma HLS ARRAY_PARTITION variable=RGB2sRGB_LUT dim=0 complete
-			ap_uint<8> idx;
-			idx = opt_points_i.data[j].range(15, 8);
-			out_srgb.rgb[count][j] = RGB2sRGB_LUT[idx];
+			ap_uint<8> idx = opt_points_i.data[j].range(15, 8);
+			out_srgb.rgb[i][j] = RGB2sRGB_LUT[idx];
 		}
-		if (count == 15) {
+		if (i == 15)
+		{
 			dout.write(out_srgb);
-			count = 0;
-		}
-		else {
-			count++;
 		}
 	}
 }
@@ -53,5 +42,5 @@ void tile_color_optimizer_func(
 	
 	#pragma HLS DATAFLOW disable_start_propagation
 	blue_optimizer(opt_points_stream, din);
-	rgb2srgb<TB_SMALL_BLOCKS_NUM>(dout, opt_points_stream);
+	rgb2srgb(dout, opt_points_stream);
 }
