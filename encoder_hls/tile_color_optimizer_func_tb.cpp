@@ -45,8 +45,8 @@ void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 int main()
 {
 
-    int image_tiles_num = 1 ;
-    int tile_num_one_time = 1;
+    int image_tiles_num = 129600 ;
+    int tile_num_one_time = 100;
     std::ifstream ifa, ifb, ifc, ifd, ifk, ifl, ifref;
     ifa.open("dump/a0.txt");
     ifb.open("dump/b0.txt");
@@ -55,6 +55,9 @@ int main()
     ifk.open("dump/k0.txt");
     ifl.open("dump/l0.txt");
     ifref.open("dump/ref0.txt");
+
+    std::ofstream hw_out;
+    hw_out.open("dump/hw_out.txt", std::ios::out | std::ios::trunc);
 
     float acc_err = 0;
     int count = 0;
@@ -117,6 +120,11 @@ int main()
                 for (int j = 0; j < 3; j++) { //r,g,b]
                     rgb_t ref_read = ref.read();
                     float ref_read_f = float(ref_read);
+                    if (ref_read_f < 0) {
+                        ref_read_f = 0;
+                    } else if (ref_read_f > 1) {
+                        ref_read_f = 1;
+                    }
                     if (ref_read_f < 0.0031308) {
                         ref_read_f = ref_read_f * 12.92 * 255;
                     } 
@@ -131,9 +139,16 @@ int main()
                     // std::cout << "_os.rgb[i2][j]: " << _os.rgb[i2][j] << std::endl;
 
                     float err = std::fabs( float(_os.rgb[i2][j] - ref_read_uint8) ); 
-                    // std::cout << "_os.rgb[i2][j]: " << _os.rgb[i2][j] << std::endl;
-                    // std::cout << "ref.read(): " << ref_read << std::endl;
-                    // std::cout << "err: " << err << std::endl;
+
+                    if(hw_out.is_open())
+                    {
+                       hw_out << int(_os.rgb[i2][j]) << " ";
+                    }
+                    else
+                    {
+                       std::cout << "Unable to open file" << std::endl;
+                    }
+
                     if (err > max_err) {
                         max_err = err;
                     }
