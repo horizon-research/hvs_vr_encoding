@@ -1,8 +1,10 @@
-#include "tile_color_optimizer_func.h"
 #include <cmath>    // 对于 fabs
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include "tile_color_optimizer_func.h"
+
 template<typename T>
 void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 {
@@ -42,7 +44,8 @@ void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 
 int main()
 {
-    int image_tiles_num = 1;
+
+    int image_tiles_num = 1 ;
     int tile_num_one_time = 1;
     std::ifstream ifa, ifb, ifc, ifd, ifk, ifl, ifref;
     ifa.open("dump/a0.txt");
@@ -96,11 +99,7 @@ int main()
 
 
         // Call the top function
-        for(int i = 0; i < tile_num_one_time; i++)
-        {
-            tile_color_optimizer_func(os, is);
-        }
-
+        tile_color_optimizer_func(os, is);
         // std::cout << "os.size(): " << os.size() << std::endl;
         // std::cout << "ref.size(): " << ref.size() << std::endl;
 

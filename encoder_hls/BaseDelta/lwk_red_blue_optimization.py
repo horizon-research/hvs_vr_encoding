@@ -56,7 +56,7 @@ class Tile_color_optimizer_hw_part:
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
 
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         # import ipdb; ipdb.set_trace()
 
         # import ipdb; ipdb.set_trace()
@@ -81,7 +81,6 @@ class Tile_color_optimizer_hw_part:
         max_p = self.line_ell_inter(dkl_centers, self.max_vec_dkl)
         # import ipdb; ipdb.set_trace()
         self.fix_bounds(max_p)
-        # import ipdb; ipdb.set_trace()
 
         max_min = max(min_p[:, self.opt_channel]) # maximum of the minimum points
         min_max = min(max_p[:, self.opt_channel]) # minimum of the maximum points
@@ -95,6 +94,8 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
 
         opt_points = np.zeros((dkl_centers.shape))
+
+        import ipdb; ipdb.set_trace()
         # set points with minimum value greater than col_plane to min_p
         # set points with maximum value less than col_plane to max_p
         opt_points[min_p[:, self.opt_channel] > col_plane] = min_p[min_p[:, self.opt_channel] > col_plane]
@@ -146,7 +147,8 @@ class Tile_color_optimizer_hw_part:
         return plane_centers
 
 
-
+abc_dkls = np.zeros((1920*1080//16, 2, 16, 3))
+abc_dkls_id = 0
 class Tile_color_optimizer:
     def __init__(self, color_channel, r_max_vec, b_max_vec, dump_io = False, dump_dir = None):
         # init the hardware
@@ -169,6 +171,7 @@ class Tile_color_optimizer:
                 for i in range(len(nums)):
                     f.write(str(nums[i]))
                     f.write("\n")
+        
 
     def optimize_tile(self, tile, ecc_tile):
     #   takes a 4x4 pixel tile from an image and optimizes its colors 
@@ -220,6 +223,12 @@ class Tile_color_optimizer:
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
         centers_abc[centers_abc <= 1e-2] = 1e-2  ## fix devided by zero error and too much inv_square
+
+        global abc_dkls
+        global abc_dkls_id
+        abc_dkls[abc_dkls_id][0] = centers_abc
+        abc_dkls[abc_dkls_id][1] = dkl_centers
+        abc_dkls_id += 1
 
         return dkl_centers, centers_abc
     
@@ -318,6 +327,9 @@ if __name__ == "__main__":
     compression_improve = optBD_compression - origBD_compression
     txt = "{cr:.2f}%"
     print("compression improvement:", txt.format(cr=compression_improve))
+
+
+    np.save("dump/abc_dkls.npy", abc_dkls)
 
 
 
