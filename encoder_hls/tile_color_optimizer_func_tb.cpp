@@ -3,7 +3,13 @@
 #include <fstream>
 #include <string>
 
+
+// #define FP32
+// #ifdef FP32
 #include "tile_color_optimizer_func.h"
+// #else
+// 	#include "tile_color_optimizer_func_fix.h"
+// #endif
 
 template<typename T>
 void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
@@ -45,8 +51,8 @@ void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 int main()
 {
 
-    int image_tiles_num = 129600 ;
-    int tile_num_one_time = 100;
+    int image_tiles_num = 100;
+    int tile_num_one_time = 1;
     std::ifstream ifa, ifb, ifc, ifd, ifk, ifl, ifref;
     ifa.open("dump/a0.txt");
     ifb.open("dump/b0.txt");
@@ -57,16 +63,24 @@ int main()
     ifref.open("dump/ref0.txt");
 
     std::ofstream hw_out;
-    hw_out.open("dump/hw_out.txt", std::ios::out | std::ios::trunc);
+    #ifdef HW_COSIM
+        hw_out.open("dump/cosim_hw_out.txt", std::ios::out | std::ios::trunc);
+    #else
+        hw_out.open("dump/csim_hw_out.txt", std::ios::out | std::ios::trunc);
+    #endif
 
     float acc_err = 0;
     int count = 0;
     float max_err = 0;
+    int max_ti = 0;  
 
     for (int ti = 0; ti < image_tiles_num; ti+=tile_num_one_time) {
-        std::cout << "progress: " << float(ti) / float(image_tiles_num) << std::endl;
-        std::cout << "current max_err: " << float(max_err) << std::endl;
-        std::cout << "current avg_err: " << acc_err / float(count) << std::endl;
+        if (ti % 100 == 0)
+        {
+            std::cout << "progress: " << float(ti) / float(image_tiles_num) << std::endl;
+            std::cout << "current max_err: " << float(max_err) << std::endl;
+            std::cout << "current avg_err: " << acc_err / float(count) << std::endl;
+        }
 
         hls::stream<abc_t> as("as"), bs("bs"), cs("cs");
         hls::stream<dkl_t>  ds("ds"), ks("ks"), ls("ls");
@@ -97,20 +111,57 @@ int main()
                 in.ks[j] = ks.read();
                 in.ls[j] = ls.read();
             }
+            // print ins every bits
+            // print bits of as
+            // for(int i = 0; i < 16; i++)
+            // {
+            //     std::cout << "as: "<< in.as[i] << " " << in.as[i].range(15, 0) << " ";
+            // }
+            // std::cout << std::endl;
+            // for(int i = 0; i < 16; i++)
+            // {
+            //     std::cout << "bs: " << in.bs[i] << " " << in.bs[i].range(15, 0) << " ";
+            // }
+            // std::cout << std::endl;
+            // for(int i = 0; i < 16; i++)
+            // {
+            //     std::cout << "cs: " << in.cs[i] << " "<< in.cs[i].range(15, 0) << " ";
+            // }
+            // std::cout << std::endl;
+            // for(int i = 0; i < 16; i++)
+            // {
+            //     std::cout << "ds: " << in.ds[i] << " " << in.ds[i].range(15, 0) << " ";
+            // }
+            // std::cout << std::endl;
+            // for(int i = 0; i < 16; i++)
+            // {
+            //     std::cout << "ks: " << in.ks[i] << " "<< in.ks[i].range(15, 0) << " ";
+            // }
+            // std::cout << std::endl;
+            // for(int i = 0; i < 16; i++)
+            // {
+            //     std::cout << "ls: " << in.ls[i] << " "<< in.ls[i].range(15, 0) << " ";
+            // }
+            // std::cout << std::endl;
+
             is.write(in);
         } // end
 
 
         // Call the top function
-        for (int i = 0; i < tile_num_one_time; i++)
+        // if (ti == 363){
+            for (int i = 0; i < tile_num_one_time; i++)
         {
             tile_color_optimizer_func(os, is);
         }
+        // }
+
         // std::cout << "os.size(): " << os.size() << std::endl;
         // std::cout << "ref.size(): " << ref.size() << std::endl;
 
 
         // Compare output
+        // if(ti == 363){
         for (int i = 0; i < tile_num_one_time; i++)
         {
             agg_outputs_srgb _os;
@@ -151,16 +202,20 @@ int main()
 
                     if (err > max_err) {
                         max_err = err;
+                        max_ti = ti;
                     }
                     acc_err += err;
                     count += 1;
                 }
             }
         }
+        // }
     }
 
 
 
     std::cout << "final avg_err: " << acc_err / float(count) << std::endl;
+    std::cout << "final max_err: " << float(max_err) << std::endl;
+    std::cout << "final max_ti: " << max_ti << std::endl;
 
 }

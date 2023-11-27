@@ -16,6 +16,8 @@ import os
 
 from base_delta import base_delta
 
+total_tile_num = 0  
+
 class Tile_color_optimizer_hw_part:
     def __init__(self, color_channel, r_max_vec, b_max_vec):
         self.color_channel = color_channel
@@ -52,15 +54,12 @@ class Tile_color_optimizer_hw_part:
         self.min_vec_dkl = (RGB2DKL @ (self.min_vec_rgb).T).T * 100
         self.max_vec_dkl = (RGB2DKL @ (self.max_vec_rgb).T).T * 100
 
-        # import ipdb; ipdb.set_trace()
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
 
-        # import ipdb; ipdb.set_trace()
-        # import ipdb; ipdb.set_trace()
-
-        # import ipdb; ipdb.set_trace()
-
+        global total_tile_num
+        # if(total_tile_num==363):
+        #     import ipdb; ipdb.set_trace()
         # import ipdb; ipdb.set_trace()
 
         # ddelete skip of compression when pixels are all same for efficient hardware 
@@ -82,6 +81,11 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
         self.fix_bounds(max_p)
 
+        global total_tile_num
+        # if(total_tile_num==363):
+        #     import ipdb; ipdb.set_trace()
+
+
         max_min = max(min_p[:, self.opt_channel]) # maximum of the minimum points
         min_max = min(max_p[:, self.opt_channel]) # minimum of the maximum points
 
@@ -95,7 +99,7 @@ class Tile_color_optimizer_hw_part:
 
         opt_points = np.zeros((dkl_centers.shape))
 
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         # set points with minimum value greater than col_plane to min_p
         # set points with maximum value less than col_plane to max_p
         opt_points[min_p[:, self.opt_channel] > col_plane] = min_p[min_p[:, self.opt_channel] > col_plane]
@@ -104,6 +108,9 @@ class Tile_color_optimizer_hw_part:
         # find points that their ellipsode intersect the plane
         intersect_idx = np.where((min_p[:, self.opt_channel] < col_plane) & (max_p[:, self.opt_channel] > col_plane))[0]
         opt_points[intersect_idx] = self.converge_on_plane(self.rgb_centers[intersect_idx], col_plane)
+
+        # if(total_tile_num==363):
+        #     import ipdb; ipdb.set_trace()
 
         return opt_points
     
@@ -165,7 +172,6 @@ class Tile_color_optimizer:
                 for i in range(len(nums)):
                     f.write(str(nums[i]))
                     f.write("\n")
-            self.dump_id += 1
         else:
             with open(self.dump_dir + name + str(0) + ".txt", "a") as f:
                 for i in range(len(nums)):
@@ -184,7 +190,7 @@ class Tile_color_optimizer:
         dkl_centers, centers_abc = self.generate_ellipsoids(tile, ecc_tile)
 
         
-        if self.dump_io and self.dump_id < self.max_dump_id:
+        if self.dump_io:
             # import ipdb; ipdb.set_trace()
             self.dump_nums(dkl_centers[:, 0].reshape(-1), "d")
             self.dump_nums(dkl_centers[:, 1].reshape(-1), "k")
@@ -196,12 +202,16 @@ class Tile_color_optimizer:
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
 
-        if self.dump_io and self.dump_id < self.max_dump_id:
+        if self.dump_io:
             self.dump_nums(blue_opt_points.reshape(-1), "ref")
-            # self.dump_id += 1
+            self.dump_id += 1
 
         # import ipdb; ipdb.set_trace()
         blue_srgb_pts = (RGB2sRGB(blue_opt_points)*255).round().astype("uint8")
+        
+        # if(total_tile_num==363):
+        #     import ipdb; ipdb.set_trace()
+
         red_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["R"], dkl_centers, centers_abc)
         red_srgb_pts = (RGB2sRGB(red_opt_points)*255).round().astype("uint8")
         
@@ -222,7 +232,9 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL @ rgb_centers.T).T
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
-        centers_abc[centers_abc <= 1e-2] = 1e-2  ## fix devided by zero error and too much inv_square
+        centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too much inv_square
+        centers_abc[:, 2] = 1e-3
+
 
         global abc_dkls
         global abc_dkls_id
@@ -284,10 +296,13 @@ class Image_color_optimizer:
                 if i % 100 == 0 and j == 0:
                     print("progress: " + "{:.2f}".format(i/height*100) + "%")
 
+
                 tile = npimage[i:i+4, j:j+4]
                 ecc_tile = self.ecc_map[i:i+4,j:j+4]
                 # adjusted output
                 npNewImage[i:i+4, j:j+4] = self.Tile_color_optimizer.optimize_tile(tile, ecc_tile)
+                global total_tile_num
+                total_tile_num += 1
 
         return npNewImage
 
@@ -301,7 +316,7 @@ if __name__ == "__main__":
 
     if not os.path.exists("dump/"):
         os.makedirs("dump/")
-    image_color_optimizer = Image_color_optimizer(dump_io = False, dump_dir = "dump/")
+    image_color_optimizer = Image_color_optimizer(dump_io = True, dump_dir = "dump/")
 
     opt_img = image_color_optimizer.color_conversion(img)
     end = timer()
