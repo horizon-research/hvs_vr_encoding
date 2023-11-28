@@ -2,7 +2,7 @@
 
 It is a fp32 implementation of the color optimizer, only perform the blue channel compression.  
 **Fmax** = 300MHz, **Initial Interval** = 16, **FPS** = 144 images/sec  
-(loopMin, loopMax are fp16 because data dependentcy cause it cannot run at 300MHz  )
+(loopMin, loopMax are fp16 because data dependentcy cause it cannot run at 300MHz@fp32 )
 
 
 ## Files Organization
