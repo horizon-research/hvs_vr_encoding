@@ -57,8 +57,8 @@ class Tile_color_optimizer_hw_part:
         self.rgb_centers = (DKL2RGB @ dkl_centers.T).T
         self.inv_square_abc = 1 / centers_abc**2
 
-        global total_tile_num
-        # if(total_tile_num==363):
+        # global total_tile_num
+        # if(total_tile_num==16751):
         #     import ipdb; ipdb.set_trace()
         # import ipdb; ipdb.set_trace()
 
@@ -102,14 +102,14 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
         # set points with minimum value greater than col_plane to min_p
         # set points with maximum value less than col_plane to max_p
-        opt_points[min_p[:, self.opt_channel] > col_plane] = min_p[min_p[:, self.opt_channel] > col_plane]
-        opt_points[max_p[:, self.opt_channel] < col_plane] = max_p[max_p[:, self.opt_channel] < col_plane]
+        opt_points[min_p[:, self.opt_channel] >= col_plane] = min_p[min_p[:, self.opt_channel] >= col_plane]
+        opt_points[max_p[:, self.opt_channel] <= col_plane] = max_p[max_p[:, self.opt_channel] <= col_plane]
 
         # find points that their ellipsode intersect the plane
         intersect_idx = np.where((min_p[:, self.opt_channel] < col_plane) & (max_p[:, self.opt_channel] > col_plane))[0]
         opt_points[intersect_idx] = self.converge_on_plane(self.rgb_centers[intersect_idx], col_plane)
 
-        # if(total_tile_num==363):
+        # if(total_tile_num==16751):
         #     import ipdb; ipdb.set_trace()
 
         return opt_points
@@ -209,14 +209,18 @@ class Tile_color_optimizer:
         # import ipdb; ipdb.set_trace()
         blue_srgb_pts = (RGB2sRGB(blue_opt_points)*255).round().astype("uint8")
         
-        # if(total_tile_num==363):
-        #     import ipdb; ipdb.set_trace()
 
         red_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["R"], dkl_centers, centers_abc)
         red_srgb_pts = (RGB2sRGB(red_opt_points)*255).round().astype("uint8")
         
         blue_len = self.compute_tile_bitlen(blue_srgb_pts)
         red_len = self.compute_tile_bitlen(red_srgb_pts)
+
+
+        # diff = tile - blue_srgb_pts.reshape(-1).reshape(16,3)
+
+        # if (diff.mean() > 50):
+        #     import ipdb; ipdb.set_trace()
 
         if (blue_len < red_len):
             return blue_srgb_pts.reshape(4,4,3)
@@ -232,8 +236,13 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL @ rgb_centers.T).T
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
-        centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too much inv_square
+        centers_abc *= 3
+        centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
+
         centers_abc[:, 2] = 1e-3
+
+        if ecc_tile.mean() < 18:
+            centers_abc[:, :] = 1e-5
 
 
         global abc_dkls
@@ -307,8 +316,9 @@ class Image_color_optimizer:
         return npNewImage
 
 if __name__ == "__main__":
+    image_name = "office_first_frame.bmp"
     # load image
-    img = Image.open("Images/orig/WaterScape.bmp")
+    img = Image.open("Images/orig/" + image_name)
     img = np.array(img)
 
     # optimize colors
@@ -324,9 +334,9 @@ if __name__ == "__main__":
 
     # save image
     opt_img = Image.fromarray(opt_img.astype("uint8"))
-    opt_img.save("Images/opt/WaterScape.bmp")
+    opt_img.save("Images/opt/" + image_name)
 
-    orig_sz = os.stat("Images/orig/WaterScape.bmp").st_size
+    orig_sz = os.stat("Images/orig/" + image_name).st_size
     img = Image.fromarray(img.astype("uint8"))
     origBD_sz = base_delta(img, False, False)
     optBD_sz = base_delta(opt_img, False, False)
