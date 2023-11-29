@@ -112,7 +112,7 @@ namespace vr_prototype
 			dkl2rgb_loop(rgb_stream, dkl_stream1);
 
 			// Stage 4
-
+			// prevent deadlock
 			#pragma HLS STREAM variable=dkl_stream2 depth=128
 			#pragma HLS STREAM variable=inv_square_abc_stream depth=128
 			hls::stream<float_array> opt_points_stream;
@@ -325,7 +325,7 @@ namespace vr_prototype
 
 
 			// stage 4
-			
+			// prevent deadlock
 			#pragma HLS STREAM variable=min_p_stream2 depth=512
 			#pragma HLS STREAM variable=max_p_stream2 depth=512
 			#pragma HLS STREAM variable=rgb_stream2 depth=512
