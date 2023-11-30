@@ -78,7 +78,7 @@ perspective_width = 800
 perspective_height = 600
 fov = 90  # Field of view
 
-equirectangular_image = cv2.imread('office.bmp') # replace with the actual path to your equirectangular image
+equirectangular_image = cv2.imread('office.png') # replace with the actual path to your equirectangular image
 # Perform the projection from equirectangular to perspective view
 perspective_image_with_roll = equirectangular_to_perspective_with_roll(equirectangular_image, fov, radians(roll_angle), radians(pitch_angle), radians(yaw_angle), perspective_height, perspective_width)
 
