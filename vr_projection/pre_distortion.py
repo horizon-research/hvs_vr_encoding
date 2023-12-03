@@ -38,16 +38,19 @@ def distort_pixel(x, y, k1, k2, cx, cy, width, height):
     """
     x = x - cx
     y = y - cy
-    x = float(x) / float(width)
-    y = float(y) / float(height)
+    # x = float(x) / float(width)
+    # y = float(y) / float(height)
+    z = width*0.7
+    x = x / z
+    y = y / z
     r2 = x**2 + y**2
     factor = 1 + k1 * r2 + k2 * r2**2
 
     x_distorted = x * factor
     y_distorted = y * factor
 
-    x_distorted = x_distorted * width
-    y_distorted = y_distorted * height
+    x_distorted = x_distorted * z
+    y_distorted = y_distorted * z
 
     x_distorted = x_distorted + cx
     y_distorted = y_distorted + cy
@@ -77,7 +80,7 @@ def pre_distort_image(image, k1, k2, cx, cy):
 image_name =  "middle_perspective_image.png" # Load your image here
 image = cv2.imread(image_name)
 height, width = image.shape[:2]
-k1, k2 = 0.51, 0.16 # Radial distortion coefficients
+k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
 cx, cy = width / 2, height / 2 # Assuming center of the image is the optical center
 pre_distorted_image = pre_distort_image(image, k1, k2, cx, cy)
 
