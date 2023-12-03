@@ -22,8 +22,8 @@ def equirectangular_to_perspective_with_roll(equirect_img, fov, roll, pitch, yaw
     perspective_img = np.zeros((height, width, 3), dtype=equirect_img.dtype)
 
     # Calculate necessary values
-    v_fov = radians(fov)
-    h_fov = v_fov * (float(width) / float(height))
+    h_fov = radians(fov)
+    v_fov = h_fov * (float(height) / float(width)) 
     v_res = float(eq_height) / pi
     h_res = float(eq_width) / (2 * pi)
 
@@ -120,4 +120,11 @@ output_img[i * perspective_height:(i + 1) * perspective_height, j * perspective_
 
 output_path = 'cube_perspective_image.png'
 cv2.imwrite(output_path, output_img.astype(np.uint8))
-output_path
+
+
+perspective_width = 960
+perspective_height = 1080
+fov = 110
+perspective_image_with_roll = equirectangular_to_perspective_with_roll(equirectangular_image, fov, radians(roll_angles[1]), radians(pitch_angles[1]), radians(yaw_angles[1]), perspective_height, perspective_width)
+output_path = 'middle_perspective_image.png'
+cv2.imwrite(output_path, perspective_image_with_roll)
