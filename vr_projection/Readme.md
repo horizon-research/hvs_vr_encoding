@@ -6,5 +6,5 @@
 
 
 ## predistortion.py Examples
-### k1, k2 = 0.51, 0.16
+### k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
 ![Alt text](pre_distorted_image.png)
