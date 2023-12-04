@@ -38,9 +38,12 @@ def distort_pixel(x, y, k1, k2, cx, cy, width, height):
     """
     x = x - cx
     y = y - cy
-    # x = float(x) / float(width)
-    # y = float(y) / float(height)
-    z = width*0.7
+
+    ppi = 401
+    x = x / ppi * 25.4
+    y = y / ppi * 25.4
+    z = 39.07
+
     x = x / z
     y = y / z
     r2 = x**2 + y**2
@@ -51,6 +54,9 @@ def distort_pixel(x, y, k1, k2, cx, cy, width, height):
 
     x_distorted = x_distorted * z
     y_distorted = y_distorted * z
+
+    x_distorted = x_distorted / 25.4 * ppi
+    y_distorted = y_distorted / 25.4 * ppi
 
     x_distorted = x_distorted + cx
     y_distorted = y_distorted + cy
