@@ -16,8 +16,6 @@ import os
 
 from util.base_delta import base_delta
 
-total_tile_num = 0  
-
 class Tile_color_optimizer_hw_part:
     def __init__(self, color_channel, r_max_vec, b_max_vec):
         self.color_channel = color_channel
@@ -81,7 +79,7 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
         self.fix_bounds(max_p)
 
-        global total_tile_num
+        # global total_tile_num
         # if(total_tile_num==363):
         #     import ipdb; ipdb.set_trace()
 
@@ -153,9 +151,6 @@ class Tile_color_optimizer_hw_part:
         # import ipdb; ipdb.set_trace()
         return plane_centers
 
-
-abc_dkls = np.zeros((1920*1080//16, 2, 16, 3))
-abc_dkls_id = 0
 class Tile_color_optimizer:
     def __init__(self, color_channel, r_max_vec, b_max_vec, dump_io = False, dump_dir = None):
         # init the hardware
@@ -236,20 +231,14 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL @ rgb_centers.T).T
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
-        centers_abc *= 3
         centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
 
         centers_abc[:, 2] = 1e-3
 
-        if ecc_tile.mean() < 18:
+        centers_abc *= 2
+
+        if ecc_tile.mean() < 15:
             centers_abc[:, :] = 1e-5
-
-
-        global abc_dkls
-        global abc_dkls_id
-        abc_dkls[abc_dkls_id][0] = centers_abc
-        abc_dkls[abc_dkls_id][1] = dkl_centers
-        abc_dkls_id += 1
 
         return dkl_centers, centers_abc
     
@@ -282,7 +271,7 @@ class Image_color_optimizer:
 
     def set_ecc_map(self):
         if (self.foveated):
-            self.ecc_map = build_foveated_ecc_map(60, 0, 0, self.max_ecc, self.img_height, self.img_width)
+            self.ecc_map = build_foveated_ecc_map(110, 0, 0, self.max_ecc, self.img_height, self.img_width)
         else:
             self.ecc_map = np.ones((self.img_height, self.img_width, 1)) * self.max_ecc
 
@@ -310,8 +299,8 @@ class Image_color_optimizer:
                 ecc_tile = self.ecc_map[i:i+4,j:j+4]
                 # adjusted output
                 npNewImage[i:i+4, j:j+4] = self.Tile_color_optimizer.optimize_tile(tile, ecc_tile)
-                global total_tile_num
-                total_tile_num += 1
+                # global total_tile_num
+                # total_tile_num += 1
 
         return npNewImage
 
@@ -326,9 +315,10 @@ if __name__ == "__main__":
 
     if not os.path.exists("dump/"):
         os.makedirs("dump/")
+        
     image_color_optimizer = Image_color_optimizer(dump_io = True, dump_dir = "dump/")
-
     opt_img = image_color_optimizer.color_conversion(img)
+
     end = timer()
     print("Time taken: ", end-start)
 
@@ -354,7 +344,7 @@ if __name__ == "__main__":
     print("compression improvement:", txt.format(cr=compression_improve))
 
 
-    np.save("dump/abc_dkls.npy", abc_dkls)
+    # np.save("dump/abc_dkls.npy", abc_dkls)
 
 
 

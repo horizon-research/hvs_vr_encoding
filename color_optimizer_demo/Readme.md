@@ -5,11 +5,12 @@
 &nbsp; &nbsp; This project demonstrates color optimizer in the ASPLOS-2024 Paper [Exploiting Human Color Discrimination for Memory and Energy-Efficient Image Encoding in Virtual Reality](https://horizon-lab.org/pubs/asplos24-vr.pdf) on a FPGA board. This optimizer uses the limits of human color perception to reduce image color size. By subtly adjusting pixel colors within a humanly imperceptible range which depends on eccentricity, it brings colors of pixels closer, enhancing the efficiency of the following Base Delta compression algorithm. Finally, this foveated compression can make the system more memory and energy-efficient
 
 ## Examples of the foveated compression
-### board output:
-<img src="md_images/board_office.jpg" alt="Alt text" width="800"/>
+<!-- ### board output: -->
+### Example output
+<img src="md_images/md_office.jpg" alt="Alt text" width="800"/>
 
-### Comparison with original image (improve 7%): You can observe artifacts at the peripheral.
-<img src="md_images/compare.png" alt="Alt text" width="800"/>
+<!-- ### Comparison with original image (improve 7%): You can observe artifacts at the peripheral.
+<img src="md_images/compare.png" alt="Alt text" width="800"/> -->
 
 ## Files Organization
 

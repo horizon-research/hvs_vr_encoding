@@ -14,7 +14,7 @@ color_model.load("./model/model.pth")
 
 import os
 
-from base_delta import base_delta
+from util.base_delta import base_delta
 import cv2
 
 def change_video_to_image(video_path, image_path):

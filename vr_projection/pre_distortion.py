@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import time
 
 def bilinear_interpolate(image, y, x):
     """
@@ -79,21 +80,31 @@ def pre_distort_image(image, k1, k2, cx, cy):
             x_distorted, y_distorted = distort_pixel(i, j, k1, k2, cx, cy, width, height)
             if 0 <= x_distorted < width and 0 <= y_distorted < height:
                 pre_distorted_img[j, i] = bilinear_interpolate(image, y_distorted, x_distorted)
+                # pre_distorted_img[j, i] = image[int(y_distorted), int(x_distorted)]
 
     return pre_distorted_img
 
-# Example usage:
-image_name =  "middle_perspective_image.png" # Load your image here
-image = cv2.imread(image_name)
-height, width = image.shape[:2]
-k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
-cx, cy = width / 2, height / 2 # Assuming center of the image is the optical center
-pre_distorted_image = pre_distort_image(image, k1, k2, cx, cy)
 
-output_path = 'pre_distorted_image.png'
-pre_distorted_image = np.tile(pre_distorted_image, (1, 2, 1))
+if __name__ == '__main__':
+    # Example usage:
+    image_name =  "images/middle_perspective_image.png" # Load your image here
+    image = cv2.imread(image_name)
+    height, width = image.shape[:2]
+    k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
+    cx, cy = width / 2, height / 2 # Assuming center of the image is the optical center
 
-# reshape to 1080 x 1920
-pre_distorted_image = cv2.resize(pre_distorted_image, (1920, 1080))
+    # start = time.time()
+    # for i in range(10):
+    pre_distorted_image = pre_distort_image(image, k1, k2, cx, cy)
+    # end = time.time()
+    # print("fps: ", 10 / (end - start) )
 
-cv2.imwrite(output_path, pre_distorted_image.astype(np.uint8))
+    output_path = 'images/pre_distorted_image.png'
+    pre_distorted_image = np.tile(pre_distorted_image, (1, 2, 1))
+
+    # reshape to 1080 x 1920
+
+    pre_distorted_image = cv2.resize(pre_distorted_image, (1920, 1080))
+
+
+    cv2.imwrite(output_path, pre_distorted_image.astype(np.uint8))
