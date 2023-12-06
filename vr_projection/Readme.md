@@ -1,10 +1,10 @@
 ## equirect_to_fov.py Examples
 ### equirectangular image
-![Alt text](office.png)
+![Alt text](images/office.png)
 ### perspective cube
-![Alt text](cube_perspective_image.png)
+![Alt text](images/cube_perspective_image.png)
 
 
 ## predistortion.py Examples
 ### k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
-![Alt text](pre_distorted_image.png)
+![Alt text](images/pre_distorted_image_bilinear.png)
