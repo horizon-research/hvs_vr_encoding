@@ -1,6 +1,6 @@
 # Design of HLS HW
 
-## This Design focus on one-time stream Color adjustor output (tile-by-tile) and finish Len correction though we can let FPGA control DMA to access DDR randomly and multiple times.
+## This Design focus on access only one-time streaming Color adjustor output (tile-by-tile) and finish Len correction though we can let FPGA control DMA to access DDR randomly and multiple times.
 
 ## 1. Feasibility
 
