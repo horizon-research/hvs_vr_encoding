@@ -233,9 +233,9 @@ class Tile_color_optimizer:
 
         centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
 
-        centers_abc[:, 2] = 1e-3
+        centers_abc[:, 2] = 1e-4
 
-        centers_abc *= 2
+        # centers_abc *= 2
 
         if ecc_tile.mean() < 15:
             centers_abc[:, :] = 1e-5

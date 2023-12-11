@@ -24,6 +24,7 @@ def ref_image_generate(filename):
     # step 2: Color adjustment
     image_color_optimizer = Image_color_optimizer(dump_io = False, dump_dir = "dump/")
     opt_img = image_color_optimizer.color_conversion(perspective_img)
+    # opt_img = perspective_img
     # step 3: Pre-distortion
     pre_distorted_img = pre_distort_image(opt_img, args.k1, args.k2, args.cx, args.cy)
     pre_distorted_img = np.tile(pre_distorted_img, (1, 2, 1))
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     parser.add_argument('--fov', type=float, default=110.0, help='fov')
     parser.add_argument('--perspective_width', type=int, default=960, help='perspective_width')
     parser.add_argument('--perspective_height', type=int, default=1080, help='perspective_height')
-    parser.add_argument('--num_workers', type=int, default=32, help='num_workers')
+    parser.add_argument('--num_workers', type=int, default=64, help='num_workers')
     args = parser.parse_args()
 
     # step 1: make a tmp dir for input image
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     if not os.path.exists(in_images_path):
         os.makedirs(in_images_path)
 
-    # change_video_to_image(args.in_video_path, in_images_path)
+    change_video_to_image(args.in_video_path, in_images_path)
 
     print("Finish change_video_to_image")
 
@@ -87,7 +88,7 @@ if __name__ == '__main__':
         os.makedirs(out_images_path)
 
 
-    # ref_images_generate()
+    ref_images_generate()
 
     change_image_to_video()
 

@@ -1,6 +1,7 @@
-import pre_distortion
-import pre_distortion_precompute
-import rearrange_for_fpga
+# import pre_distortion
+# import pre_distortion_precompute
+# import rearrange_for_fpga
+import rearrange_rgb
 import numpy as np
 import time
 
@@ -14,20 +15,20 @@ import time
 # print("fps: ", 100 / (end - start) )
 
 
-pre_distortor = pre_distortion_precompute.PreDistortion()
+# pre_distortor = pre_distortion_precompute.PreDistortion()
 
 
-image = np.zeros((1080, 1920, 3), dtype=np.uint8)
-distorted = np.zeros((1080, 1920, 3), dtype=np.uint8)
+# image = np.zeros((1080, 960, 3), dtype=np.uint8)
+# distorted = np.zeros((1080, 960, 3), dtype=np.uint8)
 
-start = time.time()
-for i in range(100):
-    pre_distortor.preDistortImage(distorted, image)
+# start = time.time()
+# for i in range(100):
+#     pre_distortor.preDistortImage(distorted, image)
 
-end = time.time()
+# end = time.time()
 
-print("fps: ", 100 / (end - start) )
-pre_distortor.preDistortImage(distorted, image)
+# print("fps: ", 100 / (end - start) )
+# pre_distortor.preDistortImage(distorted, image)
 
 
 # rearrangeForFPGA = rearrange_for_fpga.RearrangeForFPGA()
@@ -45,4 +46,19 @@ pre_distortor.preDistortImage(distorted, image)
 # # print(rearranged)
 
 # print("fps: ", 100 / (end - start) )
+
+
+pre_distortor = rearrange_rgb.RearrangeRGB()
+
+
+image = np.zeros((1080, 960, 3), dtype=np.uint8)
+distorted = np.zeros((1080, 960, 3), dtype=np.uint8)
+
+start = time.time()
+for i in range(100):
+    pre_distortor.rearrangeRGB(distorted, image)
+
+end = time.time()
+
+print("fps: ", 100 / (end - start) )
 
