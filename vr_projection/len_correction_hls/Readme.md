@@ -16,7 +16,6 @@ Since we need to access four pixels and perform bilinear intepolation for one ou
 ## 3. Dataflow
 ![Alt text](images/Design_Dataflow.png)
 
-
 ## 4. Throughput Estimation
 
 Peak: 

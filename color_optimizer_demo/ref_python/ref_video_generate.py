@@ -3,7 +3,7 @@ sys.path.append('../../vr_projection')
 
 from red_blue_optimization import Image_color_optimizer
 from equirect_to_fov import equirectangular_to_perspective_with_roll as equirectangular_to_perspective
-from pre_distortion import pre_distort_image
+from len_correction import pre_distort_image
 from input_video_generate import change_video_to_image
 
 import cv2
