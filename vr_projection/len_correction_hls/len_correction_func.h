@@ -14,6 +14,10 @@ struct Pixel { // Pynq is BGR format
 	ap_uint<8> r;
 };
 
+struct FourPixel { // Pynq is BGR format
+	Pixel data[4];
+};
+
 struct Memory_access {
 	Pixel data[4];
 	ap_uint<7> address1[4];
@@ -23,6 +27,15 @@ struct Memory_access {
 
 struct Memory_info {
 	ap_uint<11> image_row_shift;
+};
+
+struct Bilinear_info {
+	ap_uint<2> xy11_idx;
+	ap_uint<2> xy12_idx;
+	ap_uint<2> xy21_idx;
+	ap_uint<2> xy22_idx;
+	float dx;
+	float dy;
 };
 
 namespace vr_prototype
@@ -36,46 +49,60 @@ namespace vr_prototype
 			#pragma HLS DATAFLOW disable_start_propagation
 
 			// Read from stream / config, gnerate data to store and its address
-			store_address_generator();
+			hls::stream<Memory_access> memory_write_stream;
+			hls::stream<Memory_info> memory_info_stream;
+			store_address_generator(memory_write_stream, memory_info_stream, din);
+
 			// Memory Management, deal with lock and yield
-			memory_manager();
+			hls::stream<Memory_access> memory_read_stream;
+			hls::stream<FourPixel> read_data_stream;			
+			memory_manager(read_data_stream, memory_write_stream, memory_read_stream);
+
 			// Len correction using Biliner interpolation
-			len_correction();
+			hls::stream<Pixel> _dout;
+			len_correction(_dout, memory_read_stream, read_data_stream, memory_info_stream);
+
+			// double output
+			double_output(dout, _dout);
 		}
 
-		void store_address_generator(hls::stream<Memory_access> &memory_write_stream, hls::stream<Agg_in_srgb> &din) {
-			bool mem_info_sent = false;
-
-			int tile_count = 0;
-			send_meminfo(memory_write_stream, 0);
-			fill_buffer(memory_write_stream, din, tile_count);
-
-			int tile_start_row = (tile_count / (1920/4)) << 2;
-			int tile_start_col = (tile_count % (1920/4)) << 2;
-			while(tile_start_row < buffer_row_num) {
-				int tmp_tile_start_row = tile_start_row;
-				int tmp_tile_start_col = tile_start_col;
-
-				tile_count ++;
-				tile_start_row = (tile_count / (1920/4)) << 2;
-				tile_start_col = (tile_count % (1920/4)) << 2;
-
-				if (tile_start_col >= 960) {
-					din.read(); 
-				}
-				else {
-					Agg_in_srgb in = din.read();
-					decode_tile_momory_write(memory_write_stream, in, tmp_tile_start_row, tmp_tile_start_col);
+		void double_output(hls::stream<Pixel> &dout, hls::stream<Pixel> &_dout) {
+			Pixel buffer [960];
+			for (int i = 0; i < 1080; i++)
+			{
+				for (int i = 0; i < 960; i++)
+				{
+					Pixel in = dout.read();
+					buffer[i] = in;
+					dout.write(in);
+				}	
+				for (int i = 0; i < 960; i++)
+				{
+					dout.write(buffer[i]);
 				}
 			}
 		}
 
+		void store_address_generator(hls::stream<Memory_access> &memory_write_stream, hls::stream<Memory_info> memory_info_stream, hls::stream<Agg_in_srgb> &din) {
+			int tile_count = 0;
+			update_buffer(memory_write_stream, din, tile_count, buffer_row_num);
+			for (int i = 0; i < 1080; i++)
+			{
+				int tile_start_row = (tile_count / (1920/4)) << 2;
+				send_meminfo(memory_info_stream, tile_start_row);
+				ap_uint<3> shift = len_correction_shifts[i];
+				update_buffer(memory_write_stream, din, tile_count, shift);
+				Memory_access out;
+				out.yield = 1;
+				memory_write_stream.write(out);
+			}
+		}
 
-
-		void update_buffer(hls::stream<Memory_access> &memory_write_stream, hls::stream<Agg_in_srgb> &din, int &update_num) {
-			int tile_start_row = 0;
-			int tile_start_col = 0;
-			while(tile_start_row < buffer_row_num) {
+		void update_buffer(hls::stream<Memory_access> &memory_write_stream, hls::stream<Agg_in_srgb> &din, int &tile_count, int update_row_num){
+			int tile_start_row = (tile_count / (1920/4)) << 2;
+			int tile_start_col = (tile_count % (1920/4)) << 2;
+			int target_row_num = tile_start_row + update_row_num;
+			while(tile_start_row < target_row_num) {
 				int tmp_tile_start_row = tile_start_row;
 				int tmp_tile_start_col = tile_start_col;
 
@@ -126,6 +153,7 @@ namespace vr_prototype
 					out[i].address1[j] = start_row + addr_shift[i][0];
 					out[i].address2[j] = start_col + addr_shift[i][1];
 				}
+				out[i].yield = 0;
 			}
 		}
 
@@ -135,15 +163,204 @@ namespace vr_prototype
 			out.r = in[1];
 		}
 
-		void memory_manager(hls::stream<Memory_access> &read, hls::stream<Memory_access> &write) {
-			pixel pixel_buffer_1[92][480];
-			pixel pixel_buffer_2[92][480];
-			pixel pixel_buffer_3[92][480];
-			pixel pixel_buffer_4[92][480];
+		void memory_manager(hls::stream<FourPixel> &read_data_stream, hls::stream<Memory_access> &memory_write_stream, hls::stream<Memory_access> &memory_read_stream) {
+			Pixel pixel_buffer_1[92][480];
+			Pixel pixel_buffer_2[92][480];
+			Pixel pixel_buffer_3[92][480];
+			Pixel pixel_buffer_4[92][480];
+			ap_uint<1> ownership = 0; // 0: write 1: read
+			ap_uint<11> line_counter = 0;
+			while (line_counter < 1080) {
+				if(ownership == 0) {
+					Memory_access in = memory_write_stream.read();
+					if (in.yield == 1) {
+						ownership = 1;
+					}
+					else {
+						write_to_buffer(in, pixel_buffer_1, pixel_buffer_2, pixel_buffer_3, pixel_buffer_4);
+					}
+				}
+				else {
+					Memory_access in = memory_read_stream.read();
+					if (in.yield == 1) {
+						ownership = 0;
+					}
+					else {
+						read_from_buffer(read_data_stream, in, pixel_buffer_1, pixel_buffer_2, pixel_buffer_3, pixel_buffer_4);
+					}
+				}
+			}
 		}
 
-		void len_correction() {
+		void write_to_buffer(Memory_access &in, Pixel pixel_buffer_1[92][480], Pixel pixel_buffer_2[92][480], Pixel pixel_buffer_3[92][480], Pixel pixel_buffer_4[92][480]) {
+			pixel_buffer_1[in.address1[0]][in.address2[0]] = in.data[0];
+			pixel_buffer_2[in.address1[1]][in.address2[1]] = in.data[1];
+			pixel_buffer_3[in.address1[2]][in.address2[2]] = in.data[2];
+			pixel_buffer_4[in.address1[3]][in.address2[3]] = in.data[3];
+		}
 
+		void read_from_buffer(hls::stream<FourPixel> &read_data_stream, Memory_access &in, Pixel pixel_buffer_1[92][480], Pixel pixel_buffer_2[92][480], Pixel pixel_buffer_3[92][480], Pixel pixel_buffer_4[92][480]){
+			FourPixel out;
+			out.data[0] = pixel_buffer_1[in.address1[0]][in.address2[0]];
+			out.data[1] = pixel_buffer_2[in.address1[1]][in.address2[1]];
+			out.data[2] = pixel_buffer_3[in.address1[2]][in.address2[2]];
+			out.data[3] = pixel_buffer_4[in.address1[3]][in.address2[3]];
+			read_data_stream.write(out);
+		}
+
+		void len_correction( hls::stream<Pixel> &dout, hls::stream<Memory_access> &memory_read_stream, hls::stream<FourPixel> &read_data_stream, hls::stream<Memory_info> &memory_info_stream) {
+			// Duplicate info
+			hls::stream<Memory_info> memory_info_stream_1;
+			hls::stream<Memory_info> memory_info_stream_2;
+			duplicate_stream<Memory_info, 1080>(memory_info_stream_1, memory_info_stream_2, memory_info_stream);
+			// Read memory
+			hls::stream<Bilinear_info> bilinear_info_stream; 
+			address_query(memory_read_stream, bilinear_info_stream, memory_info_stream);
+			// Bilinear interpolation
+			bilinear_interpolation_node(dout, read_data_stream, bilinear_info_stream);
+		}
+
+		template<typename T, int TIMES>
+		void duplicate_stream(hls::stream<T> &duplicated_stream1, hls::stream<T> &duplicated_stream2, hls::stream<T> &original_stream) {
+			for(int i = 0; i < TIMES; i++)
+			{
+				#pragma HLS PIPELINE II=1 rewind
+				T data = original_stream.read();
+				duplicated_stream1.write(data);
+				duplicated_stream2.write(data);
+			}
+		}
+
+		void address_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, hls::stream<Memory_info> &memory_info_stream) {
+			for (int i = 0; i < 1080; i++)
+			{
+				Memory_info mem_info = memory_info_stream.read();
+				ap_uint<11> image_row_shift = mem_info.image_row_shift;
+				for (int j=0; j < 960; j++)
+				{
+					// compute address using
+					float x, y, cor_x, cor_y;
+					compute_correction_idx(cor_x, cor_y, x, y);
+					send_read_query(memory_read_stream, bilinear_info_stream, cor_x, cor_y, image_row_shift);
+				}
+			}
+		}
+
+		void compute_correction_idx(float cor_x, float cor_y, float x, float y)
+		{
+			x = x - 480;
+			y = y - 540;
+			const float ppi = 401.;
+			x = x / ppi * 25.4;
+    		y = y / ppi * 25.4;
+			const float z = 39.07;
+			x = x / z;
+    		y = y / z;
+			float r2 = x**2 + y**2;
+			float r4 = r2**2;
+			float factor = 1 + k1 * r2 + k2 * r2**2;
+			cor_x = x * factor;
+			cor_y = y * factor;
+			cor_x = cor_x * z;
+			cor_y = cor_y * z;
+			cor_x = cor_x * ppi / 25.4;
+			cor_y = cor_y * ppi / 25.4;
+			cor_x = cor_x + 480;
+			cor_y = cor_y + 540;
+		}
+
+		void send_read_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, float cor_x, float cor_y, ap_uint<11> image_row_shift) {
+			ap_uint<11> x1 = ap_uint<11>(cor_x);
+			ap_uint<11> x2 = x1 + 1;
+			ap_uint<11> y1 = ap_uint<11>(cor_y);
+			ap_uint<11> y2 = y1 + 1;
+			float dx = cor_x - x1;
+			float dy = cor_y - y1;
+
+			Memory_access out;
+			Bilinear_info blinear_info;
+			blinear_info.dx = dx;
+			blinear_info.dy = dy;
+
+
+			ap_uint<2> xy11_idx, xy12_idx, xy21_idx, xy22_idx;
+			if (x1(0,0) == 0 & y1(0,0) == 0) {
+				xy11_idx = 0;
+				xy12_idx = 1;
+				xy21_idx = 2;
+				xy22_idx = 3;
+			}
+			else if (x1(0,0) == 0 & y1(0,0) == 1) {
+				xy11_idx = 3;
+				xy12_idx = 4;
+				xy21_idx = 1;
+				xy22_idx = 2;
+			}
+			else if (x1(0,0) == 1 & y1(0,0) == 0) {
+				xy11_idx = 2;
+				xy12_idx = 1;
+				xy21_idx = 4;
+				xy22_idx = 3;
+			}
+			else if (x1(0,0) == 1 & y1(0,0) == 1) {
+				xy11_idx = 4;
+				xy12_idx = 3;
+				xy21_idx = 1;
+				xy22_idx = 2;
+			}
+
+			Memory_access out;
+			out.address1[xy11_idx] = y1;
+			out.address2[xy11_idx] = x1;
+			out.address1[xy12_idx] = y1;
+			out.address2[xy12_idx] = x2;
+			out.address1[xy21_idx] = y2;
+			out.address2[xy21_idx] = x1;
+			out.address1[xy22_idx] = y2;
+			out.address2[xy22_idx] = x2;
+			out.yield = 0;
+
+			blinear_info.xy11_idx = xy11_idx;
+			blinear_info.xy12_idx = xy12_idx;
+			blinear_info.xy21_idx = xy21_idx;
+			blinear_info.xy22_idx = xy22_idx;
+
+			bilinear_info_stream.write(blinear_info);
+			memory_read_stream.write(out);
+		}
+
+		void bilinear_interpolation_node(hls::stream<Pixel> &dout, hls::stream<FourPixel> &read_data_stream, hls::stream<Bilinear_info> &bilinear_info_stream) {
+			for (int i = 0; i < 1080; i++)
+			{
+				Bilinear_info blinear_info = bilinear_info_stream.read();
+				FourPixel in = read_data_stream.read();
+				Pixel xy11 = in.data[blinear_info.xy11_idx];
+				Pixel xy12 = in.data[blinear_info.xy12_idx];
+				Pixel xy21 = in.data[blinear_info.xy21_idx];
+				Pixel xy22 = in.data[blinear_info.xy22_idx];
+				float dx = blinear_info.dx;
+				float dy = blinear_info.dy;
+				Pixel out;
+				out.b = bilinear_interpolation(xy11.b, xy12.b, xy21.b, xy22.b, dx, dy);
+				out.g = bilinear_interpolation(xy11.g, xy12.g, xy21.g, xy22.g, dx, dy);
+				out.r = bilinear_interpolation(xy11.r, xy12.r, xy21.r, xy22.r, dx, dy);
+				dout.write(out);
+			}
+		}
+
+		ap_uint<8> bilinear_interpolation(ap_uint<8> xy11, ap_uint<8> xy12, ap_uint<8> xy21, ap_uint<8> xy22, float dx, float dy) {
+			float xy11_f = float(xy11);
+			float xy12_f = float(xy12);
+			float xy21_f = float(xy21);
+			float xy22_f = float(xy22);
+			float out = xy11_f * (1 - dx) * (1 - dy) + xy12_f * dy * (1 - dx) + xy21_f * (1 - dy) * dx + xy22_f * dx * dy;
+			if (out > 255) {
+				out = 255;
+			}
+			else if (out < 0) {
+				out = 0;
+			}
+			return ap_uint<8> ( ap_ufixed<8, 8, AP_RND>(out) );
 		}
 		
 	}
@@ -153,9 +370,5 @@ namespace vr_prototype
 
 
 
-const ap_uint<3> len_correction_shifts[1080] = {
-    {1, 2}, // 第一个元素
-    {3, 4}, // 第二个元素
-    // ... (剩余元素)
-};
+const ap_uint<3> len_correction_shifts[1080] = {};
 
