@@ -25,4 +25,12 @@ No-double buffer: above 145 fps, more than enough (Input preparation is faster.)
 
 Since , frame rate is enough, we don't use double buffering.
 
+## 5. Dataflow in HLS
 
+All:
+
+![Alt text](images/hls_df_all.png)
+
+Len_correction:
+
+![Alt text](images/hls_df_LC.png)
