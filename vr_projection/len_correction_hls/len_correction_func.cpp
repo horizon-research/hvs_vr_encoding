@@ -2,7 +2,7 @@
 
 
 void len_correction_func(
-	hls::stream< agg_outputs_srgb > &dout,
+	hls::stream< Pixel > &dout,
 	hls::stream< agg_inputs > &din
 	)
 {	// HLS INTERFACE stram setting
@@ -13,7 +13,6 @@ void len_correction_func(
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
 	// Initialization
-	vr_prototype::Len_corrector len_corrector; // Blue opt
-	#pragma HLS DATAFLOW disable_start_propagation
+	vr_prototype::Len_corrector len_corrector; 
 	len_corrector(dout, din);
 }
