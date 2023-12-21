@@ -36,14 +36,16 @@ struct Bilinear_info {
 	ap_uint<2> xy22_idx;
 	float dx;
 	float dy;
+	bool valid;
 };
 
 namespace vr_prototype
 {
+	const ap_uint<3> len_correction_shifts[1080] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 2, 2, 3, 2, 2, 3, 2, 2, 3, 2, 2, 3, 2, 2, 2, 3, 2, 2, 2, 3, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3, 4, 3, 3, 4, 3, 3, 4};
 	class Len_corrector
 	{
 		public:
-			const int buffer_row_num = 184;
+			const int buffer_row_num = 186;
 			
 		void operator()(hls::stream<Pixel> &dout, hls::stream<Agg_in_srgb> &din) {
 			#pragma HLS DATAFLOW disable_start_propagation
@@ -69,16 +71,18 @@ namespace vr_prototype
 			Pixel buffer [960];
 			for (int i = 0; i < 1080; i++)
 			{
-				for (int i = 0; i < 960; i++)
+				for (int i = 0; i < 1920; i++)
 				{
-					Pixel in = dout.read();
-					buffer[i] = in;
-					dout.write(in);
+					#pragma HLS PIPELINE II=1 rewind
+					if (i < 960) {
+						Pixel in = _dout.read();
+						buffer[i] = in;
+						dout.write(in);
+					}
+					else {
+						dout.write(buffer[i-960]);
+					}
 				}	
-				for (int i = 0; i < 960; i++)
-				{
-					dout.write(buffer[i]);
-				}
 			}
 		}
 
@@ -107,6 +111,7 @@ namespace vr_prototype
 			int tile_start_col = (tile_count % (1920/4)) << 2;
 			int target_row_num = tile_start_row + update_row_num;
 			while(tile_start_row < target_row_num) {
+				#pragma HLS PIPELINE II=4
 				int tmp_tile_start_row = tile_start_row;
 				int tmp_tile_start_col = tile_start_col;
 
@@ -124,9 +129,9 @@ namespace vr_prototype
 			}
 		}
 
-		void send_meminfo(hls::stream<Memory_info> &memory_info_stream, ap_uint<11> image_row_shift) {
+		void send_meminfo(hls::stream<Memory_info> &memory_info_stream, const ap_uint<11> &image_row_shift) {
 			Memory_info mem_info;
-			mem_info.image_row_shift = 0;
+			mem_info.image_row_shift = image_row_shift;
 			memory_info_stream.write(mem_info);
 		}
 
@@ -153,8 +158,8 @@ namespace vr_prototype
 				ap_uint<9> buffer_start_col = (tile_start_col >> 1);
 				for (int j = 0; j < 4; j++)
 				{
-					out[i].address1[j] = start_row + addr_shift[i][0];
-					out[i].address2[j] = start_col + addr_shift[i][1];
+					out[i].address1[j] = buffer_start_row + addr_shift[i][0];
+					out[i].address2[j] = buffer_start_col + addr_shift[i][1];
 				}
 				out[i].yield = 0;
 			}
@@ -172,9 +177,14 @@ namespace vr_prototype
 			Pixel pixel_buffer_2[92][480];
 			Pixel pixel_buffer_3[92][480];
 			Pixel pixel_buffer_4[92][480];
+			// #pragma HLS ARRAY_PARTITION variable=pixel_buffer_1 complete dim=2
+			// #pragma HLS ARRAY_PARTITION variable=pixel_buffer_2 complete dim=2
+			// #pragma HLS ARRAY_PARTITION variable=pixel_buffer_3 complete dim=2
+			// #pragma HLS ARRAY_PARTITION variable=pixel_buffer_4 complete dim=2
 			ap_uint<1> ownership = 0; // 0: write 1: read
 			ap_uint<11> line_counter = 0;
 			while (line_counter < 1080) {
+				#pragma HLS PIPELINE II=1
 				if(ownership == 0) {
 					Memory_access in = memory_write_stream.read();
 					if (in.yield == 1) {
@@ -225,43 +235,50 @@ namespace vr_prototype
 		void address_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, hls::stream<Memory_info> &memory_info_stream) {
 			for (int i = 0; i < 1080; i++)
 			{
-				Memory_info mem_info = memory_info_stream.read();
-				ap_uint<11> image_row_shift = mem_info.image_row_shift;
 				for (int j=0; j < 960; j++)
 				{
+					#pragma HLS PIPELINE II=1
+					Memory_info mem_info = memory_info_stream.read();
+					ap_uint<11> image_row_shift = mem_info.image_row_shift;
 					// compute address using
 					float x, y, cor_x, cor_y;
 					compute_correction_idx(cor_x, cor_y, x, y);
-					send_read_query(memory_read_stream, bilinear_info_stream, cor_x, cor_y, image_row_shift);
+					bool valid = true;
+					if (cor_x < 0 || cor_x > 960 || cor_y < 0 || cor_y > 1080) {
+						valid = false;
+					}
+					send_read_query(memory_read_stream, bilinear_info_stream, cor_x, cor_y, image_row_shift, valid);
 				}
 			}
 		}
 
-		void compute_correction_idx(float &cor_x, float &cor_y, float &x, float &y)
+		void compute_correction_idx(float &cor_x, float &cor_y, const float &x, const float &y)
 		{
-			x = x - 480;
-			y = y - 540;
+			#pragma HLS INLINE off // need off or synthesize will fail without error
+			// HLS Can not detect no-dependency cross functions?
+			float x1 = x - 480;
+			float y1 = y - 540;
 			const float c = 1 / 401. * 25.4 / 39.07; // c = 1 / ppi * 25.4 / z ;
-			x = x * c;
-    		y = y * c;
+			x1 = x1 * c;
+    		y1 = y1 * c;
 
-			float r2 = x**2 + y**2;
-			float r4 = r2**2;
+			float r2 = x1 * x1 + y1 * y1;
+			float r4 = r2 * r2;
 			const float k1 = 0.33582564;
 			const float k2 = 0.55348791;
 			float factor = 1 + k1 * r2 + k2 * r4;
 
-			cor_x = x * factor;
-			cor_y = y * factor;
+			float cor_x1 = x1 * factor;
+			float cor_y1 = y1 * factor;
 
 			const float rep_c = 1/c;
-			cor_x = cor_x  * rep_c;
-			cor_y = cor_y  * rep_c;
-			cor_x = cor_x + 480;
-			cor_y = cor_y + 540;
+			cor_x1 = cor_x1 * rep_c;
+			cor_y1 = cor_y1 * rep_c;
+			cor_x = cor_x1 + 480;
+			cor_y = cor_y1 + 540;
 		}
 
-		void send_read_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, const float &cor_x,  const float &cor_y, ap_uint<11> &image_row_shift) {
+		void send_read_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, const float &cor_x,  const float &cor_y, const ap_uint<11> &image_row_shift, const bool &valid) {
 			ap_uint<11> x1 = ap_uint<11>(cor_x);
 			ap_uint<11> x2 = x1 + 1;
 			ap_uint<11> y1 = ap_uint<11>(cor_y);
@@ -269,10 +286,13 @@ namespace vr_prototype
 			float dx = cor_x - x1;
 			float dy = cor_y - y1;
 
-			Memory_access out;
+			y1 = y1 - image_row_shift;
+			y2 = y2 - image_row_shift;
+
 			Bilinear_info blinear_info;
 			blinear_info.dx = dx;
 			blinear_info.dy = dy;
+			blinear_info.valid = valid;
 
 
 			ap_uint<2> xy11_idx, xy12_idx, xy21_idx, xy22_idx;
@@ -301,6 +321,11 @@ namespace vr_prototype
 				xy22_idx = 2;
 			}
 
+			y1 = y1 >> 1;
+			y2 = y2 >> 1;
+			x1 = x1 >> 1;
+			x2 = x2 >> 1;
+
 			Memory_access out;
 			out.address1[xy11_idx] = y1;
 			out.address2[xy11_idx] = x1;
@@ -318,29 +343,45 @@ namespace vr_prototype
 			blinear_info.xy22_idx = xy22_idx;
 
 			bilinear_info_stream.write(blinear_info);
-			memory_read_stream.write(out);
+			if (valid) {
+				memory_read_stream.write(out);
+			}
 		}
 
 		void bilinear_interpolation_node(hls::stream<Pixel> &dout, hls::stream<FourPixel> &read_data_stream, hls::stream<Bilinear_info> &bilinear_info_stream) {
 			for (int i = 0; i < 1080; i++)
 			{
-				Bilinear_info blinear_info = bilinear_info_stream.read();
-				FourPixel in = read_data_stream.read();
-				Pixel xy11 = in.data[blinear_info.xy11_idx];
-				Pixel xy12 = in.data[blinear_info.xy12_idx];
-				Pixel xy21 = in.data[blinear_info.xy21_idx];
-				Pixel xy22 = in.data[blinear_info.xy22_idx];
-				float dx = blinear_info.dx;
-				float dy = blinear_info.dy;
-				Pixel out;
-				out.b = bilinear_interpolation(xy11.b, xy12.b, xy21.b, xy22.b, dx, dy);
-				out.g = bilinear_interpolation(xy11.g, xy12.g, xy21.g, xy22.g, dx, dy);
-				out.r = bilinear_interpolation(xy11.r, xy12.r, xy21.r, xy22.r, dx, dy);
-				dout.write(out);
+				for (int j = 0; j < 960; j++)
+				{
+					#pragma HLS PIPELINE II=1
+					Bilinear_info blinear_info = bilinear_info_stream.read();
+					if (blinear_info.valid) {
+						Pixel out;
+						FourPixel in = read_data_stream.read();
+						Pixel xy11 = in.data[blinear_info.xy11_idx];
+						Pixel xy12 = in.data[blinear_info.xy12_idx];
+						Pixel xy21 = in.data[blinear_info.xy21_idx];
+						Pixel xy22 = in.data[blinear_info.xy22_idx];
+						float dx = blinear_info.dx;
+						float dy = blinear_info.dy;
+						out.b = bilinear_interpolation(xy11.b, xy12.b, xy21.b, xy22.b, dx, dy);
+						out.g = bilinear_interpolation(xy11.g, xy12.g, xy21.g, xy22.g, dx, dy);
+						out.r = bilinear_interpolation(xy11.r, xy12.r, xy21.r, xy22.r, dx, dy);
+						dout.write(out);
+					}
+					else {
+						Pixel out;
+						out.b = 0;
+						out.g = 0;
+						out.r = 0;
+						dout.write(out);
+					}
+				}
 			}
 		}
 
 		ap_uint<8> bilinear_interpolation(const ap_uint<8> &xy11, const ap_uint<8> & xy12, const ap_uint<8> & xy21, const ap_uint<8> &xy22, const float &dx, const float &dy) {
+			#pragma HLS INLINE off 
 			float xy11_f = float(xy11);
 			float xy12_f = float(xy12);
 			float xy21_f = float(xy21);
@@ -352,15 +393,12 @@ namespace vr_prototype
 			else if (out < 0) {
 				out = 0;
 			}
-			return ap_uint<8> ( ap_ufixed<8, 8, AP_RND>(out) );
+			ap_uint<8> _out = ap_uint<8> ( ap_ufixed<8, 8, AP_RND>(out) );
+			return _out;
 		}
 		
-	}
+	};
 
 }
 
-
-
-
-const ap_uint<3> len_correction_shifts[1080] = {};
 

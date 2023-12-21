@@ -3,7 +3,7 @@
 
 void len_correction_func(
 	hls::stream< Pixel > &dout,
-	hls::stream< agg_inputs > &din
+	hls::stream< Agg_in_srgb > &din
 	)
 {	// HLS INTERFACE stram setting
 	#pragma HLS AGGREGATE compact=bit variable=dout

@@ -4,73 +4,53 @@ import math
 # get bounding box for every row
 def get_bounding_box(distort_idx):
     bb = []
-    last_min_y = 0
-    last_max_y = 0
     for i in range(distort_idx.shape[0]):
         min_y = None
         max_y = None
         for j in range(distort_idx.shape[1]):
-            if distort_idx[i][j][1] >=0 and distort_idx[i][j][1] < 1920 and distort_idx[i][j][0] >=0 and distort_idx[i][j][0] < 1080:
-                if  min_y is None or min_y > distort_idx[i][j][0]:
-                    min_y = distort_idx[i][j][0]
-                if max_y is None or max_y < distort_idx[i][j][0]:
-                    max_y = distort_idx[i][j][0]
-            if min_y is None or max_y is None:
-                continue
-            else:
-                last_min_y = min_y
-                last_max_y = max_y
+            if  min_y is None or min_y > distort_idx[i][j][0]:
+                min_y = distort_idx[i][j][0]
+            if max_y is None or max_y < distort_idx[i][j][0]:
+                max_y = distort_idx[i][j][0]
 
-        if min_y is None or max_y is None:
-            bb.append([math.floor(last_min_y), math.ceil(last_max_y), "skip"])
-        else:
-            bb.append([math.floor(min_y), math.ceil(max_y), "normal"])
+        if min_y <= 0:
+            min_y = 0
+        if max_y >= distort_idx.shape[0]:
+            max_y = distort_idx.shape[0] - 1
+
+        min_y = math.floor(min_y)
+        max_y = math.ceil(max_y)
+
+        bb.append([min_y, max_y, i])
 
     return bb
 
 
-def get_discard_add_nums(bounding_box):
-    discards = []
-    adds = []
-    for i in range(len(bounding_box)):        
-        if i==0:
-            discards.append([0, bounding_box[i][2]])
-            adds.append([bounding_box[i][1] - bounding_box[i][0] + 1, bounding_box[i][2]])
+def get_shift_nums(bb):
+    shift_nums = []
+    buffer_size = 0
+    img_shift = 0
+    for i in range(len(bb)):
+        min_y = bb[i][0]
+        if min_y > img_shift:
+            shift_nums.append(min_y - img_shift)
+            img_shift = min_y
+            buffer_size_needed = bb[i][1] - img_shift + 1 # make sure buffersize is enough
+            if buffer_size_needed > buffer_size:
+                buffer_size = buffer_size_needed
         else:
-            discards.append([bounding_box[i][0] - bounding_box[i-1][0], bounding_box[i][2]])
-            adds.append([bounding_box[i][1] - bounding_box[i-1][1], bounding_box[i][2]])
+            shift_nums.append(0)
+    
+    print("buffer_size: ", buffer_size)
 
-    return discards, adds
+    return shift_nums
 
-def parse_discard_add_nums(discards, adds):
-    line_comp = []
-    buffersize = 0
-    max_buffersize = 0
-    for i in range(len(discards)):
-        line_info = dict()
-        if discards[i][1] == "skip":
-            continue
-        else:
-            buffersize -= discards[i][0]
-            buffersize += adds[i][0]
-            line_info["discard"] = discards[i][0]
-            line_info["add"] = adds[i][0]
-            line_info["buffersize"] = buffersize
-            line_info["num"] = i
-            line_comp.append(line_info)
 
-            if buffersize > max_buffersize:
-                max_buffersize = buffersize
-
-    print("max_buffersize: ", max_buffersize)
-
-    return line_comp
 
 
 if __name__ == "__main__":  
     distort_idx = np.load("distort_idx.npy")
     print(distort_idx.shape)
     bounding_box = get_bounding_box(distort_idx)
-    discards, adds = get_discard_add_nums(bounding_box)
-    line_comp = parse_discard_add_nums(discards, adds)
-    # print(line_comp)
+    shift_nums = get_shift_nums(bounding_box)
+    import ipdb; ipdb.set_trace()
