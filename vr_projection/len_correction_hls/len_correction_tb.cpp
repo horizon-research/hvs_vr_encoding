@@ -103,6 +103,13 @@ int main()
         err /= 3.0;
         acc_err += err;
         count += 1;
+
+        // std::cout << "err: " << err << std::endl;
+        // std::cout << "count: " << count << std::endl;
+        // std::cout << "out: " << int(o.r) << " " << int(o.g) << " " << int(o.b) << std::endl;
+        // std::cout << "ref: " << int(r.r) << " " << int(r.g) << " " << int(r.b) << std::endl; // 251 , 1180
+
+
         if (err > max_err) {
             max_err = err;
             max_ti = count;

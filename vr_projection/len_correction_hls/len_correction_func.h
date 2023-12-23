@@ -26,7 +26,7 @@ struct Memory_access {
 };
 
 struct Memory_info {
-	ap_uint<11> image_row_shift;
+	ap_uint<1> foo; // no use
 };
 
 struct Bilinear_info {
@@ -46,7 +46,7 @@ void len_correction_func(
 
 namespace vr_prototype
 {
-	const ap_uint<3> len_correction_shifts[1080] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	const ap_uint<3> len_correction_shifts[1080] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	class Len_corrector
 	{
 		public:
@@ -54,6 +54,7 @@ namespace vr_prototype
 			
 		void operator()(hls::stream<Pixel> &dout, hls::stream<Agg_in_srgb> &din) {
 			#pragma HLS DATAFLOW disable_start_propagation
+			
 			// Read from stream / config, gnerate data to store and its address
 			hls::stream<Memory_access> memory_write_stream("memory_write_stream");
 			hls::stream<Memory_info> memory_info_stream("memory_info_stream");
@@ -63,9 +64,9 @@ namespace vr_prototype
 			hls::stream<Memory_access> memory_read_stream("memory_read_stream");
 			hls::stream<FourPixel> read_data_stream("read_data_stream");			
 			hls::stream<Pixel> _dout;
-			// len_correction(_dout, memory_read_stream, read_data_stream, memory_info_stream);
 			hls::stream<Bilinear_info> bilinear_info_stream; 
-
+			#pragma HLS STREAM variable=bilinear_info_stream depth=32
+			#pragma HLS STREAM variable=memory_read_stream depth=32
 			// Len correction using Biliner interpolation, need to sequentialize address_query -> memory_manager -> bilinear_interpolation_node to enable Csim
 			address_query(memory_read_stream, bilinear_info_stream, memory_info_stream);
 
@@ -81,16 +82,16 @@ namespace vr_prototype
 			Pixel buffer [960];
 			for (int i = 0; i < 1080; i++)
 			{
-				for (int i = 0; i < 1920; i++)
+				for (int j = 0; j < 1920; j++)
 				{
 					#pragma HLS PIPELINE II=1 rewind
-					if (i < 960) {
+					if (j < 960) {
 						Pixel in = _dout.read();
-						buffer[i] = in;
+						buffer[j] = in;
 						dout.write(in);
 					}
 					else {
-						dout.write(buffer[i-960]);
+						dout.write(buffer[j-960]);
 					}
 				}	
 			}
@@ -101,12 +102,13 @@ namespace vr_prototype
 			for (int i = 0; i < 1080; i++)
 			{
 				if (i==0) {
-					send_meminfo(memory_info_stream, 0);
+					Memory_info mem_info;
+					memory_info_stream.write(mem_info);
 					update_buffer(memory_write_stream, din, tile_count, buffer_row_num);
 				}
 				else {
-					int tile_start_row = ( tile_count / (1920/4) ) << 2;
-					send_meminfo(memory_info_stream, tile_start_row);
+					Memory_info mem_info;
+					memory_info_stream.write(mem_info);
 					ap_uint<3> shift = len_correction_shifts[i];
 					update_buffer(memory_write_stream, din, tile_count, ap_uint<8> (shift) );
 				}
@@ -129,7 +131,7 @@ namespace vr_prototype
 				tile_start_row = (tile_count / (1920/4)) << 2;
 				tile_start_col = (tile_count % (1920/4)) << 2;
 
-				if (tile_start_col >= 960) {
+				if (tmp_tile_start_col >= 960) {
 					din.read(); 
 				}
 				else {
@@ -137,12 +139,6 @@ namespace vr_prototype
 					tile_write(memory_write_stream, in, tmp_tile_start_row, tmp_tile_start_col);
 				}
 			}
-		}
-
-		void send_meminfo(hls::stream<Memory_info> &memory_info_stream, const ap_uint<11> &image_row_shift) {
-			Memory_info mem_info;
-			mem_info.image_row_shift = image_row_shift;
-			memory_info_stream.write(mem_info);
 		}
 
 		void tile_write(hls::stream<Memory_access> &memory_write_stream, Agg_in_srgb &in, const int &tile_start_row,  const int &tile_start_col) {
@@ -156,7 +152,10 @@ namespace vr_prototype
 
 		void decode_tile ( Memory_access out[4], Agg_in_srgb &in, const int &tile_start_row,  const int &tile_start_col){
 			const ap_uint<4> rgb_shift[4] = {0, 2, 8, 10};
-			const ap_uint<4> addr_shift[4][2] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+			const ap_uint<4> addr_shift[4][2] = {{0, 0}, {0, 2}, {2, 0}, {2, 2}};
+			int start_row = tile_start_row;
+			int start_col = tile_start_col;
+
 			for (int i = 0; i < 4; i++)
 			{
 				rgb_assign(out[i].data[0], in.rgb[rgb_shift[i]]);
@@ -164,13 +163,13 @@ namespace vr_prototype
 				rgb_assign(out[i].data[2], in.rgb[rgb_shift[i] + 4]);
 				rgb_assign(out[i].data[3], in.rgb[rgb_shift[i] + 5]);
 
-				ap_uint<7> buffer_start_row = (tile_start_row % buffer_row_num) >> 1;
-				ap_uint<9> buffer_start_col = (tile_start_col >> 1);
-				for (int j = 0; j < 4; j++)
-				{
-					out[i].address1[j] = buffer_start_row + addr_shift[i][0];
-					out[i].address2[j] = buffer_start_col + addr_shift[i][1];
-				}
+				ap_uint<2> buffer_idx;
+				int row = start_row + addr_shift[i][0];
+				int col = start_col + addr_shift[i][1]; //207, 195
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[0], out[i].address2[0], row, col);
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[1], out[i].address2[1], row, col + 1);
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[2], out[i].address2[2], row + 1, col);
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[3], out[i].address2[3], row + 1, col + 1);				
 				out[i].yield = 0;
 			}
 		}
@@ -178,8 +177,34 @@ namespace vr_prototype
 		void rgb_assign(Pixel &out, ap_uint<8> in[3]) {
 			// rgb to bgr
 			out.b = in[2];
-			out.g = in[0];
-			out.r = in[1];
+			out.g = in[1];
+			out.r = in[0];
+		}
+
+		void img_cood_to_buffer_cood(ap_uint<2> &buffer_idx, ap_uint<7> &buffer_row, ap_uint<9> &buffer_col, const ap_uint<11> &image_row, const ap_uint<10> &image_col) {
+			// in-buffer col address don't need to be changed
+			ap_uint<10> in_buffer_col = image_col;
+			// in-buffer row address need to be changed, by mapping it to 0~(B-1) range
+			ap_uint<8>  in_buffer_row = image_row % buffer_row_num;
+			// Now, we need to map this in_buffer address to certain buffer and itts addr
+			buffer_col = in_buffer_col >> 1;
+			buffer_row = in_buffer_row >> 1;
+			if (in_buffer_col.range(0,0) == 0 && in_buffer_row.range(0,0) == 0)
+			{
+				buffer_idx = 0;
+			}
+			else if(in_buffer_col.range(0,0) == 1 && in_buffer_row.range(0,0) == 0)
+			{
+				buffer_idx = 1;
+			}
+			else if(in_buffer_col.range(0,0) == 0 && in_buffer_row.range(0,0) == 1)
+			{
+				buffer_idx = 2;
+			}
+			else if(in_buffer_col.range(0,0) == 1 && in_buffer_row.range(0,0) == 1)
+			{
+				buffer_idx = 3;
+			}
 		}
 
 		void memory_manager(hls::stream<FourPixel> &read_data_stream, hls::stream<Memory_access> &memory_write_stream, hls::stream<Memory_access> &memory_read_stream) {
@@ -219,8 +244,8 @@ namespace vr_prototype
 
 		void write_to_buffer(Memory_access &in, Pixel pixel_buffer_1[92][480], Pixel pixel_buffer_2[92][480], Pixel pixel_buffer_3[92][480], Pixel pixel_buffer_4[92][480]) {
 			// std::cout addresses
-			std::cout << "address1: " << in.address1[0] << " " << in.address1[1] << " " << in.address1[2] << " " << in.address1[3] << std::endl;
-			std::cout << "address2: " << in.address2[0] << " " << in.address2[1] << " " << in.address2[2] << " " << in.address2[3] << std::endl;
+			// std::cout << "address1: " << in.address1[0] << " " << in.address1[1] << " " << in.address1[2] << " " << in.address1[3] << std::endl;
+			// std::cout << "address2: " << in.address2[0] << " " << in.address2[1] << " " << in.address2[2] << " " << in.address2[3] << std::endl;
 			pixel_buffer_1[in.address1[0]][in.address2[0]] = in.data[0];
 			pixel_buffer_2[in.address1[1]][in.address2[1]] = in.data[1];
 			pixel_buffer_3[in.address1[2]][in.address2[2]] = in.data[2];
@@ -229,8 +254,8 @@ namespace vr_prototype
 
 		void read_from_buffer(hls::stream<FourPixel> &read_data_stream, Memory_access &in, Pixel pixel_buffer_1[92][480], Pixel pixel_buffer_2[92][480], Pixel pixel_buffer_3[92][480], Pixel pixel_buffer_4[92][480]){
 			FourPixel out;
-			std::cout << "address1: " << in.address1[0] << " " << in.address1[1] << " " << in.address1[2] << " " << in.address1[3] << std::endl;
-			std::cout << "address2: " << in.address2[0] << " " << in.address2[1] << " " << in.address2[2] << " " << in.address2[3] << std::endl;
+			// std::cout << "address1: " << in.address1[0] << " " << in.address1[1] << " " << in.address1[2] << " " << in.address1[3] << std::endl;
+			// std::cout << "address2: " << in.address2[0] << " " << in.address2[1] << " " << in.address2[2] << " " << in.address2[3] << std::endl;
 			out.data[0] = pixel_buffer_1[in.address1[0]][in.address2[0]];
 			out.data[1] = pixel_buffer_2[in.address1[1]][in.address2[1]];
 			out.data[2] = pixel_buffer_3[in.address1[2]][in.address2[2]];
@@ -238,43 +263,32 @@ namespace vr_prototype
 			read_data_stream.write(out);
 		}
 
-		// void len_correction( hls::stream<Pixel> &dout, hls::stream<Memory_access> &memory_read_stream, hls::stream<FourPixel> &read_data_stream, hls::stream<Memory_info> &memory_info_stream) {
-		// 	#pragma HLS DATAFLOW disable_start_propagation
-		// 	// Read memory
-		// 	hls::stream<Bilinear_info> bilinear_info_stream; 
-		// 	address_query(memory_read_stream, bilinear_info_stream, memory_info_stream);
-		// 	// Bilinear interpolation
-		// 	bilinear_interpolation_node(dout, read_data_stream, bilinear_info_stream);
-		// }
-
 		void address_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, hls::stream<Memory_info> &memory_info_stream) {
 			for (int i = 0; i < 1080; i++)
 			{
-				Memory_info mem_info;
-				for (int j=0; j < 960; j++)
+				for (int j=0; j < 961; j++)
 				{
 					#pragma HLS PIPELINE II=1
-					if(j == 0) {
-						Memory_info mem_info = memory_info_stream.read();
-					}
-					ap_uint<11> image_row_shift = mem_info.image_row_shift;
-					// compute address using
-					float x, y, cor_x, cor_y;
-					x = float(j);
-					y = float(i);
-					compute_correction_idx(cor_x, cor_y, x, y);
-					bool valid = true;
-					// print cor_x, cor_y
-
-					std::cout << "x: " << x << " y:" << y << " cor_x: " << cor_x << " cor_y: " << cor_y << std::endl;
-					if (cor_x < 0 || cor_x >= 960 || cor_y < 0 || cor_y >= 1080) {
-						valid = false;
-					}
-					send_read_query(memory_read_stream, bilinear_info_stream, cor_x, cor_y, image_row_shift, valid);
-					if (j == 959) {
+					if (j == 960) {
 						Memory_access out;
 						out.yield = 1;
 						memory_read_stream.write(out);
+					}
+					else {
+						float x, y, cor_x, cor_y;
+						x = float(j);
+						y = float(i);
+
+						if(j == 0) {
+							memory_info_stream.read();
+						}
+						// compute address using
+						compute_correction_idx(cor_x, cor_y, x, y); // correct!
+						bool valid = true;
+						if (cor_x < 0 || cor_x >= 960 || cor_y < 0 || cor_y >= 1080) {
+							valid = false;
+						}
+						send_read_query(memory_read_stream, bilinear_info_stream, cor_x, cor_y, valid);
 					}
 				}
 			}
@@ -306,74 +320,51 @@ namespace vr_prototype
 			cor_y = cor_y1 + 540;
 		}
 
-		void send_read_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, const float &cor_x,  const float &cor_y, const ap_uint<11> &image_row_shift, const bool &valid) {
-			ap_uint<11> x1 = ap_uint<11>(cor_x);
-			ap_uint<11> x2 = x1 + 1;
+		void send_read_query(hls::stream<Memory_access> &memory_read_stream, hls::stream<Bilinear_info> &bilinear_info_stream, const float &cor_x,  const float &cor_y, const bool &valid) {
+			#pragma HLS INLINE
+
+			// std::cout << "=============== valid: ================" << valid << std::endl;
+			// std::cout << "cor_x: " << cor_x << " cor_y: " << cor_y << std::endl;
+			ap_uint<10> x1 = ap_uint<10>(cor_x);
+			ap_uint<10> x2 = x1 + 1;
 			ap_uint<11> y1 = ap_uint<11>(cor_y);
 			ap_uint<11> y2 = y1 + 1;
+
 			float dx = cor_x - x1;
 			float dy = cor_y - y1;
-
-			ap_uint<7> buffer_start_row = (image_row_shift % buffer_row_num) >> 1;
-
-			y1 = y1 - image_row_shift;
-			y2 = y2 - image_row_shift;
+			// std::cout << "dx: " << dx << " dy: " << dy << std::endl;
 
 			Bilinear_info blinear_info;
 			blinear_info.dx = dx;
 			blinear_info.dy = dy;
 			blinear_info.valid = valid;
 
-
-			ap_uint<2> xy11_idx, xy12_idx, xy21_idx, xy22_idx;
-			if (x1(0,0) == 0 & y1(0,0) == 0) { // if x1 and y1 are even
-				xy11_idx = 0;
-				xy12_idx = 1;
-				xy21_idx = 2;
-				xy22_idx = 3;
-			}
-			else if (x1(0,0) == 0 & y1(0,0) == 1) { // if x1 is even and y1 is odd
-				xy11_idx = 3;
-				xy12_idx = 4;
-				xy21_idx = 1;
-				xy22_idx = 2;
-			}
-			else if (x1(0,0) == 1 & y1(0,0) == 0) {
-				xy11_idx = 2;
-				xy12_idx = 1;
-				xy21_idx = 4;
-				xy22_idx = 3;
-			}
-			else if (x1(0,0) == 1 & y1(0,0) == 1) {
-				xy11_idx = 4;
-				xy12_idx = 3;
-				xy21_idx = 1;
-				xy22_idx = 2;
-			}
-
-			y1 = y1 >> 1;
-			y2 = y2 >> 1;
-			y1 = (y1 + buffer_start_row) % (buffer_row_num/2);
-			y2 = (y2 + buffer_start_row) % (buffer_row_num/2);
-
-			x1 = x1 >> 1;
-			x2 = x2 >> 1;
-
 			Memory_access out;
-			out.address1[xy11_idx] = y1;
-			out.address2[xy11_idx] = x1;
-			out.address1[xy12_idx] = y1;
-			out.address2[xy12_idx] = x2;
-			out.address1[xy21_idx] = y2;
-			out.address2[xy21_idx] = x1;
-			out.address1[xy22_idx] = y2;
-			out.address2[xy22_idx] = x2;
-			out.yield = 0;
+			#pragma HLS ARRAY_PARTITION variable=out.data complete dim=0
+			#pragma HLS ARRAY_PARTITION variable=out.address1 complete dim=0
+			#pragma HLS ARRAY_PARTITION variable=out.address2 complete dim=0
 
-			blinear_info.xy11_idx = xy11_idx;
-			blinear_info.xy12_idx = xy12_idx;
-			blinear_info.xy21_idx = xy21_idx;
-			blinear_info.xy22_idx = xy22_idx;
+			ap_uint<2> buffer_idx;
+			ap_uint<7> buffer_row;
+			ap_uint<9> buffer_col;
+			img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, y1, x1);
+			out.address1[buffer_idx] = buffer_row;
+			out.address2[buffer_idx] = buffer_col;
+			blinear_info.xy11_idx = buffer_idx;
+			img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, y1, x2);
+			out.address1[buffer_idx] = buffer_row;
+			out.address2[buffer_idx] = buffer_col;
+			blinear_info.xy21_idx = buffer_idx;
+			img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, y2, x1);
+			out.address1[buffer_idx] = buffer_row;
+			out.address2[buffer_idx] = buffer_col;
+			blinear_info.xy12_idx = buffer_idx;
+			img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, y2, x2);
+			out.address1[buffer_idx] = buffer_row;
+			out.address2[buffer_idx] = buffer_col;
+			blinear_info.xy22_idx = buffer_idx;
+
+			out.yield = 0;
 
 			bilinear_info_stream.write(blinear_info);
 			if (valid) {
@@ -389,7 +380,7 @@ namespace vr_prototype
 					#pragma HLS PIPELINE II=1
 					Bilinear_info blinear_info = bilinear_info_stream.read();
 					// print valid / in_data / out_data
-					std::cout << "blinear_info.valid: " << blinear_info.valid << std::endl;
+					// std::cout << "blinear_info.valid: " << blinear_info.valid << std::endl;
 					if (blinear_info.valid) {
 						FourPixel in = read_data_stream.read();
 						Pixel xy11 = in.data[blinear_info.xy11_idx];
@@ -404,12 +395,6 @@ namespace vr_prototype
 						bilinear_interpolation(out.g, xy11.g, xy12.g, xy21.g, xy22.g, dx, dy);
 						bilinear_interpolation(out.r, xy11.r, xy12.r, xy21.r, xy22.r, dx, dy);
 						dout.write(out);
-
-						for (int i = 0; i < 4; i++)
-						{
-							std::cout << "in.data[" << i << "]: " << in.data[i].b << " " << in.data[i].g << " " << in.data[i].r << std::endl;
-						}
-						std::cout << "out: " << out.b << " " << out.g << " " << out.r << std::endl;
 					}
 					else {
 						Pixel out;
@@ -417,7 +402,7 @@ namespace vr_prototype
 						out.g = 0;
 						out.r = 0;
 						dout.write(out);
-						std::cout << "out: " << out.b << " " << out.g << " " << out.r << std::endl;
+						// std::cout << "out: " << out.b << " " << out.g << " " << out.r << std::endl;
 					}
 				}
 				

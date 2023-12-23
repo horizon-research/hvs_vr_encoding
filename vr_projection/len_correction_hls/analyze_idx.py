@@ -29,7 +29,7 @@ def get_bounding_box(distort_idx):
         min_y = min_y + 1
         max_y = max_y + 1
 
-        bb.append([min_y, max_y, i])
+        bb.append([min_y, max_y])
 
     return bb
 
@@ -61,13 +61,19 @@ def get_shift_nums(bb):
 
 def post_process(shift_nums, buffer_size):
     shifts = []
+    i = 0
+    readnum = buffer_size
     for shift_num in shift_nums:
-        if(buffer_size > 0):
-            buffer_size -= shift_num
-            shift_num = 0
-        assert buffer_size >= 0
+        readnum = readnum + shift_num
+        if readnum > 1080:
+            shifts.append(0)
+            readnum = readnum - shift_num
+        else:
+            shifts.append(shift_num)
 
-        shifts.append(shift_num)
+    
+    assert readnum == 1080
+
     return shifts
 
 
@@ -86,6 +92,8 @@ if __name__ == "__main__":
     shifts = np.array(shifts)
     print(shifts.shape)
     print(shifts.sum() + buffer_size)
+
+    import ipdb; ipdb.set_trace()
 
     # shift_nums = np.array(shift_nums)
     # print(shift_nums.shape)
