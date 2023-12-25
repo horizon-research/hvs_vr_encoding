@@ -73,11 +73,14 @@ int main()
     } 
 
     // otput is len
-    std::cout << "is size: " << is.size() << std::endl;
+    std::cout << "Input is size: " << is.size() << std::endl;
     
     // Call the top function
     hls::stream<Pixel> os("os");
     len_correction_func(os, is);
+
+    // check left is
+    std::cout << "Left is size: " << is.size() << std::endl;
 
     float acc_err = 0;
     int count = 0;

@@ -76,6 +76,30 @@ def post_process(shift_nums, buffer_size):
 
     return shifts
 
+def decode_to_serial(shifts, buffer_size):
+    serials = []
+    # little endian
+    # 2th bit = write or not
+    # 1st bit = yield or not
+    # write + yield = 3
+    # write + not yield = 2
+    # not write + yield = 1
+    # not write + not yield = 0 # illegal
+    for i in range(buffer_size//4):
+        serials.append(2)
+
+    for shift in shifts:
+        shift = shift // 4
+        if shift == 0:
+            serials.append(1)
+        else:
+            for i in range(shift-1):
+                serials.append(2)
+            serials.append(3)
+        
+
+    return serials
+
 
 
 
@@ -87,11 +111,15 @@ if __name__ == "__main__":
     shift_nums, buffer_size = get_shift_nums(bounding_box)
 
     shifts = post_process(shift_nums, buffer_size)
-    print(shifts)
+    # print(shifts.shape)
+    # print(shifts.sum() + buffer_size)
 
-    shifts = np.array(shifts)
-    print(shifts.shape)
-    print(shifts.sum() + buffer_size)
+    serials = decode_to_serial(shifts, buffer_size)
+    print(serials)
+    serials = np.array(serials)
+    np.set_printoptions(threshold=np.inf)
+    print(serials.shape)
+    print(np.logical_or(serials==2, serials==3).sum() * 4)
 
     import ipdb; ipdb.set_trace()
 

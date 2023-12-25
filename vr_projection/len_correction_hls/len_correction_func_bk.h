@@ -3,6 +3,42 @@
 #include <ap_fixed.h>
 #include <hls_math.h>
 
+
+struct Agg_in_srgb {
+	ap_uint<8> rgb[16][3];
+};
+
+struct Pixel { // Pynq is BGR format
+	ap_uint<8> b;
+	ap_uint<8> g;
+	ap_uint<8> r;
+};
+
+struct FourPixel { // Pynq is BGR format
+	Pixel data[4];
+};
+
+struct Memory_access {
+	Pixel data[4];
+	ap_uint<7> address1[4];
+	ap_uint<9> address2[4];
+	ap_uint<1> yield;
+};
+
+struct Memory_info {
+	ap_uint<1> foo; // no use
+};
+
+struct Bilinear_info {
+	ap_uint<2> xy11_idx;
+	ap_uint<2> xy12_idx;
+	ap_uint<2> xy21_idx;
+	ap_uint<2> xy22_idx;
+	float dx;
+	float dy;
+	bool valid;
+};
+
 void len_correction_func(
 	hls::stream< Pixel > &dout,
 	hls::stream< Agg_in_srgb > &din
@@ -10,6 +46,7 @@ void len_correction_func(
 
 namespace vr_prototype
 {
+	const ap_uint<3> len_correction_shifts[1080] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 0, 4, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	class Len_corrector
 	{
 		public:
@@ -18,10 +55,9 @@ namespace vr_prototype
 			#pragma HLS DATAFLOW // disable_start_propagation will make Cosim stuck
 			
 			// Read from stream / config, gnerate data to store and its address
-			hls::stream<Memory_access_data> memory_write_ds("memory_write_ds");
-			hls::stream<Memory_access_ctrl> memory_write_cs("memory_write_cs");
-			
-			memory_writer(memory_write_stream, memory_info_stream, din);
+			hls::stream<Memory_access> memory_write_stream("memory_write_stream");
+			hls::stream<Memory_info> memory_info_stream("memory_info_stream");
+			store_address_generator(memory_write_stream, memory_info_stream, din);
 
 			// Memory Management, deal with lock and yield
 			hls::stream<Memory_access> memory_read_stream("memory_read_stream");
@@ -63,7 +99,7 @@ namespace vr_prototype
 			}
 		}
 
-		void memory_writer(hls::stream<Memory_access_data> &memory_write_ds, hls::stream<Memory_access_ctrl> &memory_write_cs, hls::stream<Agg_in_srgb> &din) {
+		void store_address_generator(hls::stream<Memory_access> &memory_write_stream, hls::stream<Memory_info> &memory_info_stream, hls::stream<Agg_in_srgb> &din) {
 			int tile_count = 0;
 			for (int i = 0; i < 1080; i++)
 			{
@@ -107,6 +143,45 @@ namespace vr_prototype
 			}
 		}
 
+		void tile_write(hls::stream<Memory_access> &memory_write_stream, Agg_in_srgb &in, const int &tile_start_row,  const int &tile_start_col) {
+			Memory_access out[4];
+			decode_tile(out, in, tile_start_row, tile_start_col);
+			for (int i = 0; i < 4; i++)
+			{
+				memory_write_stream.write(out[i]);
+			}
+		}
+
+		void decode_tile ( Memory_access out[4], Agg_in_srgb &in, const int &tile_start_row,  const int &tile_start_col){
+			const ap_uint<4> rgb_shift[4] = {0, 2, 8, 10};
+			const ap_uint<4> addr_shift[4][2] = {{0, 0}, {0, 2}, {2, 0}, {2, 2}};
+			int start_row = tile_start_row;
+			int start_col = tile_start_col;
+
+			for (int i = 0; i < 4; i++)
+			{
+				rgb_assign(out[i].data[0], in.rgb[rgb_shift[i]]);
+				rgb_assign(out[i].data[1], in.rgb[rgb_shift[i] + 1]);
+				rgb_assign(out[i].data[2], in.rgb[rgb_shift[i] + 4]);
+				rgb_assign(out[i].data[3], in.rgb[rgb_shift[i] + 5]);
+
+				ap_uint<2> buffer_idx;
+				int row = start_row + addr_shift[i][0];
+				int col = start_col + addr_shift[i][1]; //207, 195
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[0], out[i].address2[0], row, col);
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[1], out[i].address2[1], row, col + 1);
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[2], out[i].address2[2], row + 1, col);
+				img_cood_to_buffer_cood(buffer_idx, out[i].address1[3], out[i].address2[3], row + 1, col + 1);				
+				out[i].yield = 0;
+			}
+		}
+
+		void rgb_assign(Pixel &out, ap_uint<8> in[3]) {
+			// rgb to bgr
+			out.b = in[2];
+			out.g = in[1];
+			out.r = in[0];
+		}
 
 		void img_cood_to_buffer_cood(ap_uint<2> &buffer_idx, ap_uint<7> &buffer_row, ap_uint<9> &buffer_col, const ap_uint<11> &image_row, const ap_uint<10> &image_col) {
 			// in-buffer col address don't need to be changed
