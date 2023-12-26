@@ -2,7 +2,7 @@
 #include <ap_int.h>
 
 
-struct Agg_in_srgb {
+struct Agg_in_srgb { // here input is rgb format , not bgr
 	ap_uint<8> rgb[16][3];
 };
 
@@ -40,16 +40,17 @@ namespace vr_prototype
             if (i < load_num)
             {
                 Agg_in_srgb agg_in = in.read();
+                // add a tile to the 4-row buffer
                 for(int j = 0; j < tile_size * tile_size; j++)
                 {
                     int row_idx = j / tile_size;
-                    int col_idx = j % tile_size + i * tile_size; // shift + base address
+                    int col_idx = j % tile_size + i * tile_size; // shift + base address of the tile
                     pixel_buffer_1[row_idx][col_idx].r = agg_in.rgb[j][0];
                     pixel_buffer_1[row_idx][col_idx].g = agg_in.rgb[j][1];
                     pixel_buffer_1[row_idx][col_idx].b = agg_in.rgb[j][2];
                 }
             }
-            else
+            else // ouput pixel by pixel
             {
                 int row_idx = (i - load_num) / img_width;
                 int col_idx = (i - load_num) % img_width;
