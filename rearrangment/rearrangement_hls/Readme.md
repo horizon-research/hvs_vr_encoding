@@ -19,7 +19,13 @@ Use ```#pragma HLS bind_storage variable=pixel_buffer_1 type=ram_1p impl=lutram`
 
 Use the result from lutram variant  here
 
-II (Initial Interval) = 1
+1 cycle for every input and output, no double buffering.
+
+II=8160 for 4 rows (load_num + ouput_num)
+- load_num = 1920 / 4 = 480
+- ouput_num = 1920 * 4 = 7680
+
+![Alt text](images/timing.png)
 
 FPS = 136.1742112482853
 - Computation: 8160 cycles for 4 rows @ 300MHz
