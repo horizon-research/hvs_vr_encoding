@@ -1,6 +1,8 @@
 # rearrangement IP
 
-Transfom 4x4 tile in row order to 1x1 pixel in row order
+Transfom 4x4 tile in row order to 1x1 pixel in row order.
+
+Also, it change the pixel from RGB format to BGR needed by pynq
 
 ## Resource 
 Use BRAM for buffering: 
