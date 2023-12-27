@@ -1,0 +1,29 @@
+{
+	"moduleName": "encoder",
+	"input": {
+		"a": {
+			"bitWidth": 32,
+			"dimensions": [1,16]
+		},
+		"b": {
+			"bitWidth": 32,
+			"dimensions": [1,16] 
+		},
+		"c": {
+			"bitWidth": 32,
+			"dimensions": [1,16]
+		},
+		"dkl_centre": {
+			"bitWidth": 32,
+			"dimensions": [3,1,16]
+		}
+	},
+	"output": {
+		"srgb_centre": {
+			"bitWidth": 8,
+			"dimensions": [3,4,4]
+		}
+	},
+	"inputSource": "HDMI",
+	"outputDest": "HDMI"
+}
