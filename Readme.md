@@ -1,33 +1,26 @@
 # Demo of VR Image Color Optimization Pipeline
 
-## Overview
+## 1. Overview
 
 &nbsp; &nbsp; This project demonstrates color optimizer in the ASPLOS-2024 Paper [Exploiting Human Color Discrimination for Memory and Energy-Efficient Image Encoding in Virtual Reality](https://horizon-lab.org/pubs/asplos24-vr.pdf) on a FPGA board. This optimizer uses the limits of human color perception to reduce image color size. By subtly adjusting pixel colors within a humanly imperceptible range which depends on eccentricity, it brings colors of pixels closer, enhancing the efficiency of the following Base Delta compression algorithm. Finally, this foveated compression can make the system more memory and energy-efficient
 
 ### Overall Pipeline
 
+The figure illustrates the project's comprehensive pipeline, transforming panoramic video into foveated, compressed video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
+
 <img src="images/pipeline.png" alt="Alt text" width="800"/>
 
-## Examples of the foveated compression
-<!-- ### board output: -->
-### Example output
+### Examples of the foveated compressed output
 <img src="images/md_office.jpg" alt="Alt text" width="800"/>
 
-<!-- ### Comparison with original image (improve 7%): You can observe artifacts at the peripheral.
-<img src="md_images/compare.png" alt="Alt text" width="800"/> -->
+## 2. Files Organization
 
-## Files Organization
+- `fpga/`: Codes related to modules in FPGA.
+- `host/`: Codes related to modules in Host.
 
-- `tile_color_optimizer_hls/`: Vitis HLS codes / scripts for accelerator generation.
-- `ref_python/`: Python reference codes for gold seqence (for hardware verification) and input (for on-board test) generation
-- `vivado/`: scripts for vivado block design building and bitstream generation.
-- `on_board_test/`:  Contains codes needed for on-board test.
-    - `pynq_scripts/`: python scripts run on board, used to control fpga logics.
-    - `pygame/`: python scripts run on host, used to send input to FPGA through HDMI port.
+## 3. Usage
 
-## Usage
-
-### 1. Preparation: 
+### 3.1 Preparation: 
 - Host machine:
     - Python with libs needed in `ref_python/`, `pygame/`
     - install Vitis  2022.2
@@ -36,7 +29,7 @@
 - ZCU104 Board:
     - Install pynq image
 
-### 2. Prepare test data
+### 3.2 Prepare test data
 
 - For HLS verification: 
 
@@ -56,7 +49,7 @@
     python3 generate_board_inputs.py --images_folder <path_to_images> --board_inputs_folder <path_to_store_board_inputs> --num_workers <num_of_workers>
     ```
 
-### 2. Generate / Verify HLS Hardware Accelerator
+### 3.3 Generate / Verify HLS Hardware Accelerator
 
 - Synthesize the C++ to RTL and generate the IP
 
@@ -73,7 +66,7 @@
     bash cosim.sh
     ```
 
-### 3 . Build the vivado block design and generate bitstream / .hwh for pynq
+### 3.4 Build the vivado block design and generate bitstream / .hwh for pynq
 
 - Build the base design from official repo:
 
@@ -98,7 +91,7 @@
     bash extract_bit_hwh.sh # will be extrct to TODO/
     ```
 
-### 4. Run the on-board test
+### 3.5 Run the on-board test
 - Go in board test folder
     ```bash 
     cd on_board_test/
@@ -132,7 +125,7 @@
     - Run Fourth block of `pynq_scripts/board_demo.ipynb` to close hdmi on fpga before you leave.
 
 
-### 5. Result analysis
+### 3.6 Result analysis
 - You can use `ref_python/compare.py` to analyze the results of reference python or board results. It will output a comparison in `.png` format in `ref_python/`
 
     ```bash
