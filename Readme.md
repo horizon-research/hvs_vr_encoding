@@ -6,7 +6,7 @@
 
 ### 1.1 Overall Pipeline
 
-&nbsp; &nbsp; The figure illustrates the project's comprehensive pipeline, transforming panoramic video into the foveated compressed video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
+&nbsp; &nbsp; The figure illustrates the project's comprehensive pipeline, transforming panoramic video into the foveated compressed (Color Optimiz) video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
 
 <img src="images/pipeline.png" alt="Alt text" width="800"/>
 
@@ -15,8 +15,16 @@
 
 ## 2. Files Organization
 
-- `fpga/`: Codes related to modules in FPGA.
-- `host/`: Codes related to modules in Host.
+- `host/`: Codes for the Host Machine.
+    - `video_decode/`: codes for video decode.
+    - `binocular_projection/`: codes for eqirectangular to binocular images projection.
+    - `fpga_input_generation/`: codes for abc, dkl computaton and reaarangement.
+    - `pygame/`: codes for sending image contains parameters through HDMI.
+    - `full_pipeline_in_software/`: codes to run the full pipeline in software. Convenient for expected results observation and parameter configuration.
+
+- `fpga/`:  Codes for FPGA.
+    - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
+    - `len_correction_hls/`: HLS implementation of color optimizer.
 
 ## 3. Usage
 
