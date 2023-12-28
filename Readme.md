@@ -26,7 +26,7 @@
 
 - `fpga/`:  Codes for FPGA.
     - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
-    - `len_correction_hls/`: HLS implementation of color optimizer.
+    - `len_correction_hls/`: HLS implementation of len correction.
     - `rearrangment/`: Verilog and HLS implementation of reaarange ment IP (RIP) on FPGA.
     - `vivado/`: codes for generate and connect all other modules in a block design.
     - `pynq_scripts/`: Jupyter note code for control modules in run time using ARM on the fpga board. 
