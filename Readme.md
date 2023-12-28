@@ -21,6 +21,7 @@
     - `fpga_input_generation/`: codes for abc, dkl computaton and reaarangement.
     - `pygame/`: codes for sending image contains parameters through HDMI.
     - `len_correction/`: codes for len correction (implemented in software)
+    - `color_optimizer`:  codes for color optimizer (implemented in software)
     - `full_pipeline_in_software/`: codes to run the full pipeline in software. Convenient for expected results observation and parameter configuration.
 
 
