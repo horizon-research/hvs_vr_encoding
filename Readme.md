@@ -20,11 +20,16 @@
     - `binocular_projection/`: codes for eqirectangular to binocular images projection.
     - `fpga_input_generation/`: codes for abc, dkl computaton and reaarangement.
     - `pygame/`: codes for sending image contains parameters through HDMI.
+    - `len_correction/`: codes for len correction (implemented in software)
     - `full_pipeline_in_software/`: codes to run the full pipeline in software. Convenient for expected results observation and parameter configuration.
+
 
 - `fpga/`:  Codes for FPGA.
     - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
     - `len_correction_hls/`: HLS implementation of color optimizer.
+    - `rearrangment/`: Verilog and HLS implementation of reaarange ment IP (RIP) on FPGA.
+    - `vivado/`: codes for generate and connect all other modules in a block design.
+    - `pynq_scripts/`: Jupyter note code for control modules in run time using ARM on the fpga board. 
 
 ## 3. Usage
 
