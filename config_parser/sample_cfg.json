@@ -1,29 +1,25 @@
 {
-	"moduleName": "encoder",
-	"input": {
-		"a": {
-			"bitWidth": 32,
-			"dimensions": [1,16]
-		},
-		"b": {
-			"bitWidth": 32,
-			"dimensions": [1,16] 
-		},
-		"c": {
-			"bitWidth": 32,
-			"dimensions": [1,16]
-		},
-		"dkl_centre": {
-			"bitWidth": 32,
-			"dimensions": [3,1,16]
-		}
+	"inputSource": {
+		"mode": "video",                
+		"dim": [3,2160,3480]            
 	},
-	"output": {
-		"srgb_centre": {
-			"bitWidth": 8,
-			"dimensions": [3,4,4]
-		}
+	"module": {                       
+		"encoder": {              
+			"input": {                      
+				"bitWidth": 8,              
+				"dimensions": [3,1,64]      
+			},
+			"output": {
+				"bitWidth": 8,
+				"dimensions": [3,4,4],      
+				"order": "row"              
+			},
+			"upstream": "inputSource",     
+			"downstream": "outputSink" 
+		}     
 	},
-	"inputSource": "HDMI",
-	"outputDest": "HDMI"
+	"outputSink": {
+		"mode": "video",                
+		"dim":[3,1080,1920]             
+	}
 }
