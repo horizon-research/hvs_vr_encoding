@@ -1,4 +1,4 @@
-# Demo of VR Image Color Optimization Pipeline
+# Gaze-Contingent Image/Video Encoding For Virtual Reality: An FPGA Demo
 
 ## 1. Overview
 
