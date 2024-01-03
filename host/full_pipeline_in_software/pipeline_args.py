@@ -1,3 +1,28 @@
+
+'''
+Please modify below codes in cc_vr_pipeline/host/color_optimizer/red_blue_optimization.py
+if you want to change the abc value: (line 173)
+    def generate_ellipsoids(self, tile, ecc_tile):
+        srgb_centers = tile / 255
+        rgb_centers = sRGB2RGB(srgb_centers)
+        # import ipdb; ipdb.set_trace()
+        dkl_centers = (RGB2DKL[np.newaxis, :, :] @ rgb_centers.transpose(0,2,1)).transpose(0,2,1)
+        centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
+
+        centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
+        centers_abc[:, 2] = 1e-4
+
+        # centers_abc *= 2
+
+        if ecc_tile.mean() < 15:
+            centers_abc[:, :] = 1e-5
+
+        return dkl_centers, centers_abc
+
+'''
+
+
+
 import argparse
 from math import radians
 def get_args():
@@ -22,3 +47,4 @@ def get_args():
     args.cx = args.perspective_width / 2
     args.cy = args.perspective_height / 2
     return args
+
