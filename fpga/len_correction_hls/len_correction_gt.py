@@ -80,8 +80,8 @@ def pre_distort_image(image, k1, k2, cx, cy):
             x_distorted, y_distorted = distort_pixel(i, j, k1, k2, cx, cy, width, height)
             distort_idx[j, i, :] = [y_distorted, x_distorted] 
             if 0 <= x_distorted < width and 0 <= y_distorted < height:
-                if j == 251 and i==251:
-                    import ipdb; ipdb.set_trace()
+                # if j == 251 and i==251:
+                #     import ipdb; ipdb.set_trace()
                 pre_distorted_img[j, i] = bilinear_interpolate(image, y_distorted, x_distorted) # use round here
                 # pre_distorted_img[j, i] = image[int(y_distorted), int(x_distorted)]
 
@@ -121,8 +121,11 @@ if __name__ == '__main__':
     save_in_tile_order(two_image, "dump/ins.txt")
     
 
-
+    t1 = time.time()
     pre_distorted_image = pre_distort_image(image, k1, k2, cx, cy)
+    t2 = time.time()
+
+    print("time: ", t2-t1)
     # end = time.time()
     # print("fps: ", 10 / (end - start) )
 
