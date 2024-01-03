@@ -10,7 +10,7 @@ if you want to change the abc value: (line 173)
         centers_abc = color_model.compute_ellipses(srgb_centers, ecc_tile)
 
         centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
-        centers_abc[:, 2] = 1e-4
+        centers_abc[:, 2] = 1e-3
 
         # centers_abc *= 2
 
