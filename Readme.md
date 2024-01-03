@@ -72,7 +72,7 @@ cd cc_vr_pipeline/host/projection
 python3 equirect_to_pespective.py
 ```
 
-(3) I provide two scripts to run the Full color optimizer pipeline, the first one is a simple loop that process frame by frame. The other one is a multiprocessor implementation. For now, I copy the left image to right one since we only have one equirectangular map. 
+(3) We provide two scripts to run the Full color optimizer pipeline, the first one is a simple loop that process frame by frame. The other one is a multiprocessor implementation. For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
 See ```cc_vr_pipeline/host/pipeline_args.py``` for support args.
 
