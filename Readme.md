@@ -56,7 +56,7 @@ In this step, we need to decode the videos to images to facilitate later multipr
 cd host/video_decode
 python3 decode_video.py --video_path ../../videos/demo_video.mp4 --out_images_folder ../../decoded_images
 ```
-Now you can find decoded images in the main folder. To reduce downstream computatation, you can choose to preserve only 60 of them
+Now you can find decoded images in [decoded_images/](decoded_images/) in the main folder. To reduce downstream computatation, you can choose to preserve only 60 of them
 ```bash
 bash filter_decoded_images.bash "../../decoded_images" 60
 ```
@@ -74,7 +74,7 @@ python3 equirect_to_pespective.py
 
 (3) We provide two scripts to run the Full color optimizer pipeline, the first one is a simple loop that process frame by frame. The other one is a multiprocessor implementation. For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
-See ```cc_vr_pipeline/host/pipeline_args.py``` for support args.
+See [host/full_pipeline_in_software/pipeline_args.py](host/full_pipeline_in_software/pipeline_args.py) for supported args.
 
 - For the simple loop one: (this one will give you Progress Bar)
 ```bash 
@@ -89,7 +89,7 @@ cd cc_vr_pipeline/host/full_pipeline_in_software
 python3 software_pipeline_multicores.py --in_images_folder ../../decoded_images --out_images_folder ../../corrected_opt_images --num_workers 8
 ```
 
-(4) After running the above codes, you will see output in ```corrected_opt_images/``` folder in main directory.
+(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory.
 
 (5) Video Encoding (Encode images back to video , TO BE ADD)
 
