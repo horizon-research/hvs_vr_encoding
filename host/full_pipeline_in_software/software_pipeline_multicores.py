@@ -43,7 +43,7 @@ def muticore_multiframes_color_optimizer_pipeline(args):
 
 if __name__ == '__main__':
     args = get_args()
-    # step 1: make a tmp dir for output image
+    # step 1: make a dir for output images
     if not os.path.exists(args.out_images_folder):
         os.makedirs(args.out_images_folder)
 

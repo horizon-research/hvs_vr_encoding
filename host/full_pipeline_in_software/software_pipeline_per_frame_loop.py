@@ -14,7 +14,6 @@ if __name__ == '__main__':
         os.makedirs(args.out_images_folder)
     file_num = len(os.listdir(args.in_images_folder))
     total_frames = file_num
-    count = 0
     with tqdm(total=total_frames, desc="Converting Video") as pbar:
         for i in range(file_num):
             in_img_filename = args.in_images_folder + "/" + "frame" + str(i) + ".jpg"

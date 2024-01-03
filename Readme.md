@@ -53,12 +53,11 @@ wget 'https://drive.google.com/uc?id=1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw' -O video
 
 In this step, we need to decode the videos to images to facilitate later multiprocessing.
 ```bash
-cd host/video_decode
-python3 decode_video.py --video_path ../../videos/demo_video.mp4 --out_images_folder ../../decoded_images
+python3 host/video_encode_decode/decode_video.py --video_path ./videos/demo_video.mp4 --out_images_folder ./decoded_images
 ```
 Now you can find decoded images in [decoded_images/](decoded_images/) in the main folder. To reduce downstream computatation, you can choose to preserve only 60 of them
 ```bash
-bash filter_decoded_images.bash "../../decoded_images" 60
+bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 ```
 
 ### 3.3 Run the Full color optimizer pipeline
@@ -78,20 +77,25 @@ See [host/full_pipeline_in_software/pipeline_args.py](host/full_pipeline_in_soft
 
 - For the simple loop one: (this one will give you Progress Bar)
 ```bash 
-cd cc_vr_pipeline/host/full_pipeline_in_software
+cd host/full_pipeline_in_software
 python3 software_pipeline_per_frame_loop.py --in_images_folder ../../decoded_images --out_images_folder ../../corrected_opt_images
 
 ```
 
 - For multiprocessor implementation (this one won't give Progress Bar, you need to count file num in output folder to get progress. Run ```ls -l | wc -l``` in that folder. The output number substracted by one is the file number.)
 ```bash
-cd cc_vr_pipeline/host/full_pipeline_in_software
+cd host/full_pipeline_in_software
 python3 software_pipeline_multicores.py --in_images_folder ../../decoded_images --out_images_folder ../../corrected_opt_images --num_workers 8
 ```
 
 (4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory.
 
-(5) Video Encoding (Encode images back to video , TO BE ADD)
+### 3.5 Video Encoding
+Encode images back to video. This is for playing video on the VR display.
+```bash
+cd ../../ # go back to main folder
+python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos/opt_corrected_video.mp4 --images_folder ./corrected_opt_images --fps 60
+```
 
 ## 4. Usage of SW-HW Pipeline
 
