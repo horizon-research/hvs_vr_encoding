@@ -37,7 +37,6 @@
 &nbsp; &nbsp;  This section is about how to run the full pipeline in software only manner. It is useful quick check of  expected result. It mainly contains below pipeline
 
 <img src="doc_images/pipeline_software_only.png" alt="Alt text" width="800"/>
-![Alt text](image.png)
 
 ### 3.1 Video Preparation: 
 To start this experiment, you need to prepare a panoramic Video in equirectangular format.
@@ -45,19 +44,19 @@ To start this experiment, you need to prepare a panoramic Video in equirectangul
 If you don't have one, you can download our demo video from https://drive.google.com/file/d/1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw/view?usp=sharing
 
 ```bash
-mkdir videos
+mkdir videos # make videos directory in the main folder
 # this link is for wget, above one is for browser
 wget 'https://drive.google.com/uc?id=1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw' -O videos/demo_video.mp4
 ```
 
 ### 3.2 Decode Video to a Folder of Images
 
-In this step, we need to decode the videos to image to facilitate later multiprocessing.
+In this step, we need to decode the videos to images to facilitate later multiprocessing.
 ```bash
 cd host/video_decode
 python3 decode_video.py --video_path ../../videos/demo_video.mp4 --out_images_folder ../../decoded_images
 ```
-Now you can find decoded images in the main folder. The reduce downstream computatation, you can choose to preserve only 60 of them
+Now you can find decoded images in the main folder. To reduce downstream computatation, you can choose to preserve only 60 of them
 ```bash
 bash filter_decoded_images.bash "../../decoded_images" 60
 ```
@@ -73,7 +72,7 @@ cd cc_vr_pipeline/host/projection
 python3 equirect_to_pespective.py
 ```
 
-(3) I provide two scripts to run the Full color optimizer pipeline, the first one is a simple loop that process frame by frame. The other one is a multiprocessor implementation. Now, I copy the left image to right one since we onely have one equirectangular map. 
+(3) I provide two scripts to run the Full color optimizer pipeline, the first one is a simple loop that process frame by frame. The other one is a multiprocessor implementation. For now, I copy the left image to right one since we only have one equirectangular map. 
 
 See ```cc_vr_pipeline/host/pipeline_args.py``` for support args.
 
@@ -93,6 +92,6 @@ python3 software_pipeline_multicores.py --in_images_folder ../../decoded_images 
 (4) After running the above codes, you will see output in ```corrected_opt_images/``` folder in main directory.
 
 
-## 3. Usage of SW-HW Pipeline
+## 4. Usage of SW-HW Pipeline
 
 TO BE DONE
