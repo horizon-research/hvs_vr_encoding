@@ -91,6 +91,7 @@ python3 software_pipeline_multicores.py --in_images_folder ../../decoded_images 
 
 (4) After running the above codes, you will see output in ```corrected_opt_images/``` folder in main directory.
 
+(5) Video Encoding (Encode images back to video , TO BE ADD)
 
 ## 4. Usage of SW-HW Pipeline
 
