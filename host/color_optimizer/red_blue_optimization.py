@@ -248,7 +248,7 @@ class Image_color_optimizer:
         return npNewImage
 
 if __name__ == "__main__":
-    image_name = "office.bmp"
+    image_name = "WaterScape.bmp"
     # load image
     img = Image.open("Images/orig/" + image_name)
     img = np.array(img)

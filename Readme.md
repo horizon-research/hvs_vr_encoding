@@ -64,7 +64,7 @@ bash filter_decoded_images.bash "../../decoded_images" 60
 ### 3.3 Run the Full color optimizer pipeline
 
 
-(1) The pipeline for one frame is implemented in ```host/full_pipeline_in_software/software_pipeline_per_frame.py```, please refer it to see how to use and concatenate all modules.
+(1) The pipeline for one frame is implemented in [host/full_pipeline_in_software/software_pipeline_per_frame.py](host/full_pipeline_in_software/software_pipeline_per_frame.py), please refer it to see how to use and concatenate all modules.
 
 (2) Every module's main function also shows example of how to use it. You just need to go to the corresponding folder and run the python code. For example, the example code for projection is drawing the cube map, you can run it as follow:
 ```bash
