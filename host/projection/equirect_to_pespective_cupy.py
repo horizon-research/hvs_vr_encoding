@@ -49,16 +49,21 @@ def bilinear_interpolate(image, y, x):
 
 class equirectangular_to_perspective():
     def __init__(self, fov, equi_height, equi_width, out_height, out_width):
-        self.update_out_dims(out_height, out_width)
-        self.update_fov(fov)
+        self.out_height = out_height
+        self.out_width = out_width
         self.update_equi_dims(equi_height, equi_width)
+        self.update_fov(fov)
+        self.update_out_dims(out_height, out_width)
         
     def update_equi_dims(self, equi_height, equi_width):
         self.equi_height = equi_height
         self.equi_width = equi_width
         self.v_res = float(equi_height) / pi
         self.h_res = float(equi_width) / (2 * pi)
-        
+
+        self.v_res = cp.asarray(self.v_res, dtype=cp.float32)
+        self.h_res = cp.asarray(self.h_res, dtype=cp.float32)
+
     def update_fov(self, fov):
         self.fov = fov
         self.h_fov = radians(fov)
@@ -67,81 +72,50 @@ class equirectangular_to_perspective():
     def update_out_dims(self, out_height, out_width):
         self.out_height = out_height
         self.out_width = out_width
-        self.out_img = cp.zeros((out_height, out_width, 3), dtype=cp.float32)
+        # parrallelized numpy impl
+        # Convert perspective pixel coordinates to normalized degrees coordinates
+        self.x = cp.linspace(-1, 1, self.out_width, dtype=cp.float32) * cp.tan(self.h_fov / 2, dtype=cp.float32)
+        self.y = cp.linspace(1, -1, self.out_height , dtype=cp.float32) * cp.tan(self.v_fov / 2, dtype=cp.float32 )
+        self.xp, self.yp = cp.meshgrid(self.x, self.y)
+        self.zp = cp.ones_like(self.xp)
+        self.vec = cp.array([self.xp, self.yp, self.zp])
 
-    def project(self):
+
+    def project(self, equirect_img, roll, pitch, yaw):
+        # Calculate the camera rotation matrix
+        R_roll = np.array([[1, 0, 0],
+                        [0, cos(roll), -sin(roll)],
+                        [0, sin(roll), cos(roll)]], dtype=np.float32)
+
+        R_pitch = np.array([[cos(pitch), 0, sin(pitch)],
+                            [0, 1, 0],
+                            [-sin(pitch), 0, cos(pitch)]], dtype=np.float32)
+
+        R_yaw = np.array([[cos(yaw), -sin(yaw), 0],
+                        [sin(yaw), cos(yaw), 0],
+                        [0, 0, 1]], dtype=np.float32)
+
+        R = R_roll @ R_pitch @ R_yaw
+
+        R = cp.asarray(R, dtype=cp.float32)
+
+        # Apply the camera rotation to the vector
+        rotated_vec = cp.tensordot(R, self.vec, axes=1)
+
+        # Convert 3D coordinates to spherical coordinates
+        r = cp.linalg.norm(rotated_vec, axis=0)
+        theta_s = cp.arctan2(rotated_vec[1], rotated_vec[0])
+        phi_s = cp.arccos(rotated_vec[2] / r)
+
+        # Map the spherical coordinates to equirectangular pixel coordinates
+        eq_x = (theta_s + cp.pi) * self.h_res
+        eq_y = phi_s * self.v_res
 
 
+        # Get pixel value from equirectangular image if within bounds
+        return bilinear_interpolate(cp.asarray(equirect_img), eq_y, eq_x)
 
-def equirectangular_to_perspective(equirect_img, fov, roll, pitch, yaw, height, width):
-    """
-    Convert equirectangular image to perspective view including roll rotation.
-    :param equirect_img: The input equirectangular image.
-    :param fov: Field of View of the perspective projection.
-    :param roll: Roll angle in radians (rotation around the forward axis).
-    :param pitch: Pitch angle in radians (rotation around the right axis).
-    :param yaw: Yaw angle in radians (rotation around the up axis).
-    :param height: Height of the output image.
-    :param width: Width of the output image.
-    :return: Projected perspective image with roll rotation.
-    """
-    equirect_img = cp.asarray(equirect_img, dtype=cp.float32)
-    # Dimensions of the equirectangular image
-    eq_height, eq_width, _ = equirect_img.shape
 
-    # Create a new image with the desired dimensions and FOV
-    perspective_img = np.zeros((height, width, 3), dtype=cp.float32)
-
-    # Calculate necessary values
-    h_fov = radians(fov)
-    v_fov = h_fov * (float(height) / float(width)) 
-    v_res = float(eq_height) / pi
-    h_res = float(eq_width) / (2 * pi)
-
-    # Calculate the camera rotation matrix
-    R_roll = np.array([[1, 0, 0],
-                    [0, cos(roll), -sin(roll)],
-                    [0, sin(roll), cos(roll)]], dtype=np.float32)
-
-    R_pitch = np.array([[cos(pitch), 0, sin(pitch)],
-                        [0, 1, 0],
-                        [-sin(pitch), 0, cos(pitch)]], dtype=np.float32)
-
-    R_yaw = np.array([[cos(yaw), -sin(yaw), 0],
-                    [sin(yaw), cos(yaw), 0],
-                    [0, 0, 1]], dtype=np.float32)
-
-    R = R_roll @ R_pitch @ R_yaw
-
-    R = cp.asarray(R, dtype=cp.float32)
-
-    # parrallelized numpy impl
-    # Convert perspective pixel coordinates to normalized degrees coordinates
-    x = cp.linspace(-1, 1, width, dtype=cp.float32) * cp.tan(h_fov / 2, dtype=cp.float32)
-    y = cp.linspace(1, -1, height , dtype=cp.float32) * cp.tan(v_fov / 2, dtype=cp.float32 )
-    
-    xp, yp = cp.meshgrid(x, y)
-    zp = cp.ones_like(xp)
-
-    # Apply the camera rotation to the vector
-    vec = cp.array([xp, yp, zp])
-    rotated_vec = cp.tensordot(R, vec, axes=1)
-
-    # Convert 3D coordinates to spherical coordinates
-    r = cp.linalg.norm(rotated_vec, axis=0)
-    theta_s = cp.arctan2(rotated_vec[1], rotated_vec[0])
-    phi_s = cp.arccos(rotated_vec[2] / r)
-
-    # Map the spherical coordinates to equirectangular pixel coordinates
-    eq_x = (theta_s + cp.pi) * h_res
-    eq_y = phi_s * v_res
-
-    # Get pixel value from equirectangular image if within bounds
-    perspective_img = bilinear_interpolate(equirect_img, eq_y, eq_x)
-
-    # import ipdb; ipdb.set_trace()
-
-    return perspective_img
 
 # Now we will use the new function to create the perspective image from the equirectangular image
 def draw_cube():
@@ -160,6 +134,8 @@ def draw_cube():
 
     project_time = 0
 
+    projector = equirectangular_to_perspective(fov, equirectangular_image.shape[0], equirectangular_image.shape[1], perspective_height, perspective_width)
+
     output_imgs = []
     for i in range(len(pitch_angles)):
         pitch_angle = pitch_angles[i]
@@ -168,7 +144,7 @@ def draw_cube():
     
         # Perform the projection from equirectangular to perspective view
         t1 = time.time()
-        perspective_image = equirectangular_to_perspective(equirectangular_image, fov, radians(roll_angle), radians(pitch_angle), radians(yaw_angle), perspective_height, perspective_width)
+        perspective_image = projector.project(equirectangular_image, radians(roll_angle), radians(pitch_angle), radians(yaw_angle))
         t2 = time.time()
         project_time += t2-t1
         # Save the perspective image
@@ -205,8 +181,9 @@ def draw_cube():
 
 def project_960_1080():
     equirectangular_image = cv2.imread('images/office.png') # replace with the actual path to your equirectangular image
+    projector = equirectangular_to_perspective(110, equirectangular_image.shape[0], equirectangular_image.shape[1], 1080, 960)
     t1 = time.time()
-    perspective_image = equirectangular_to_perspective(equirectangular_image, 110, radians(0), radians(90), radians(90), 1080, 960)
+    perspective_image = projector.project(equirectangular_image, radians(0), radians(90), radians(90))
     t2 = time.time()
     
     return t2-t1
