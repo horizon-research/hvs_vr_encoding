@@ -68,6 +68,8 @@ class equirectangular_to_perspective():
         self.fov = fov
         self.h_fov = radians(fov)
         self.v_fov = self.h_fov * (float(self.out_height) / float(self.out_width))
+        self.h_fov = cp.asarray(self.h_fov, dtype=cp.float32)
+        self.v_fov = cp.asarray(self.v_fov, dtype=cp.float32)
 
     def update_out_dims(self, out_height, out_width):
         self.out_height = out_height
