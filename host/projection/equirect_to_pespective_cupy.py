@@ -210,7 +210,6 @@ if __name__ == '__main__':
     # Example usage:
     cube_time = draw_cube()
     print("cube_time: ", cube_time)
-
     fps = project_960_1080()
     print("fps: ", fps)
 
