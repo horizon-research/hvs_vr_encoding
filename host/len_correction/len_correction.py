@@ -78,6 +78,8 @@ def len_correction(image, k1, k2, cx, cy):
     
     len_correction_img = bilinear_interpolate(image, y_distorted, x_distorted)
 
+    # import ipdb; ipdb.set_trace()
+
     len_correction_img[x_distorted > width] = 0
     len_correction_img[x_distorted < 0] = 0
     len_correction_img[y_distorted > height] = 0
