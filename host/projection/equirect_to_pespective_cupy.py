@@ -1,4 +1,5 @@
 from math import tan, radians, cos, sin, pi
+import cupy as cp
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -13,34 +14,42 @@ def bilinear_interpolate(image, y, x):
     :param y: array of y coordinates
     :return: interpolated pixel values
     """
-    x1 = np.floor(x).astype(int)
-    y1 = np.floor(y).astype(int)
+    x1 = cp.floor(x)
+    y1 = cp.floor(y)
     x2 = x1 + 1
     y2 = y1 + 1
 
     # Boundaries check
-    x1 = np.clip(x1, 0, image.shape[1] - 1)
-    y1 = np.clip(y1, 0, image.shape[0] - 1)
-    x2 = np.clip(x2, 0, image.shape[1] - 1)
-    y2 = np.clip(y2, 0, image.shape[0] - 1)
+    x1 = cp.clip(x1, 0, image.shape[1] - 1)
+    y1 = cp.clip(y1, 0, image.shape[0] - 1)
+    x2 = cp.clip(x2, 0, image.shape[1] - 1)
+    y2 = cp.clip(y2, 0, image.shape[0] - 1)
 
     # Calculate differences
     dx = x - x1
     dy = y - y1
-    dx = dx[..., np.newaxis]  # Add channel dimension
-    dy = dy[..., np.newaxis]
+    dx = dx[..., cp.newaxis]  # Add channel dimension
+    dy = dy[..., cp.newaxis]
     # import ipdb; ipdb.set_trace()
 
     # Interpolate
-    values = (
-                (image[y1, x1, :] * (1 - dx) * (1 - dy)) +
-                (image[y1, x2, :] * dx * (1 - dy)) +
-                (image[y2, x1, :] * (1 - dx) * dy) +
-                (image[y2, x2, :] * dx * dy)
-              )
+    y1_idx = y1.astype(cp.uint32)
+    y2_idx = y2.astype(cp.uint32)
+    x1_idx = x1.astype(cp.uint32)
+    x2_idx = x2.astype(cp.uint32)
 
+    values = (
+                (image[y1_idx, x1_idx, :] * (1 - dx) * (1 - dy)) +
+                (image[y1_idx, x2_idx, :] * dx * (1 - dy)) +
+                (image[y2_idx, x1_idx, :] * (1 - dx) * dy) +
+                (image[y2_idx, x2_idx, :] * dx * dy)
+              )
+    
     return values
 
+class equirectangular_to_perspective():
+    def __init__(self, equirect_img, fov, roll, pitch, yaw, height, width):
+        pass
 
 def equirectangular_to_perspective(equirect_img, fov, roll, pitch, yaw, height, width):
     """
@@ -54,11 +63,12 @@ def equirectangular_to_perspective(equirect_img, fov, roll, pitch, yaw, height, 
     :param width: Width of the output image.
     :return: Projected perspective image with roll rotation.
     """
+    equirect_img = cp.asarray(equirect_img, dtype=cp.float32)
     # Dimensions of the equirectangular image
     eq_height, eq_width, _ = equirect_img.shape
 
     # Create a new image with the desired dimensions and FOV
-    perspective_img = np.zeros((height, width, 3), dtype=equirect_img.dtype)
+    perspective_img = np.zeros((height, width, 3), dtype=cp.float32)
 
     # Calculate necessary values
     h_fov = radians(fov)
@@ -69,41 +79,45 @@ def equirectangular_to_perspective(equirect_img, fov, roll, pitch, yaw, height, 
     # Calculate the camera rotation matrix
     R_roll = np.array([[1, 0, 0],
                     [0, cos(roll), -sin(roll)],
-                    [0, sin(roll), cos(roll)]])
+                    [0, sin(roll), cos(roll)]], dtype=np.float32)
 
     R_pitch = np.array([[cos(pitch), 0, sin(pitch)],
                         [0, 1, 0],
-                        [-sin(pitch), 0, cos(pitch)]])
+                        [-sin(pitch), 0, cos(pitch)]], dtype=np.float32)
 
     R_yaw = np.array([[cos(yaw), -sin(yaw), 0],
                     [sin(yaw), cos(yaw), 0],
-                    [0, 0, 1]])
+                    [0, 0, 1]], dtype=np.float32)
 
     R = R_roll @ R_pitch @ R_yaw
 
+    R = cp.asarray(R, dtype=cp.float32)
+
     # parrallelized numpy impl
     # Convert perspective pixel coordinates to normalized degrees coordinates
-    x = np.linspace(-1, 1, width) * np.tan(h_fov / 2)
-    y = np.linspace(1, -1, height) * np.tan(v_fov / 2)
+    x = cp.linspace(-1, 1, width, dtype=cp.float32) * cp.tan(h_fov / 2, dtype=cp.float32)
+    y = cp.linspace(1, -1, height , dtype=cp.float32) * cp.tan(v_fov / 2, dtype=cp.float32 )
     
-    xp, yp = np.meshgrid(x, y)
-    zp = np.ones_like(xp)
+    xp, yp = cp.meshgrid(x, y)
+    zp = cp.ones_like(xp)
 
     # Apply the camera rotation to the vector
-    vec = np.array([xp, yp, zp])
-    rotated_vec = np.tensordot(R, vec, axes=1)
+    vec = cp.array([xp, yp, zp])
+    rotated_vec = cp.tensordot(R, vec, axes=1)
 
     # Convert 3D coordinates to spherical coordinates
-    r = np.linalg.norm(rotated_vec, axis=0)
-    theta_s = np.arctan2(rotated_vec[1], rotated_vec[0])
-    phi_s = np.arccos(rotated_vec[2] / r)
+    r = cp.linalg.norm(rotated_vec, axis=0)
+    theta_s = cp.arctan2(rotated_vec[1], rotated_vec[0])
+    phi_s = cp.arccos(rotated_vec[2] / r)
 
     # Map the spherical coordinates to equirectangular pixel coordinates
-    eq_x = (theta_s + np.pi) * h_res
+    eq_x = (theta_s + cp.pi) * h_res
     eq_y = phi_s * v_res
 
     # Get pixel value from equirectangular image if within bounds
     perspective_img = bilinear_interpolate(equirect_img, eq_y, eq_x)
+
+    # import ipdb; ipdb.set_trace()
 
     return perspective_img
 
@@ -114,9 +128,13 @@ def draw_cube():
     pitch_angles = [0, 90,   0, -90,   0, 180]  # Pitch angle
     yaw_angles =   [0, 90, 180, 270,  90,  90] # Yaw angle
 
+    # import ipdb; ipdb.set_trace()
+
     perspective_width = 360
     perspective_height = 360
     fov = 90  # Field of view
+
+    equirectangular_image = equirectangular_image
 
     project_time = 0
 
@@ -125,17 +143,17 @@ def draw_cube():
         pitch_angle = pitch_angles[i]
         yaw_angle = yaw_angles[i]
         roll_angle = roll_angles[i]
-
+    
         # Perform the projection from equirectangular to perspective view
         t1 = time.time()
-        perspective_image_with_roll = equirectangular_to_perspective(equirectangular_image, fov, radians(roll_angle), radians(pitch_angle), radians(yaw_angle), perspective_height, perspective_width)
+        perspective_image = equirectangular_to_perspective(equirectangular_image, fov, radians(roll_angle), radians(pitch_angle), radians(yaw_angle), perspective_height, perspective_width)
         t2 = time.time()
         project_time += t2-t1
         # Save the perspective image
-        output_imgs.append(perspective_image_with_roll)
+        output_imgs.append(perspective_image)
 
     # Save the perspective images using cube like 3 x 4 grid
-    output_img = np.ones((perspective_height * 3, perspective_width * 4, 3))
+    output_img = cp.ones((perspective_height * 3, perspective_width * 4, 3))
     output_img.fill(255)
     i = 0
     j = 1
@@ -157,7 +175,8 @@ def draw_cube():
     output_img[i * perspective_height:(i + 1) * perspective_height, j * perspective_width:(j + 1) * perspective_width, :] = output_imgs[5]
 
     output_path = 'images/cube_perspective_image.png'
-    cv2.imwrite(output_path, output_img.astype(np.uint8))
+    cv2.imwrite(output_path, cp.asnumpy(output_img.astype(np.uint8)))
+    
 
     return project_time
 
@@ -174,6 +193,9 @@ if __name__ == '__main__':
     # Example usage:
     cube_time = draw_cube()
     print("cube_time: ", cube_time)
+    
+    _960_1080_time = 0
+    for i in range(100):
+        _960_1080_time += project_960_1080()
+    print("_960_1080_time: ", _960_1080_time/100)
 
-    _960_1080_time = project_960_1080()
-    print("_960_1080_time: ", _960_1080_time)
