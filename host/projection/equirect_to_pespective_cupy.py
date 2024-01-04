@@ -49,6 +49,7 @@ def bilinear_interpolate(image, y, x):
 
 class equirectangular_to_perspective():
     def __init__(self, fov, equi_height, equi_width, out_height, out_width):
+        # pre assign because we need them in update_fov
         self.out_height = out_height
         self.out_width = out_width
         self.update_equi_dims(equi_height, equi_width)
