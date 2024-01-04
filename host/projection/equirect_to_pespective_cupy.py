@@ -48,8 +48,30 @@ def bilinear_interpolate(image, y, x):
     return values
 
 class equirectangular_to_perspective():
-    def __init__(self, equirect_img, fov, roll, pitch, yaw, height, width):
-        pass
+    def __init__(self, fov, equi_height, equi_width, out_height, out_width):
+        self.update_out_dims(out_height, out_width)
+        self.update_fov(fov)
+        self.update_equi_dims(equi_height, equi_width)
+        
+    def update_equi_dims(self, equi_height, equi_width):
+        self.equi_height = equi_height
+        self.equi_width = equi_width
+        self.v_res = float(equi_height) / pi
+        self.h_res = float(equi_width) / (2 * pi)
+        
+    def update_fov(self, fov):
+        self.fov = fov
+        self.h_fov = radians(fov)
+        self.v_fov = self.h_fov * (float(self.out_height) / float(self.out_width))
+
+    def update_out_dims(self, out_height, out_width):
+        self.out_height = out_height
+        self.out_width = out_width
+        self.out_img = cp.zeros((out_height, out_width, 3), dtype=cp.float32)
+
+    def project(self):
+
+
 
 def equirectangular_to_perspective(equirect_img, fov, roll, pitch, yaw, height, width):
     """
