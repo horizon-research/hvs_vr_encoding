@@ -11,6 +11,7 @@ from .invoker import Module
 from util.colorspace import calibrate_DKL_colorspace, sRGB2RGB, RGB2sRGB, RGB2XYZ, XYZ2LMS, LMS2DKL
 from util import torch_rbf as rbf
 
+
 class BaseColorModel(Module):
     @classmethod
     def args(cls):
@@ -84,6 +85,7 @@ class BaseColorModel(Module):
         abc = abs(pedestal_dkl * c_abc)
         return abc
 
+
     def compute_ellipses_vectorized(self, img, ecc_map):
         # Convert Image to DKL
         RGB2DKL = LMS2DKL @ XYZ2LMS @ RGB2XYZ
@@ -152,6 +154,7 @@ class BaseColorModel(Module):
         for k, v in self.model.state_dict().items():
             df = pd.DataFrame(v.numpy())
             df.to_csv(root / k, index=False, header=False)
+
 
 
 class SimpleDataset(Dataset):

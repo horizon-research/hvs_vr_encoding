@@ -181,9 +181,7 @@ class Tile_color_optimizer:
         centers_abc[:, 2] = 1e-3
 
         # centers_abc *= 2
-
-        if ecc_tile.mean() < 15:
-            centers_abc[:, :] = 1e-5
+        centers_abc[np.tile(ecc_tile.reshape(-1,1) < 15, (1,3))] = 1e-5
 
         return dkl_centers, centers_abc
     
