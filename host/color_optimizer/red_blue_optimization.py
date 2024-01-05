@@ -146,6 +146,8 @@ class Tile_color_optimizer:
         tile = tile.astype("int16")
         tile = tile.reshape(-1, 16,3)
         dkl_centers, centers_abc = self.generate_ellipsoids(tile, ecc_tile)
+
+
             
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
