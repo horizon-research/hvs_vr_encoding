@@ -3,8 +3,8 @@ import sys
 sys.path.append('../') 
 sys.path.append('../color_optimizer') 
 from color_optimizer.red_blue_optimization import Image_color_optimizer
-from projection.equirect_to_pespective import equirectangular_to_perspective
-from len_correction.len_correction import len_correction
+from host.projection.equirect_to_pespective_cpu import equirectangular_to_perspective
+from host.len_correction.len_correction_cpu import len_correction
 from math import radians
 
 def perframe_color_optimizer_pipeline(equirect_img, args):
