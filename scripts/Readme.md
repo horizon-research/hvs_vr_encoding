@@ -23,7 +23,7 @@ TBA
 
 Below shows End to End FPS of different configurations.
 
-For each configuration there are two settings, one is SW is run sqentially, this will results in lower FPS, another is that SW is run on ROS, this can enable parrallelized pipelining and reach higher FPS.
+For each configuration there are two settings, one is SW is run seqentially, this will results in lower FPS, another is that SW is run on ROS, this can enable parrallelized pipelining and reach higher FPS.
 
 | Config          | Squential SW | SW on ROS |
 |:-----------------:|:-------------:|:-------------:|
