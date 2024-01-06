@@ -1,11 +1,11 @@
 ## equirect_to_pespective.py Examples
-### Usage 
+### How to run example usecase (perspective cube and 1080x960 projection with fps measurement)
 For CPU vrsion (about 6 fps on EPYC-7C13), run:
 ```bash
 python3 equirect_to_pespective_cpu.py
 ```
 
-For GPU version, run
+For GPU version (about 1060 fps on RTX-4090), run:
 ```bash
 python3 equirect_to_pespective_cuda.py
 ```
