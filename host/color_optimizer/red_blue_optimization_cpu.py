@@ -278,24 +278,32 @@ if __name__ == "__main__":
     # optimize colors
     image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = 4)
     img = np.asarray(img, dtype=np.float32)
+    opt_img = image_color_optimizer.color_conversion(img)
+
+    img_for_fps = img[:, :960].copy()
+    image_color_optimizer = Image_color_optimizer(img_height = img_for_fps.shape[0], img_width = img_for_fps.shape[1], tile_size = 4)
     test_time = 3
     t1 = timer()
     for i in range(test_time):
-        opt_img = image_color_optimizer.color_conversion(img)
+        opt_img_fps = image_color_optimizer.color_conversion(img_for_fps)
     t2 = timer()
     fps = 1/(t2-t1)*test_time
 
     print(" color optimizer fps: ", fps)
 
     # generate ellipses given gaze
-    img = np.asarray(img, dtype=np.float32)
     t1 = timer()
     for i in range(test_time):
-        dkl_centers, centers_abc = image_color_optimizer.only_generate_ellipses(img)
+        dkl_centers, centers_abc = image_color_optimizer.only_generate_ellipses(img_for_fps)
     t2 = timer()
     fps = 1/(t2-t1)*test_time
 
     print(" only_generate_ellipses fps: ", fps)
+
+
+
+
+
 
     # save image
     opt_img = Image.fromarray(opt_img.astype("uint8"))
