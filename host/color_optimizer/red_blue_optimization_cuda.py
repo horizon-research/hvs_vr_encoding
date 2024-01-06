@@ -142,7 +142,7 @@ class Tile_color_optimizer_hw_part:
         return plane_centers
 
 class Tile_color_optimizer:
-    def __init__(self, color_channel, r_max_vec, b_max_vec, dump_io = False, dump_dir = None, only_generate_ellipses = False):
+    def __init__(self, color_channel, r_max_vec, b_max_vec, dump_io = False, dump_dir = None):
         # init the hardware
         self.hw_tile_optimizer = Tile_color_optimizer_hw_part(color_channel, r_max_vec, b_max_vec)
         self.color_channel = color_channel
@@ -160,17 +160,12 @@ class Tile_color_optimizer:
         self.color_model.to_cuda()
         self.color_model.to_eval()
 
-        self.only_generate_ellipses = only_generate_ellipses
-
     def optimize_tiles(self, tiles, ecc_tiles):
     #   takes a 4x4 pixel tile from an image and optimizes its colors 
     # along the blue or red direction
     #   ecc_tile given eccentricity
         tiles = tiles.reshape(-1, 16, 3)
         dkl_centers, centers_abc = self.generate_ellipsoids(tiles, ecc_tiles)
-
-        if self.only_generate_ellipses:
-            return
             
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
@@ -190,7 +185,7 @@ class Tile_color_optimizer:
         result_image[choose_blue_idx] = blue_srgb_pts[choose_blue_idx]
 
 
-        return result_image.reshape(-1,4,4,3).astype(cp.uint8)
+        return result_image.astype(cp.uint8).reshape(-1,4,4,3)
 
         # return blue_srgb_pts.reshape(-1,4,4,3).astype(cp.uint8)
 
@@ -219,7 +214,7 @@ class Tile_color_optimizer:
         return bitlen_sum.astype(cp.int32)
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35, fov=110, dump_io = False, dump_dir = None, img_height = 0, img_width = 0, tile_size = 4, only_generate_ellipses = False):
+    def __init__(self, foveated = True, max_ecc = 35, fov=110, dump_io = False, dump_dir = None, img_height = 0, img_width = 0, tile_size = 4):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -229,7 +224,7 @@ class Image_color_optimizer:
         self.r_max_vec = cp.array([[0.61894476, -0.24312686,  0.62345751]], dtype=cp.float32)  
         self.b_max_vec = cp.array([[0.14766317, -0.13674196, 0.97936063]], dtype=cp.float32) 
 
-        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, dump_io, dump_dir, only_generate_ellipses)
+        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, dump_io, dump_dir)
 
         self.img_height = img_height
         self.img_width =  img_width
@@ -243,8 +238,6 @@ class Image_color_optimizer:
         self.x = cp.linspace(-1, 1, self.img_width, dtype=cp.float32)
         self.y = cp.linspace(-1, 1, self.img_height, dtype=cp.float32)
         self.xx, self.yy = cp.meshgrid(self.x, self.y)
-
-        self.only_generate_ellipses = only_generate_ellipses
 
     def set_ecc_map(self, gaze_x, gaze_y):
         """
@@ -267,7 +260,7 @@ class Image_color_optimizer:
         if (self.foveated):
             self.set_ecc_map(gaze_x, gaze_y)
         else:
-            self.ecc_map = cp.ones((self.img_height, self.img_width, 1)) * self.max_ecc
+            self.ecc_map = cp.ones((self.img_height, self.img_width, 1), dtype= cp.float32) * self.max_ecc
 
         # optimize every 4x4 tile in bounds of image
         # import ipdb; ipdb.set_trace()
@@ -275,14 +268,25 @@ class Image_color_optimizer:
         ecc_tiles = self.ecc_map.reshape(self.img_height // self.tile_size, self.tile_size, self.img_width // self.tile_size, self.tile_size).transpose(0, 2, 1, 3).reshape(-1, self.tile_size, self.tile_size, 3)
 
         # adjusted output
-        if self.only_generate_ellipses:
-            self.Tile_color_optimizer.optimize_tiles(tiles, ecc_tiles)
-            return
-        else:
-            cpNewImage = self.Tile_color_optimizer.optimize_tiles(tiles, ecc_tiles).reshape( self.img_height // self.tile_size,  self.img_width // self.tile_size, self.tile_size, self.tile_size, 3) \
+        cpNewImage = self.Tile_color_optimizer.optimize_tiles(tiles, ecc_tiles).reshape( self.img_height // self.tile_size,  self.img_width // self.tile_size, self.tile_size, self.tile_size, 3) \
                 .transpose(0, 2, 1, 3, 4).reshape(self.img_height, self.img_width, 3)
 
         return cpNewImage
+    
+    def only_generate_ellipses(self, cpimage, gaze_x = 0, gaze_y = 0):
+        if (self.foveated):
+            self.set_ecc_map(gaze_x, gaze_y)
+        else:
+            self.ecc_map = cp.ones((self.img_height, self.img_width, 1), dtype= cp.float32) * self.max_ecc
+
+        tiles = cpimage.reshape( self.img_height // self.tile_size, self.tile_size, self.img_width // self.tile_size, self.tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(-1, self.tile_size, self.tile_size, 3)
+        ecc_tiles = self.ecc_map.reshape(self.img_height // self.tile_size, self.tile_size, self.img_width // self.tile_size, self.tile_size).transpose(0, 2, 1, 3).reshape(-1, self.tile_size, self.tile_size, 3)
+
+        tiles = tiles.reshape(-1, 16, 3)
+        dkl_centers, centers_abc = self.Tile_color_optimizer.generate_ellipsoids(tiles, ecc_tiles)
+
+        return dkl_centers, centers_abc
+
 
 if __name__ == "__main__":
     image_name = "WaterScape.bmp"
@@ -303,12 +307,10 @@ if __name__ == "__main__":
     print(" color optimizer fps: ", fps)
 
     # generate ellipses given gaze
-    image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = 4, only_generate_ellipses = True)
     img = cp.asarray(img, dtype=cp.float32)
-    test_time = 100
     t1 = timer()
     for i in range(test_time):
-        image_color_optimizer.color_conversion(img)
+        dkl_centers, centers_abc = image_color_optimizer.only_generate_ellipses(img)
     t2 = timer()
     fps = 1/(t2-t1)*test_time
 

@@ -54,6 +54,14 @@ class BaseColorModel(Module):
         if type(x) is np.ndarray:
             x = torch.tensor(x, dtype=torch.float32)
         return self.model.forward(x)
+    
+    def eval_numpy(self, x):
+        x = torch.tensor(x, dtype=torch.float32)
+        return self.model.forward(x)
+    
+    def to_eval(self):
+        self.model.eval()
+        
 
     def compute_ellipses(self, img, ecc_map):
         # Convert Image to DKL
@@ -71,7 +79,7 @@ class BaseColorModel(Module):
         # Evaluate Model
         ecc_map = ecc_map.reshape(-1, 1)
         inp = np.concatenate((contrasts, ecc_map), axis=-1)
-        c_abc = self.eval(inp).detach().numpy()
+        c_abc = self.eval_numpy(inp).detach().numpy()
         #import matplotlib.pyplot as plt
         #plt.figure()
         #plt.imshow(img)
