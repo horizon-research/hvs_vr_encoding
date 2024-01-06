@@ -108,12 +108,14 @@ if __name__ == '__main__':
     cx, cy = width / 2, height / 2 # Assuming center of the image is the optical center
     len_correction = len_correction(k1, k2, cx, cy, height, width)
     image = cp.asarray(image, dtype=cp.float32)
+
+    test_times = 500
     t1 = time.time()
-    for i in range(500):
+    for i in range(test_times):
         len_correction_img = len_correction.correct(image)
     t2 = time.time()
     len_correction_img = cp.asnumpy(len_correction_img)
 
-    print("fps: ", 1/(t2-t1)*100)
+    print("fps: ", 1/(t2-t1)*test_times)
 
     cv2.imwrite("images/middle_perspective_image_len_correction.png", len_correction_img.astype(np.uint8))
