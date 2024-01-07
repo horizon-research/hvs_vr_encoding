@@ -27,8 +27,8 @@ For each configuration there are two settings, one is SW is run seqentially, thi
 
 | Config          | Squential SW | SW on ROS |
 |:-----------------:|:-------------:|:-------------:|
-| CPU (EPYC-Zen3)       | TBA |TBA|
-| GPU (RTX-4090)        | TBA |TBA|
+| CPU (EPYC-Zen3)       | 0.73 |TBA|
+| GPU (RTX-4090)        | 43.46 |TBA|
 | GPU + FPGA (ZCU104)   | TBA |TBA|
 
 

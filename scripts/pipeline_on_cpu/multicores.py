@@ -1,13 +1,13 @@
 import sys
 sys.path.append('../') 
 
-from software_pipeline_per_frame import perframe_color_optimizer_pipeline
+from scripts.pipeline_on_cpu.per_frame_seq_pipeline import perframe_color_optimizer_pipeline
 import cv2
 import os
 import numpy as np
 from multiprocessing import Pool
 from math import radians
-from pipeline_args import get_args
+from scripts.args import get_args
 
 
 def muticore_perframe_color_optimizer_pipeline(in_dict):
