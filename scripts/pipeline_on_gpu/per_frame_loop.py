@@ -41,7 +41,7 @@ if __name__ == '__main__':
             img_list.append(img)
             pbar.update(1)
 
-    repeat_times = 10
+    repeat_times = 1
 
     all_t1 = time.time()
     with tqdm(total=total_frames * repeat_times, desc="Running per frame loop") as pbar:
