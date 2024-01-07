@@ -36,7 +36,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 | GPU + FPGA (ZCU104)   | TBA |TBA|
 
 
-## Modules' FPS on different Platform
+## Modules' FPS on different Platforms
 
 Below table shows FPS achieved used different HW.
 
