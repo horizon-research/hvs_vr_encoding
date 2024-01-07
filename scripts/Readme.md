@@ -33,7 +33,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 |:-----------------:|:-------------:|:-------------:|
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 |TBA|
 | GPU (RTX-4090)        | 51.0 \| 40.5 |TBA|
-| GPU (RTX-4060 Laptop) | 18.9 \| 17.1 |TBA|
+| GPU (RTX-4060 Laptop WSL) | 18.9 \| 17.1 |TBA|
 | GPU + FPGA (ZCU104)   | TBA |TBA|
 
 
@@ -45,5 +45,5 @@ Below table shows FPS achieved used different HW.
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | TBA | TBA
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | TBA | TBA
-| GPU (RTX-4060 Laptop)   | 448.7     | 1246           | 115.4                 | 26.7            | TBA | TBA
+| GPU (RTX-4060 Laptop WSL)   | 448.7     | 1246           | 115.4                 | 26.7            | TBA | TBA
 | FPGA (ZCU104)   | --      | TBA           | --                   | 288            | TBA | TBA
