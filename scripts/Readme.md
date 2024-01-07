@@ -41,9 +41,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 Below table shows FPS achieved used different HW.
 
 | HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
-
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
-
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | TBA | TBA
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | TBA | TBA
 | FPGA (ZCU104)   | --      | TBA           | --                   | 144            | TBA | TBA
