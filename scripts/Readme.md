@@ -32,7 +32,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 | Config          | Squential SW (pipeline only \| whole loop w display) | SW on ROS(pipeline ony / whole loop w display) |
 |:-----------------:|:-------------:|:-------------:|
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 |TBA|
-| GPU (RTX-4090)        | 43.46 \| 34.6 |TBA|
+| GPU (RTX-4090)        | 51.0 \| 40.5 |TBA|
 | GPU + FPGA (ZCU104)   | TBA |TBA|
 
 
