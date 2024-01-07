@@ -25,9 +25,9 @@ TBA
 
 ## End to End FPS on different Coniguration
 
-Below shows End to End FPS of different configurations.
+For each configuration there are two settings, one is SW is run sequentially, which will result in lower FPS, and another is that SW is run on ROS, which can enable parallelized pipelining and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
 
-For each configuration there are two settings, one is SW is run seqentially, this will results in lower FPS, another is that SW is run on ROS, this can enable parrallelized pipelining and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
+(1) Pipeline with: Projection → Len Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. (need to add BD ENC / DEC)
 
 | Config          | Squential SW (pipeline only \| whole loop w display) | SW on ROS(pipeline ony / whole loop w display) |
 |:-----------------:|:-------------:|:-------------:|
@@ -40,8 +40,10 @@ For each configuration there are two settings, one is SW is run seqentially, thi
 
 Below table shows FPS achieved used different HW.
 
-| HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) |
-|:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|
-| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               |
-| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              |
-| FPGA (ZCU104)   | --      | TBA           | --                   | 144            |
+| HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
+
+|:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
+
+| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | TBA | TBA
+| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | TBA | TBA
+| FPGA (ZCU104)   | --      | TBA           | --                   | 144            | TBA | TBA
