@@ -5,7 +5,7 @@ import cv2
 import matplotlib.pyplot as plt
 import time
 
-class equirectangular_to_perspective():
+class Equirectangular_to_perspective():
     """
     Convert equirectangular image to perspective view including roll rotation.
     :param equirect_img: The input equirectangular image.
@@ -17,11 +17,11 @@ class equirectangular_to_perspective():
     :param width: Width of the output image.
     :return: Projected perspective image with roll rotation.
     """
-    def __init__(self, fov, equi_height, equi_width, out_height, out_width):
+    def __init__(self, h_fov, equi_height, equi_width, out_height, out_width):
         # pre assign because we need them in update_fov
         self.out_height = out_height
         self.out_width = out_width
-        self.update_fov(fov)
+        self.update_fov(h_fov)
         self.update_out_dims(out_height, out_width)
         self.update_equi_dims(equi_height, equi_width)
         
@@ -34,9 +34,9 @@ class equirectangular_to_perspective():
         self.v_res = cp.asarray(self.v_res, dtype=cp.float32) * cp.ones_like(self.xp)
         self.h_res = cp.asarray(self.h_res, dtype=cp.float32) * cp.ones_like(self.xp)
 
-    def update_fov(self, fov):
-        self.fov = fov
-        self.h_fov = radians(fov)
+    def update_fov(self, h_fov):
+        self.h_fov = h_fov
+        self.h_fov = radians(h_fov)
         self.v_fov = self.h_fov * (float(self.out_height) / float(self.out_width))
         self.h_fov = cp.asarray(self.h_fov, dtype=cp.float32)
         self.v_fov = cp.asarray(self.v_fov, dtype=cp.float32)
@@ -54,6 +54,10 @@ class equirectangular_to_perspective():
 
 
     def project(self, equirect_img, roll, pitch, yaw):
+
+        if equirect_img.dtype != cp.float32:
+            equirect_img = equirect_img.astype(cp.float32)
+
         # Calculate the camera rotation matrix
         R_roll = np.array([[1, 0, 0],
                         [0, cos(roll), -sin(roll)],
@@ -85,7 +89,7 @@ class equirectangular_to_perspective():
 
 
         # Get pixel value from equirectangular image if within bounds
-        return self.bilinear_interpolate(equirect_img, eq_y, eq_x)
+        return self.bilinear_interpolate(equirect_img, eq_y, eq_x).astype(cp.uint8)
     
     def bilinear_interpolate(self, image, y, x):
         """
@@ -146,7 +150,7 @@ def draw_cube():
 
     project_time = 0
 
-    projector = equirectangular_to_perspective(fov, equirectangular_image.shape[0], equirectangular_image.shape[1], perspective_height, perspective_width)
+    projector = Equirectangular_to_perspective(fov, equirectangular_image.shape[0], equirectangular_image.shape[1], perspective_height, perspective_width)
 
     output_imgs = []
     for i in range(len(pitch_angles)):
@@ -194,7 +198,7 @@ def draw_cube():
 
 def measure_fps_project_960_1080(test_times=10):
     equirectangular_image = cv2.imread('images/office.png') # replace with the actual path to your equirectangular image
-    projector = equirectangular_to_perspective(110, equirectangular_image.shape[0], equirectangular_image.shape[1], 1080, 960)
+    projector = Equirectangular_to_perspective(110, equirectangular_image.shape[0], equirectangular_image.shape[1], 1080, 960)
     equirectangular_image = cp.asarray(equirectangular_image, dtype=cp.float32)
     t1 = time.time()
     for i in range(test_times):

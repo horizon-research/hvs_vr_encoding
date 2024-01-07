@@ -1,3 +1,13 @@
+
+
+import sys
+import os
+
+file_path = os.path.abspath(__file__)
+dirname = os.path.dirname(file_path)
+sys.path.append(dirname) 
+
+
 from timeit import default_timer as timer
 from util.ecc_map import build_foveated_ecc_map
 from PIL import Image
@@ -10,9 +20,6 @@ RGB2DKL = LMS2DKL @ XYZ2LMS @ RGB2XYZ
 RGB2DKL = np.asarray(RGB2DKL, dtype=np.float32)
 DKL2RGB = np.asarray(DKL2RGB, dtype=np.float32)
 from model import base_color_model as base_color_model
-
-
-import os
 
 from util.base_delta import base_delta
 
@@ -124,15 +131,16 @@ class Tile_color_optimizer_hw_part:
         return plane_centers
 
 class Tile_color_optimizer:
-    def __init__(self, color_channel, r_max_vec, b_max_vec, dump_io = False, dump_dir = None):
+    def __init__(self, color_channel, r_max_vec, b_max_vec, fixed_c = 1e-3, ecc_no_compress = 15):
         # init the hardware
         self.hw_tile_optimizer = Tile_color_optimizer_hw_part(color_channel, r_max_vec, b_max_vec)
         self.color_channel = color_channel
-        self.dump_io = dump_io
-        self.dump_dir = dump_dir
         self.dump_id = 0
 
         self.max_dump_id = 100
+
+        self.fixed_c = fixed_c
+        self.ecc_no_compress = ecc_no_compress
 
         self.color_model = base_color_model.BaseColorModel([])
         self.color_model.initialize()
@@ -181,8 +189,8 @@ class Tile_color_optimizer:
         centers_abc = self.color_model.compute_ellipses(srgb_centers, ecc_tiles)
 
         centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
-        centers_abc[:, 2] = 1e-3
-        centers_abc[np.tile(ecc_tiles.reshape(-1,1) < 15, (1,3))] = 1e-5
+        centers_abc[:, 2] = self.fixed_c
+        centers_abc[np.tile(ecc_tiles.reshape(-1,1) < self.ecc_no_compress, (1,3))] = 1e-5
         
         return dkl_centers, centers_abc
     
@@ -195,7 +203,7 @@ class Tile_color_optimizer:
         return bitlen_sum.astype(np.int32)
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35, fov=110, dump_io = False, dump_dir = None, img_height = 0, img_width = 0, tile_size = 4):
+    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, fixed_c = 1e-3, ecc_no_compress = 15):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -204,17 +212,19 @@ class Image_color_optimizer:
 
         self.r_max_vec = np.array([[0.61894476, -0.24312686,  0.62345751]], dtype=np.float32)  
         self.b_max_vec = np.array([[0.14766317, -0.13674196, 0.97936063]], dtype=np.float32) 
+        
 
-        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, dump_io, dump_dir)
+        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, fixed_c, ecc_no_compress)
 
         self.img_height = img_height
         self.img_width =  img_width
         self.tile_size = tile_size
+        self.v_h_ratio = self.img_height / self.img_width
 
         self.foveated = foveated
         self.max_ecc = max_ecc
         self.max_ecc = np.asarray(self.max_ecc, dtype=np.float32)
-        self.d = 1 / np.tan( fov * np.pi / 180 / 2)
+        self.d = 1 / np.tan( h_fov * np.pi / 180 / 2)
         self.d = np.asarray(self.d, dtype=np.float32)
         self.x = np.linspace(-1, 1, self.img_width, dtype=np.float32)
         self.y = np.linspace(-1, 1, self.img_height, dtype=np.float32)
@@ -229,7 +239,7 @@ class Image_color_optimizer:
         gaze_y: float
                 y coordinate of center of gaze. normalized between [-1, 1]
         """
-        dist = np.sqrt( (self.xx - gaze_x) **2  + (self.yy - gaze_y)**2)
+        dist = np.sqrt( (self.xx - gaze_x) **2  + ((self.yy - gaze_y) * self.v_h_ratio)  ** 2)
         self.ecc_map = np.arctan(dist / self.d)[..., None] * 180 / np.pi
         self.ecc_map[self.ecc_map > self.max_ecc] = self.max_ecc
 
@@ -238,6 +248,8 @@ class Image_color_optimizer:
     # Input: npimage: numpy array of image
     # Output: npNewImage: numpy array of optimized image
         # prepare inputs (image, ecc_map)
+        if npimage.dtype != np.float32:
+            npimage = npimage.astype(np.float32)
         if (self.foveated):
             self.set_ecc_map(gaze_x, gaze_y)
         else:
@@ -255,6 +267,8 @@ class Image_color_optimizer:
         return npNewImage
     
     def only_generate_ellipses(self, npimage, gaze_x = 0, gaze_y = 0):
+        if npimage.dtype != np.float32:
+            npimage = npimage.astype(np.float32)
         if (self.foveated):
             self.set_ecc_map(gaze_x, gaze_y)
         else:

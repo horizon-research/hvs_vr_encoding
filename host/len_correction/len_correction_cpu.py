@@ -3,7 +3,7 @@ import cv2
 import time
 
 
-class len_correction():
+class Len_correction():
     """
     Pre-distort an image to compensate for lens distortion in VR.
     :param image: Input original image.
@@ -23,20 +23,29 @@ class len_correction():
         self.update_lens_params(k1, k2, cx, cy)
 
     
-    def update_lens_params(self, k1, k2, cx, cy): # for dynamic lens correction
+    def update_lens_params(self, k1, k2, cx, cy):
         self.k1 = np.asarray(k1, dtype=np.float32)
         self.k2 = np.asarray(k2, dtype=np.float32)
         self.cx = np.asarray(cx, dtype=np.float32)
         self.cy = np.asarray(cy, dtype=np.float32)
 
-        self.x_grid, self.y_grid = np.meshgrid(np.arange(width, dtype=np.float32), np.arange(height, dtype=np.float32))
+        self.x_grid, self.y_grid = np.meshgrid(np.arange(self.width, dtype=np.float32), np.arange(self.height, dtype=np.float32))
         self.x_distorted , self.y_distorted = self.get_distorted_idxs()
-        self.zero_pixel_idx = np.where((self.x_distorted > width) | (self.x_distorted < 0) | (self.y_distorted > height) | (self.y_distorted < 0))
+        self.zero_pixel_idx = np.where((self.x_distorted > self.width) | (self.x_distorted < 0) | (self.y_distorted > self.height) | (self.y_distorted < 0))
+
+    def update_display_distance(self, z): # for dynamic lens correction
+        self.z = z
+        self.transform_const = 1 / self.ppi * self.inch2mm / self.z
+        self.transform_const = np.asarray(self.transform_const, dtype=np.float32)
+        self.x_distorted , self.y_distorted = self.get_distorted_idxs()
+        self.zero_pixel_idx = np.where((self.x_distorted > self.width) | (self.x_distorted < 0) | (self.y_distorted > self.height) | (self.y_distorted < 0))
 
     def correct(self, image):
+        if image.dtype != np.float32:
+            image = image.astype(np.float32)
         corrected_image = self.bilinear_interpolate(image, self.y_distorted, self.x_distorted)
         corrected_image[self.zero_pixel_idx] = 0
-        return corrected_image
+        return corrected_image.astype(np.uint8)
     
     def bilinear_interpolate(self, image, y, x):
         """
@@ -88,12 +97,12 @@ class len_correction():
         :param cx, cy: Optical center of the lens (assumed to be the image center).
         :return: Coordinates of the pre-distorted pixel.
         """
-        x = (self.x_grid - cx) * self.transform_const
-        y = (self.y_grid - cy) * self.transform_const
+        x = (self.x_grid - self.cx) * self.transform_const
+        y = (self.y_grid - self.cy) * self.transform_const
         r2 = x**2 + y**2
-        factor = 1 + k1 * r2 + k2 * r2**2
-        x_distorted = x * factor / self.transform_const + cx
-        y_distorted = y * factor / self.transform_const + cy
+        factor = 1 + self.k1 * r2 + self.k2 * r2**2
+        x_distorted = x * factor / self.transform_const + self.cx
+        y_distorted = y * factor / self.transform_const + self.cy
 
         return x_distorted, y_distorted
     
@@ -105,7 +114,7 @@ if __name__ == '__main__':
     height, width = image.shape[:2]
     k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
     cx, cy = width / 2, height / 2 # Assuming center of the image is the optical center
-    len_correction = len_correction(k1, k2, cx, cy, height, width)
+    len_correction = Len_correction(k1, k2, cx, cy, height, width)
     image = np.asarray(image, dtype=np.float32)
 
     test_times = 10
