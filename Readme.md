@@ -32,7 +32,7 @@
     - `vivado/`: codes for generate and connect all other modules in a block design.
     - `pynq_scripts/`: Jupyter note code for control modules in run time using ARM on the fpga board. 
 
-## 3. Usage of Software-Only Pipeline
+## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA) )
 
 &nbsp; &nbsp;  This section is about how to run the full pipeline in software only manner. It is useful quick check of  expected result. It mainly contains below pipeline
 
@@ -44,6 +44,7 @@ To start this experiment, you need to prepare a panoramic Video in equirectangul
 If you don't have one, you can download our demo video from https://drive.google.com/file/d/1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw/view?usp=sharing
 
 ```bash
+cd <top_folder>
 mkdir videos # make videos directory in the main folder
 # this link is for wget, above one is for browser
 wget 'https://drive.google.com/uc?id=1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw' -O videos/demo_video.mp4
@@ -53,50 +54,50 @@ wget 'https://drive.google.com/uc?id=1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw' -O video
 
 In this step, we need to decode the videos to images to facilitate later multiprocessing.
 ```bash
+cd <top_folder>
 python3 host/video_encode_decode/decode_video.py --video_path ./videos/demo_video.mp4 --out_images_folder ./decoded_images
 ```
 Now you can find decoded images in [decoded_images/](decoded_images/) in the main folder. To reduce downstream computatation, you can choose to preserve only 60 of them
 ```bash
+cd <top_folder>
 bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 ```
 
 ### 3.3 Run the Full color optimizer pipeline
 
 
-(1) The pipeline for one frame is implemented in [host/full_pipeline_in_software/software_pipeline_per_frame.py](host/full_pipeline_in_software/software_pipeline_per_frame.py), please refer it to see how to use and concatenate all modules.
+(1) The scripts to run the whole pipeline for one frame is implemented in [scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py](scripts/pipeline_on_cpu/per_frame_seq_pipeline.py) (this link link to cpu imlemetation), please refer it to see how to use and concatenate all modules in implementations using either CPU or CUDA (GPU).
 
-(2) Every module's main function also shows example of how to use it. You just need to go to the corresponding folder and run the python code. For example, the example code for projection is drawing the cube map, you can run it as follow:
+(2) Every module's main function also shows example of how to use it. You just need to go to the corresponding folder and run the python code. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
 ```bash
-cd cc_vr_pipeline/host/projection
-python3 equirect_to_pespective.py
+cd <top_folder>/host/projection
+python3 equirect_to_pespective_cpu.py # if you want to use cuda acceleration, run: python3 equirect_to_pespective_cuda.py
 ```
 
-(3) We provide two scripts to run the Full color optimizer pipeline, the first one is a simple loop that process frame by frame. The other one is a multiprocessor implementation. For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
+(3) We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All of them contain sequential loop implementation and ROS-like parrallel implementation. For CPU, we also provide multicore version. Here we only introduce how to run CPU implementation using single core and sequential loop.
 
-See [host/full_pipeline_in_software/pipeline_args.py](host/full_pipeline_in_software/pipeline_args.py) for supported args.
+For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
-- For the simple loop one: (this one will give you Progress Bar)
+See [<top_folder>/scripts/args.py](scripts/args.py) for supported args.
+
+- To run CPU implementation using single core and sequential loop. (For other settings please see readme in [scripts/](scripts/))
 ```bash 
-cd host/full_pipeline_in_software
-python3 software_pipeline_per_frame_loop.py --in_images_folder ../../decoded_images --out_images_folder ../../corrected_opt_images
+cd <top_folder>
+python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --save_imgs
 
 ```
 
-- For multiprocessor implementation (this one won't give Progress Bar, you need to count file num in output folder to get progress. Run ```ls -l | wc -l``` in that folder. The output number substracted by one is the file number.)
-```bash
-cd host/full_pipeline_in_software
-python3 software_pipeline_multicores.py --in_images_folder ../../decoded_images --out_images_folder ../../corrected_opt_images --num_workers 8
-```
-
-(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory.
+(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add --save_imgs)
 
 ### 3.5 Video Encoding
-Encode images back to video. This is for playing video on the VR display.
+If you use CPU implementation, and you want to observe the realtime results. You can encode images back to video then playback it on your VR display in realtime.
 ```bash
-cd ../../ # go back to main folder
-python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos/opt_corrected_video.mp4 --images_folder ./corrected_opt_images --fps 60
+cd <top_folder> 
+python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos/opt_corrected_video.mp4 --images_folder ./corrected_opt_images --fps 30
 ```
 
-## 4. Usage of SW-HW Pipeline
+The output video will be at ```./videos/opt_corrected_video.mp4```
+
+## 4. Usage of SW-HW Pipeline (GPU-FPGA)
 
 TO BE DONE

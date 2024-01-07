@@ -192,7 +192,7 @@ def draw_cube():
     return project_time
 
 
-def measure_fps_project_960_1080(test_times=10):
+def measure_fps_project_1080_960(test_times=10):
     equirectangular_image = cv2.imread('images/office.png') # replace with the actual path to your equirectangular image
     projector = Equirectangular_to_perspective(110, equirectangular_image.shape[0], equirectangular_image.shape[1], 1080, 960)
     equirectangular_image = np.asarray(equirectangular_image, dtype=np.float32)
@@ -208,7 +208,6 @@ def measure_fps_project_960_1080(test_times=10):
 if __name__ == '__main__':
     # Example usage:
     cube_time = draw_cube()
-    print("cube_time: ", cube_time)
-    fps = measure_fps_project_960_1080(test_times = 10)
-    print("fps: ", fps)
+    fps = measure_fps_project_1080_960(test_times = 10)
+    print("fps of 1080x960 projection: ", fps)
 

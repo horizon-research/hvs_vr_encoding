@@ -1,20 +1,24 @@
 # Scripts for running pipeline on different HW
 
 ## Support configurations:
-- CPU
-- GPU
-- GPU + FPGA
+- CPU (use cv2.imshow for display.)
+- GPU (use HW-accelerated pygame for display.)
+- GPU + FPGA (use HW-accelerated pygame for communication with FPGA.)
 
 ## Usage
 
+make sure tou have prepared the decoded images as discussed in the readme of main folder
+
 ### Run on CPU
-
-TBA
-
+```bash
+cd <top_folder>
+python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display
+```
 ### Run on GPU
-
-TBA
-
+```bash
+cd <top_folder>
+python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0
+```
 ### Run on FPGA
 
 TBA
@@ -23,7 +27,7 @@ TBA
 
 Below shows End to End FPS of different configurations.
 
-For each configuration there are two settings, one is SW is run seqentially, this will results in lower FPS, another is that SW is run on ROS, this can enable parrallelized pipelining and reach higher FPS.
+For each configuration there are two settings, one is SW is run seqentially, this will results in lower FPS, another is that SW is run on ROS, this can enable parrallelized pipelining and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
 
 | Config          | Squential SW (pipeline only \| whole loop w display) | SW on ROS(pipeline ony / whole loop w display) |
 |:-----------------:|:-------------:|:-------------:|
