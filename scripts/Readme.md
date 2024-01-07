@@ -44,4 +44,4 @@ Below table shows FPS achieved used different HW.
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | TBA | TBA
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | TBA | TBA
-| FPGA (ZCU104)   | --      | TBA           | --                   | 144            | TBA | TBA
+| FPGA (ZCU104)   | --      | TBA           | --                   | 288            | TBA | TBA
