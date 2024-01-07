@@ -19,7 +19,7 @@ python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_i
 cd <top_folder>
 python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0
 ```
-### Run on FPGA
+### Run on GPU+FPGA
 
 TBA
 
