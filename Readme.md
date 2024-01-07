@@ -66,7 +66,7 @@ bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 ### 3.3 Run the Full color optimizer pipeline
 
 
-(1) The scripts to run the whole pipeline for one frame is implemented in [scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py](scripts/pipeline_on_cpu/per_frame_seq_pipeline.py) (this link link to cpu imlemetation), please refer it to see how to use and concatenate all modules in implementations using either CPU or CUDA (GPU).
+(1) The scripts to run the whole pipeline for one frame is implemented in [scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py](scripts/pipeline_on_cpu/per_frame_seq_pipeline.py) (this link is to cpu imlemetation), please refer it to see how to use and concatenate all modules implemented in CPU. For CUDA (GPU) implementation, see the one under GPU folder[scripts/pipeline_on_gpu>/per_frame_seq_pipeline.py](scripts/pipeline_on_gpu/per_frame_seq_pipeline.py).
 
 (2) Every module's main function also shows example of how to use it. You just need to go to the corresponding folder and run the python code. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
 ```bash
