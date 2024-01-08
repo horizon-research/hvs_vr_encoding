@@ -1,13 +1,9 @@
 template<int TB_TIMES>
 void dkl2rgb_loop(hls::stream<rgb_t_array> &rgb_stream, hls::stream<dkl_t_array> &dkl_stream) {
-    #ifndef __SYNTHESIS__
-    for (int ti = 0; ti < TB_TIMES; ti++)
-    #else
+    dkl_t_array dkl_centers_i;
     while (true) 
-    #endif
     {
-        #pragma HLS PIPELINE II=1   rewind
-        dkl_t_array dkl_centers_i;
+        #pragma HLS PIPELINE II=1 
         #pragma HLS ARRAY_PARTITION variable=dkl_centers_i.data dim=0 complete
         if (dkl_stream.read_nb(dkl_centers_i)){
             rgb_t_array rgb_centers_i;
