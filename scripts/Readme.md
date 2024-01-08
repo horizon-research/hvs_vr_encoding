@@ -29,7 +29,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 
 (1) Pipeline with: Projection → Len Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. (need to add BD ENC / DEC)
 
-| Config          | Squential SW (pipeline only \| whole loop w display) | SW on ROS(pipeline ony / whole loop w display) |
+| Config          | Squential SW (pipeline only \| whole loop w. display) | SW on ROS(pipeline ony / whole loop w. display) |
 |:-----------------:|:-------------:|:-------------:|
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 |TBA|
 | GPU (RTX-4090)        | 51.0 \| 40.5 |TBA|
