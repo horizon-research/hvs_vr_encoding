@@ -83,7 +83,7 @@ See [<top_folder>/scripts/args.py](scripts/args.py) for supported args.
 - To run CPU implementation using single core and sequential loop. (For other settings please see readme in [scripts/](scripts/))
 ```bash 
 cd <top_folder>
-python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --save_imgs
+python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --save_imgs --foveated
 
 ```
 
