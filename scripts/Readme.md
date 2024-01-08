@@ -2,8 +2,8 @@
 
 ## Support configurations:
 - CPU (use cv2.imshow for display.)
-- GPU (use HW-accelerated pygame for display.)
-- GPU + FPGA (use HW-accelerated pygame for communication with FPGA.)
+- GPU (use GPU accelerated modules. Use HW-accelerated pygame for display.)
+- GPU + FPGA (Use GPU accelerated modules. Use HW-accelerated pygame for communication with FPGA. Offload color_optimizer/Len_correction/Display_rendering to FPGA.)
 
 ## Usage
 
