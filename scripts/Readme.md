@@ -12,12 +12,12 @@ make sure tou have prepared the decoded images as discussed in the readme of mai
 ### Run on CPU
 ```bash
 cd <top_folder>
-python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display
+python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --foveated
 ```
 ### Run on GPU
 ```bash
 cd <top_folder>
-python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0
+python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
 ```
 ### Run on GPU+FPGA
 

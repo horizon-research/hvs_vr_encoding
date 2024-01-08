@@ -208,11 +208,12 @@ def measure_fps_project_1080_960(test_times=10):
 
     fps = 1 / (t2-t1) * test_times
     
-    return fps
+    
+    return fps, perspective_image
 
 if __name__ == '__main__':
     # Example usage:
     cube_time = draw_cube()
-    fps = measure_fps_project_1080_960(test_times = 1000)
+    fps, perspective_image = measure_fps_project_1080_960(test_times = 1000)
     print("fps of 1080x960 projection: ", fps)
 

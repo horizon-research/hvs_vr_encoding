@@ -26,6 +26,7 @@ class Perframe_color_optimizer_pipeline():
 
         # step 2: Color optimizer
         opt_img = self.image_color_optimizer.color_conversion(perspective_img)
+        # opt_img = perspective_img
 
         # step 3: Pre-distortion
         corrected_img = self.len_correction.correct(opt_img)
