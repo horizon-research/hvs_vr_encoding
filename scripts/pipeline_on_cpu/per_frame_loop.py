@@ -18,7 +18,6 @@ if __name__ == '__main__':
         os.makedirs(args.out_images_folder)
     file_num = len(os.listdir(args.in_images_folder))
     total_frames = file_num
-    perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
 
     all_acc_time = 0
     pp_acc_time = 0
@@ -31,6 +30,10 @@ if __name__ == '__main__':
             img = cv2.imread(in_img_filename)
             img_list.append(img)
             pbar.update(1)
+            
+    args.equi_width = img_list[0].shape[1]
+    args.equi_height = img_list[0].shape[0]
+    perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
 
     repeat_times = 10
 
