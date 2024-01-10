@@ -22,10 +22,10 @@ struct Memory_query_t {
 };
 
 struct Memory_write_t {
-	Pixel data[4];
-	ap_uint<11> rows[4];
-	ap_uint<10> cols[4];
-	ap_uint<1> yield;
+	Pixel data;
+	ap_uint<11> rows;
+	ap_uint<10> cols;
+	ap_uint<11> yield_num;
 };
 
 struct Bilinear_info {
@@ -36,6 +36,10 @@ struct Bilinear_info {
 	float dx;
 	float dy;
 	bool valid;
+};
+
+struct row_trigger_t { // Pynq is BGR format
+	ap_uint<11> yiled_num;
 };
 
 
