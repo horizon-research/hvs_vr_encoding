@@ -44,7 +44,7 @@ def generate_header_for_c(max_buffersize, insert_nums):
     #include <ap_int.h>
 
     const ap_uint<{math.ceil(math.log2(max_buffersize))}> buffer_row_num = {max_buffersize};
-    const ap_uint<{math.ceil(math.log2(np.asarray(insert_nums).max()))}> discards[1080] = {{{', '.join(map(str, insert_nums[:1080]))}}};
+    const ap_uint<{math.ceil(math.log2(np.asarray(insert_nums).max()))}> inserts[1080] = {{{', '.join(map(str, insert_nums[:1080]))}}};
 
     #endif // PRE_COMPUTE_LEN_CORRECTION_CONSTANT_H
     """
