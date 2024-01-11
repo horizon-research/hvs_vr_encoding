@@ -12,8 +12,11 @@ namespace vr_prototype
 	{
         public:
             Pixel pixel_buffers [4][ per_buffer_row_size ][480];
-            void operator()(hls::stream<FourPixel> &memory_read_stream, hls::stream<Memory_write_t>  &memory_write_stream, hls::stream<Memory_query_t> &memory_query_stream) {
+            void operator()(hls::stream<FourPixel_t> &memory_read_stream, hls::stream<Memory_write_t>  &memory_write_stream, hls::stream<Memory_query_t> &memory_query_stream) {
                 #pragma HLS ARRAY_PARTITION variable=pixel_buffers dim=1 complete
+                #pragma HLS AGGREGATE compact=bit variable=pixel_buffers// need to aggregate to prevent 3x resource usage, it will use ram in the way
+                                                                         // 24xd  instead 8xd 8xd 8xd (3x memory usage)
+                #pragma HLS bind_storage variable=pixel_buffers type=ram_1p impl=uram
                 int writer_yield_num = 0;
                 int outputed_rows = 0;
                 while(outputed_rows < 1080){
