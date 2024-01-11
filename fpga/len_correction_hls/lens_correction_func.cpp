@@ -1,9 +1,9 @@
 #include "len_correction_func.h"
-
+#include "utils/types.h"
 
 void len_correction_func(
-	hls::stream<Pixel> &dout,
-	hls::stream<Pixel> &din
+	hls::stream<Pixel_t> &dout,
+	hls::stream<Pixel_t> &din
 	)
 {	// HLS INTERFACE stram setting
 	#pragma HLS AGGREGATE compact=bit variable=dout
@@ -13,6 +13,6 @@ void len_correction_func(
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
 	// Initialization
-	vr_prototype::Lens_correction lens_correction; 
-	lens_correction(dout, din);
+	vr_prototype::Len_corrector lens_corrector; 
+	lens_corrector(dout, din);
 }
