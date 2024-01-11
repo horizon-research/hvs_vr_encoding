@@ -31,19 +31,21 @@ namespace vr_prototype
                     else {
                         Memory_query_t memory_query;
                         memory_query = memory_query_stream.read();
-                        FourPixel four_pixel;
-                        for (int i = 0; i < 4; i++) {
-                            #pragma HLS unroll
-                            ap_uint<2> buffer_idx;
-                            ap_uint<7> buffer_row;
-                            ap_uint<9> buffer_col;
-                            img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, memory_query.rows[i], memory_query.cols[i]);
-                            four_pixel[i] = pixel_buffers[buffer_idx][buffer_row][buffer_col];
-                        }
-                        memory_read_stream.write(four_pixel);
                         if (memory_query.yield == 1) {
                             outputed_rows ++;
                             writer_yield_num--;
+                        }
+                        if (memory_query.read == 1) {
+                            FourPixel four_pixel;
+                            for (int i = 0; i < 4; i++) {
+                                #pragma HLS unroll
+                                ap_uint<2> buffer_idx;
+                                ap_uint<7> buffer_row;
+                                ap_uint<9> buffer_col;
+                                img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, memory_query.rows[i], memory_query.cols[i]);
+                                four_pixel[i] = pixel_buffers[buffer_idx][buffer_row][buffer_col];
+                            }
+                            memory_read_stream.write(four_pixel); 
                         }
                     }
                 }
