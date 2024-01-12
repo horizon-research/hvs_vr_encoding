@@ -28,8 +28,8 @@ namespace vr_prototype
                 ap_uint<11> triggered_row_num = 0;
                 ap_uint<11> all_yield_num = 0;
                 for (int i = 0; i < 1080; i++) {
-                    #pragma HLS PIPELINE II=1 rewind
                     for (int j = 0; j < inserts[i] + 1; j++) {
+                        #pragma HLS PIPELINE II=1 rewind
                         if (j == 0) { // first count is only for adding yield
                             acc_yield ++;
                         }
