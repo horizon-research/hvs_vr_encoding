@@ -16,7 +16,7 @@ Also, I don't use double buffering so producer / consumer will be stalled altern
 ## 2. FPS from Cosim
 From the Cosim result, we can estimzte FPS as follow: (Pipeline flushing time is negligible compare to full frame latency)
 
-FPS = 300M (Hz) / 2074285 (Latency for one frame)  = 144
+FPS = 300M (Hz) / 2074522 (Latency for one frame)  = 144
 
 ![Alt text](images/Cosim_Latency.png)
 
