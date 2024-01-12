@@ -1,7 +1,7 @@
-#include "len_correction_func.h"
+#include "lens_correction.h"
 #include "utils/types.h"
 
-void len_correction_func(
+void lens_correction_func(
 	hls::stream<Pixel_t> &dout,
 	hls::stream<Pixel_t> &din
 	)
@@ -13,6 +13,6 @@ void len_correction_func(
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
 	// Initialization
-	vr_prototype::Len_corrector lens_corrector; 
+	vr_prototype::Lens_corrector lens_corrector;
 	lens_corrector(dout, din);
 }

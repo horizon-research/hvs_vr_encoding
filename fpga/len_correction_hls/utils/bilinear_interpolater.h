@@ -2,8 +2,8 @@
 #include <ap_int.h>
 #include <ap_fixed.h>
 #include <hls_math.h>
-#include "precomputation/precompute_constant.h"
-#include "utils/types.h"
+#include "../precomputation/precompute_constant.h"
+#include "types.h"
 #ifndef BILINEAR_INTERPOLATER_H
 #define BILINEAR_INTERPOLATER_H // Prevent duplicate definition
 namespace vr_prototype
@@ -18,10 +18,10 @@ namespace vr_prototype
                     {
                         #pragma HLS PIPELINE II=1 rewind
                         Bilinear_info_t blinear_info = bilinear_info_stream.read();
-                        Pixel_t xy11 = blinear_info.data[0];
-                        Pixel_t xy12 = blinear_info.data[1];
-                        Pixel_t xy21 = blinear_info.data[2];
-                        Pixel_t xy22 = blinear_info.data[3];
+                        Pixel_t xy11 = blinear_info.data.data[0];
+                        Pixel_t xy12 = blinear_info.data.data[1];
+                        Pixel_t xy21 = blinear_info.data.data[2];
+                        Pixel_t xy22 = blinear_info.data.data[3];
                         float dx = blinear_info.dx;
                         float dy = blinear_info.dy;
                         Pixel_t out; //write codes closer to where it is used?
@@ -29,7 +29,6 @@ namespace vr_prototype
                         bilinear_interpolation(out.b, xy11.b, xy12.b, xy21.b, xy22.b, dx, dy);
                         bilinear_interpolation(out.g, xy11.g, xy12.g, xy21.g, xy22.g, dx, dy);
                         bilinear_interpolation(out.r, xy11.r, xy12.r, xy21.r, xy22.r, dx, dy);
-                        dout.write(out);
                         if (blinear_info.valid) {
                             dout.write(out);
                         }
@@ -58,6 +57,6 @@ namespace vr_prototype
                 }
                 out = ap_uint<8> ( ap_ufixed<8, 8, AP_RND>(_out) );
 		    }
-    }
+    };
 }
 #endif

@@ -1,5 +1,5 @@
-#include "precomputation/precompute_constant.h"
-#include "utils/types.h"
+#include "../precomputation/precompute_constant.h"
+#include "types.h"
 #include <hls_stream.h>
 #include <ap_int.h>
 #include <ap_fixed.h>
@@ -14,9 +14,7 @@ namespace vr_prototype
     class Memory_writer
     {
          public:
-            const auto _inserts = inserts;
-
-            void operator() (hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel> &din){
+            void operator() (hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel_t> &din){
                 #pragma HLS DATAFLOW
                 hls::stream<row_trigger_t> row_trigger_stream;
                 inserts_decoder(row_trigger_stream);
@@ -25,28 +23,34 @@ namespace vr_prototype
 
             void inserts_decoder(hls::stream<row_trigger_t> &row_trigger_stream) {
                 ap_uint<11> acc_yield = 0;
+                ap_uint<11> triggered_row_num = 0;
+                ap_uint<11> all_yield_num = 0;
                 for (int i = 0; i < 1080; i++) {
                     #pragma HLS PIPELINE II=1 rewind
-                    for (int j = 0; j < _inserts[i] + 1; j++) {
-                        if (_inserts[i] == 0) { // first count is only for adding yield
+                    for (int j = 0; j < inserts[i] + 1; j++) {
+                        if (j == 0) { // first count is only for adding yield
                             acc_yield ++;
                         }
                         else {
                             row_trigger_t row_trigger;
-                            if (j == _inserts[i]) {
+                            if (j == inserts[i]) {
+                                if (triggered_row_num == 1079) {
+                                    acc_yield = acc_yield = 1080 - all_yield_num;
+                                }
                                 row_trigger.yiled_num = acc_yield;
                                 acc_yield = 0;
                             }
                             else {
                                 row_trigger.yiled_num = 0;
                             }
+                            triggered_row_num ++;
                             row_trigger_stream.write(row_trigger);
                         }
                     }
                 }
             }
 
-            void row_writer( hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel> &din, hls::stream<row_trigger_t> &row_trigger_stream) {
+            void row_writer( hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel_t> &din, hls::stream<row_trigger_t> &row_trigger_stream) {
                 ap_uint<11> yield_num = 0;
                 for ( int i = 0; i < 1080; i ++)
                 {
@@ -72,7 +76,7 @@ namespace vr_prototype
                 }
 
             }
-    }
+    };
 
 
 }

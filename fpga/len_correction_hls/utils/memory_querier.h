@@ -2,27 +2,22 @@
 #include <ap_int.h>
 #include <ap_fixed.h>
 #include <hls_math.h>
-#include "precomputation/precompute_constant.h"
-#include "utils/types.h"
+#include "../precomputation/precompute_constant.h"
+#include "types.h"
 #ifndef MEMORY_Q
 #define MEMORY_Q // Prevent duplicate definition
 namespace vr_prototype
 {
 	class Memory_querier
 	{
-        struct Partial_bilinear_info_t {
-            float dx;
-            float dy;
-            bool valid;
-        };
         public:
-        void operator() (hls::stream<Memory_query_t> &memory_query_stream, hls::stream<Bilinear_info_t> &bilinear_info_stream, hls::stream<FourPixel_t> &memory_rdata_stream){
-            #pragma HLS DATAFLOW
-            hls::stream<Partial_bilinear_info_t> partial_bilinear_info_stream;
-            #pragma HLS STREAM variable=partial_bilinear_info_stream depth=32
-            query_generator(memory_query_stream, partial_bilinear_info_stream);
-            bilinear_info_generator(bilinear_info_stream, partial_bilinear_info_stream, memory_rdata_stream);
-        }
+        // void operator() (hls::stream<Memory_query_t> &memory_query_stream, hls::stream<Bilinear_info_t> &bilinear_info_stream, hls::stream<FourPixel_t> &memory_rdata_stream){
+        //     #pragma HLS DATAFLOW
+        //     hls::stream<Partial_bilinear_info_t> partial_bilinear_info_stream;
+        //     #pragma HLS STREAM variable=partial_bilinear_info_stream depth=32
+        //     query_generator(memory_query_stream, partial_bilinear_info_stream);
+        //     bilinear_info_generator(bilinear_info_stream, partial_bilinear_info_stream, memory_rdata_stream);
+        // }
         void query_generator(hls::stream<Memory_query_t> &memory_query_stream, hls::stream<Partial_bilinear_info_t> &partial_bilinear_info_stream){
             for (int i = 0; i < 1080; i++)
 			{
@@ -50,8 +45,8 @@ namespace vr_prototype
 		{
 			#pragma HLS INLINE off // need off or synthesize will fail without error
 			// HLS Can not detect no-dependency cross functions?
-            const cx = 480;
-            const cy = 540;
+            const float cx = 480;
+            const float cy = 540;
             const float c = 1 / 401. * 25.4 / 39.07; // c = 1 / ppi * 25.4 / z ;
             const float k1 = 0.33582564;
 			const float k2 = 0.55348791;
@@ -98,7 +93,7 @@ namespace vr_prototype
 			float dy = cor_y - y1;
 			p_blinear_info.dx = dx;
 			p_blinear_info.dy = dy;
-			blinear_info.valid = valid;
+			p_blinear_info.valid = valid;
 
             memory_query_stream.write(memory_query);
             partial_bilinear_info_stream.write(p_blinear_info);
@@ -124,6 +119,6 @@ namespace vr_prototype
                 }
             }
         }
-    }
+    };
 }
 #endif

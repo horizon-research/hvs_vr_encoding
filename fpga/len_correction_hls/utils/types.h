@@ -40,5 +40,9 @@ struct row_trigger_t { // Pynq is BGR format
 	ap_uint<11> yiled_num;
 };
 
-
+struct Partial_bilinear_info_t {
+	float dx;
+	float dy;
+	bool valid;
+};
 #endif 

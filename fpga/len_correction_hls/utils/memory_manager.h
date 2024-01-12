@@ -2,8 +2,8 @@
 #include <ap_int.h>
 #include <ap_fixed.h>
 #include <hls_math.h>
-#include "precomputation/precompute_constant.h"
-#include "utils/types.h"
+#include "../precomputation/precompute_constant.h"
+#include "types.h"
 #ifndef MEMORY_M
 #define MEMORY_M // Prevent duplicate definition
 namespace vr_prototype
@@ -11,7 +11,7 @@ namespace vr_prototype
 	class Memory_manager
 	{
         public:
-            Pixel pixel_buffers [4][ per_buffer_row_size ][480];
+            Pixel_t pixel_buffers[4][ per_buffer_row_size ][480];
             void operator()(hls::stream<FourPixel_t> &memory_read_stream, hls::stream<Memory_write_t>  &memory_write_stream, hls::stream<Memory_query_t> &memory_query_stream) {
                 #pragma HLS ARRAY_PARTITION variable=pixel_buffers dim=1 complete
                 #pragma HLS AGGREGATE compact=bit variable=pixel_buffers// need to aggregate to prevent 3x resource usage, it will use ram in the way
@@ -39,14 +39,14 @@ namespace vr_prototype
                             writer_yield_num--;
                         }
                         if (memory_query.read == 1) {
-                            FourPixel four_pixel;
+                            FourPixel_t four_pixel;
                             for (int i = 0; i < 4; i++) {
                                 #pragma HLS unroll
                                 ap_uint<2> buffer_idx;
                                 ap_uint<7> buffer_row;
                                 ap_uint<9> buffer_col;
                                 img_cood_to_buffer_cood(buffer_idx, buffer_row, buffer_col, memory_query.rows[i], memory_query.cols[i]);
-                                four_pixel[i] = pixel_buffers[buffer_idx][buffer_row][buffer_col];
+                                four_pixel.data[i] = pixel_buffers[buffer_idx][buffer_row][buffer_col];
                             }
                             memory_read_stream.write(four_pixel); 
                         }
@@ -75,7 +75,7 @@ namespace vr_prototype
                 }
 
             }
-    }
+    };
 }
 
 #endif
