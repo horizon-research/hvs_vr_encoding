@@ -203,9 +203,9 @@ class Tile_color_optimizer:
         # import ipdb; ipdb.set_trace()
         dkl_centers = (RGB2DKL[cp.newaxis, :, :] @ rgb_centers.transpose(0,2,1)).transpose(0,2,1)
         centers_abc = self.color_model.compute_ellipses_gpu(srgb_centers, ecc_tiles)
-
-        centers_abc[centers_abc <= 1e-5] = 1e-5 ## fix devided by zero error and too large inv_square
-        centers_abc[:, 2] = self.fixed_c
+        centers_abc[centers_abc <= 1e-5] = 1e-5 # fix devided by zero error and too large inv_square
+        # centers_abc[:, 2] = self.fixed_c
+        centers_abc[:, 2] = centers_abc[:, 2] * 0.3
         # import ipdb; ipdb.set_trace()
         centers_abc[cp.tile(ecc_tiles.reshape(-1,1) < self.ecc_no_compress, (1,3))] = 1e-5
         

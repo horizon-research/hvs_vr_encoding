@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
 
-    repeat_times = 10
+    repeat_times = 100
 
     all_t1 = time.time()
     with tqdm(total=total_frames * repeat_times, desc="Running per frame loop") as pbar:
@@ -77,6 +77,10 @@ if __name__ == '__main__':
                 cv2.imwrite(out_img_filename, combined_img.astype(np.uint8))
 
             pbar.update(1)
+
+            # if i % (10*total_frames) == 0:
+            #     import ipdb; ipdb.set_trace()
+            #     perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
 
     all_t2 = time.time()
 

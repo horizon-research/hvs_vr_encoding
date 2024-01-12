@@ -26,7 +26,7 @@ python3 red_blue_optimization_cuda.py
 
 ```
 original base delta compression rate: 21.31%
-optimized base delta compression rate: 38.38%
-compression improvement: 17.07%
+optimized base delta compression rate: 30.66%
+compression improvement: 9.36%
 ```
 
