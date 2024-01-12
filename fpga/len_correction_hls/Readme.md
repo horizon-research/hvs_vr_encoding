@@ -9,6 +9,8 @@ Since we need to access four pixels and perform bilinear intepolation for one ou
 
 Compare to naive method, we can save 4x buffer usage. Also, by utilizing the loclality of lens correction, we don't need to buffer full image but only 185 rows given our lens parameters, which can save 6x more buffersize. In total we can save around 24x buffersize by smartly design the on-chip buffer strategy. Which make the implementation feasible on ZCU104 ( Reduce the Utilization of URAM from 1000% to  45%)
 
+Also, I don't use double buffering so producer / consumer will be stalled alternatively. The reason is that we do not have enough on-chip ram for double buffering and the FPS is enough.
+
 ![Alt text](images/data_layout.png)
 
 ## 2. FPS from Cosim
