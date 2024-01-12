@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "lens_correction.h"
+#include "lens_correction_func.h"
 
 
 template<typename T>

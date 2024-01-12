@@ -12,7 +12,5 @@ void lens_correction_func(
 	#pragma HLS INTERFACE axis register both port=din
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-	// Initialization
-	vr_prototype::Lens_corrector lens_corrector;
-	lens_corrector(dout, din);
+	vr_prototype::lens_corrector::lens_corrector(dout, din);
 }

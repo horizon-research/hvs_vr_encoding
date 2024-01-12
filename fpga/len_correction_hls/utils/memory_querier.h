@@ -8,16 +8,11 @@
 #define MEMORY_Q // Prevent duplicate definition
 namespace vr_prototype
 {
-	class Memory_querier
+	namespace memory_querier
 	{
-        public:
-        // void operator() (hls::stream<Memory_query_t> &memory_query_stream, hls::stream<Bilinear_info_t> &bilinear_info_stream, hls::stream<FourPixel_t> &memory_rdata_stream){
-        //     #pragma HLS DATAFLOW
-        //     hls::stream<Partial_bilinear_info_t> partial_bilinear_info_stream;
-        //     #pragma HLS STREAM variable=partial_bilinear_info_stream depth=32
-        //     query_generator(memory_query_stream, partial_bilinear_info_stream);
-        //     bilinear_info_generator(bilinear_info_stream, partial_bilinear_info_stream, memory_rdata_stream);
-        // }
+        void compute_correction_idx(float &cor_x, float &cor_y, const float &x, const float &y);
+        void get_query_and_partial_bilinear_info(Memory_query_t &memory_query, Partial_bilinear_info_t &partial_bilinear_info, 
+                                                    const float &cor_x, const float &cor_y, const bool &valid, const bool &last_col);
         void query_generator(hls::stream<Memory_query_t> &memory_query_stream, hls::stream<Partial_bilinear_info_t> &partial_bilinear_info_stream){
             for (int i = 0; i < 1080; i++)
 			{
@@ -34,9 +29,12 @@ namespace vr_prototype
                         valid = false;
                     }
                     bool last_col = (j == 959);
-                    send_query_and_partial_bilinear_info(memory_query_stream, partial_bilinear_info_stream, cor_x, cor_y, valid, last_col);
+                    Memory_query_t memory_query;
+                    Partial_bilinear_info_t partial_bilinear_info;
+                    get_query_and_partial_bilinear_info(memory_query, partial_bilinear_info, cor_x, cor_y, valid, last_col);
 
-
+                    memory_query_stream.write(memory_query);
+                    partial_bilinear_info_stream.write(partial_bilinear_info);
 
 				}
 			}
@@ -68,14 +66,15 @@ namespace vr_prototype
 			cor_x = cor_x1 + cx;
 			cor_y = cor_y1 + cy;
 		}
-        void send_query_and_partial_bilinear_info(hls::stream<Memory_query_t> &memory_query_stream, hls::stream<Partial_bilinear_info_t> &partial_bilinear_info_stream, 
+        void get_query_and_partial_bilinear_info(Memory_query_t &memory_query, Partial_bilinear_info_t &partial_bilinear_info, 
                                                     const float &cor_x, const float &cor_y, const bool &valid, const bool &last_col)
         {
+            // #pragma HLS INLINE on 
             ap_uint<10> x1 = ap_uint<10>(cor_x);
 			ap_uint<10> x2 = x1 + 1;
 			ap_uint<11> y1 = ap_uint<11>(cor_y);
 			ap_uint<11> y2 = y1 + 1;
-            Memory_query_t memory_query;
+
             memory_query.read = valid;
             memory_query.yield = last_col;
             // x1y1, x1y2, x2y1, x2y2
@@ -88,15 +87,14 @@ namespace vr_prototype
             memory_query.rows[2] = y1;
             memory_query.rows[3] = y2;
 
-            Partial_bilinear_info_t p_blinear_info;
+            #pragma HLS ARRAY_PARTITION variable=memory_query.cols complete
+            #pragma HLS ARRAY_PARTITION variable=memory_query.rows complete
+
             float dx = cor_x - x1;
 			float dy = cor_y - y1;
-			p_blinear_info.dx = dx;
-			p_blinear_info.dy = dy;
-			p_blinear_info.valid = valid;
-
-            memory_query_stream.write(memory_query);
-            partial_bilinear_info_stream.write(p_blinear_info);
+			partial_bilinear_info.dx = dx;
+			partial_bilinear_info.dy = dy;
+			partial_bilinear_info.valid = valid;
         }
         void bilinear_info_generator(hls::stream<Bilinear_info_t> &bilinear_info_stream, hls::stream<Partial_bilinear_info_t> &partial_bilinear_info_stream, hls::stream<FourPixel_t> &memory_rdata_stream){
             for (int i = 0; i < 1080; i++)
@@ -115,10 +113,11 @@ namespace vr_prototype
                         four_pixel = memory_rdata_stream.read();
                         bilinear_info.data = four_pixel;
                     }
+                    #pragma HLS ARRAY_PARTITION variable=bilinear_info.data.data complete
                     bilinear_info_stream.write(bilinear_info);
                 }
             }
         }
-    };
+    }
 }
 #endif

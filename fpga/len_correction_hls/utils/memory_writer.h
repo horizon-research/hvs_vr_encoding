@@ -11,10 +11,12 @@
 
 namespace vr_prototype
 {
-    class Memory_writer
+    namespace memory_writer
     {
-         public:
-            void operator() (hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel_t> &din){
+            void inserts_decoder(hls::stream<row_trigger_t> &row_trigger_stream);
+            void row_writer( hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel_t> &din, hls::stream<row_trigger_t> &row_trigger_stream);
+            
+            void memory_writer(hls::stream<Memory_write_t> &memory_write_stream, hls::stream<Pixel_t> &din){
                 #pragma HLS DATAFLOW
                 hls::stream<row_trigger_t> row_trigger_stream;
                 inserts_decoder(row_trigger_stream);
@@ -76,9 +78,7 @@ namespace vr_prototype
                 }
 
             }
-    };
-
-
+    }
 }
 
 #endif

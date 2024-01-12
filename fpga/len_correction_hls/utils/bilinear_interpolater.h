@@ -8,16 +8,17 @@
 #define BILINEAR_INTERPOLATER_H // Prevent duplicate definition
 namespace vr_prototype
 {
-	class Bilinear_interpolater
-	{
-        public:
-            void operator() (hls::stream<Pixel_t> &dout, hls::stream<Bilinear_info_t> &bilinear_info_stream){
+	namespace bilinear_interpolater
+	{       
+            void bilinear_interpolation(ap_uint<8> &out, const ap_uint<8> &xy11, const ap_uint<8> & xy12, const ap_uint<8> & xy21, const ap_uint<8> &xy22, const float &dx, const float &dy);
+            void bilinear_interpolater (hls::stream<Pixel_t> &dout, hls::stream<Bilinear_info_t> &bilinear_info_stream){
                 for (int i = 0; i < 1080; i++)
                 {
                     for (int j = 0; j < 960; j++)
                     {
                         #pragma HLS PIPELINE II=1 rewind
                         Bilinear_info_t blinear_info = bilinear_info_stream.read();
+                        #pragma HLS ARRAY_PARTITION variable=blinear_info.data.data complete
                         Pixel_t xy11 = blinear_info.data.data[0];
                         Pixel_t xy12 = blinear_info.data.data[1];
                         Pixel_t xy21 = blinear_info.data.data[2];
