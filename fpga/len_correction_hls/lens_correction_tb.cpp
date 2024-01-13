@@ -8,15 +8,11 @@
 template<typename T>
 void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
 {
-	// std::cout << " ...loading: " + dname << std::endl;
-    //    assert(!data.fail());
     int loaded_num = 0;
     while(!ifdata.eof())
     {
         std::string line;
         std::getline(ifdata, line);
-        // std::cout << line << std::endl;
-        // std::cout << "line: " << line << std::endl;
         float d=0;
         if (line == "\n") {
             std::cout << "Meet final \n" << std::endl;
@@ -24,8 +20,6 @@ void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
         } else {
             d = std::stof(line);
         }
-        // std::cout << "d: " << d << std::endl;
-        // std::cout << "T(d): " << T(d) << std::endl;
         s.write(T(d));
         loaded_num = loaded_num + 1;
         if(loaded_num == load_num) 
