@@ -41,7 +41,7 @@ namespace vr_prototype
         }
 		void compute_correction_idx(float &cor_x, float &cor_y, const float &x, const float &y)
 		{
-			#pragma HLS INLINE off // need off or synthesize will fail without error
+			// #pragma HLS INLINE // need off or synthesize will fail without error
 			// HLS Can not detect no-dependency cross functions?
             const float cx = 480;
             const float cy = 540;
@@ -69,6 +69,7 @@ namespace vr_prototype
         void get_query_and_partial_bilinear_info(Memory_query_t &memory_query, Partial_bilinear_info_t &partial_bilinear_info, 
                                                     const float &cor_x, const float &cor_y, const bool &valid, const bool &last_col)
         {
+            // #pragma HLS INLINE 
             // #pragma HLS INLINE on 
             ap_uint<10> x1 = ap_uint<10>(cor_x);
 			ap_uint<10> x2 = x1 + 1;

@@ -51,10 +51,12 @@ namespace vr_prototype
                                 ordered_buffer_col[buffer_idx[i]] = buffer_col;
                             }
 
+                            // URAM access cause time violation in vivado , so I add min latncy here
                             Pixel_t ordered_pixels[4];
                             #pragma HLS ARRAY_PARTITION variable=ordered_pixels dim=0 complete
                             for (int i = 0; i < 4; i++) {
                                 #pragma HLS unroll
+                                #pragma HLS LATENCY min=4
                                 ordered_pixels[i] = pixel_buffers[i][ordered_buffer_row[i]][ordered_buffer_col[i]];
                             }
 
@@ -72,6 +74,8 @@ namespace vr_prototype
             }
 
             void img_cood_to_buffer_cood(ap_uint<2> &buffer_idx, ap_uint<7> &buffer_row, ap_uint<9> &buffer_col, const ap_uint<11> &image_row, const ap_uint<10> &image_col) {
+                #pragma HLS INLINE
+                
                 ap_uint<10> cyclic_col = image_col;
                 ap_uint<8>  cyclic_row = image_row % buffer_row_num;
                 // since we have 4 buffers, we need to map the cyclic_row / cyclic_col to 4 buffers' address
@@ -84,10 +88,10 @@ namespace vr_prototype
                 else if (cyclic_row[0] == 0 && cyclic_col[0] == 1) {
                     buffer_idx = 1;
                 }
-                else if (cyclic_col[0] == 0 && cyclic_row[0] == 1) {
+                else if (cyclic_row[0] == 1 && cyclic_col[0] == 0) {
                     buffer_idx = 2;
                 }
-                else if (cyclic_col[0] == 1 && cyclic_row[0] == 1) {
+                else if (cyclic_row[0] == 1 && cyclic_col[0] == 1 ) {
                     buffer_idx = 3;
                 }
 
