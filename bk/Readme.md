@@ -83,7 +83,7 @@
     cd PYNQ/boards/ZCU104/base/
 
     # activate vivado environment
-    source <path_to_vivado_2022.2>/settings64.sh # e.g. source /tools/Xilinx/Vivado/2022.1/settings64.sh
+    source <path_to_vivado_2022.1>/settings64.sh # e.g. source /tools/Xilinx/Vivado/2022.1/settings64.sh
     # start building
     vivado -mode batch -source ./build_ip.tcl & 
     vivado -mode batch -source ./base.tcl &
