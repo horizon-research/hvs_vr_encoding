@@ -46,7 +46,7 @@ int main()
     ifref.open("gold_sequence/TB_data/gold_sequence.txt");
 
     std::ofstream hw_out;
-    hw_out.open("gold_sequence/csim_hw_out.txt", std::ios::out | std::ios::trunc);
+    hw_out.open("gold_sequence/TB_data/csim_hw_out.txt", std::ios::out | std::ios::trunc);
 
     float acc_err = 0;
     int count = 0;
