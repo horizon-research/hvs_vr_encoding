@@ -23,7 +23,7 @@ if __name__ == "__main__":
     img = np.array(img)
     img_height, img_width = img.shape[:2]
     tile_size = 4   
-    image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = tile_size)
+    image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = tile_size, only_blue = True)
     
     dkl_centers, centers_abc = image_color_optimizer.only_generate_ellipses(img)
     dkl_centers = dkl_centers.reshape(img_height // tile_size, tile_size, img_width // tile_size, tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(img_height, img_width, 3)
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     save_in_row_order(centers_abc, "./TB_data/centers_abc.txt")
     
     opt_img = image_color_optimizer.color_conversion(img)
+    opt_img = opt_img.reshape(img_height // tile_size, tile_size, img_width // tile_size, tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(img_height, img_width, 3)
     save_in_row_order(opt_img, "./TB_data/gold_sequence.txt")
 
 

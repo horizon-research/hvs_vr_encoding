@@ -40,10 +40,10 @@ int main()
 {
     int image_tiles_num = 100;
     int tile_num_one_time = 1;
-    std::ifstream ifa, ifb, ifc, ifd, ifk, ifl, ifref;
-    ifabc.open("gold_sequence/centers_abc.txt");
-    ifdkl.open("gold_sequence/dkl_centers.txt");
-    ifref.open("gold_sequence/gold_sequence.txt");
+    std::ifstream ifabc, ifdkl, ifref;
+    ifabc.open("gold_sequence/TB_data/centers_abc.txt");
+    ifdkl.open("gold_sequence/TB_data/dkl_centers.txt");
+    ifref.open("gold_sequence/TB_data/gold_sequence.txt");
 
     std::ofstream hw_out;
     hw_out.open("gold_sequence/csim_hw_out.txt", std::ios::out | std::ios::trunc);
