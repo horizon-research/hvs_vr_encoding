@@ -48,4 +48,4 @@ Below table shows FPS achieved used different HW.
 | GPU (RTX-4060 Laptop WSL)   | 409.6    | 448.7            | 115.4                 | 26.7            | TBA | TBA
 | FPGA (ZCU104)   | --      | TBA           | --                   | 288 *            | TBA | TBA
 
-*GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 10% of FPGA.resource.
+*GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.
