@@ -2,6 +2,7 @@
 
 ## This Design focus on accessing only one-time row-order pixel input though we can let FPGA control DMA to access DDR randomly and multiple times since DDR access will introduce much latency and energy comsumption.
 
+**Notice**: This module use BGR input output. Other module may use RGB format. PYNQ use BGR.
 
 ## 1. Special Storage for Bilinear intepolation
 

@@ -38,9 +38,9 @@ int main()
 {
     std::ifstream ifin, ifref;
     std::ofstream hw_out;
-    ifin.open("gold_sequence/input.txt");
-    ifref.open("gold_sequence/gold_seq.txt");
-    hw_out.open("gold_sequence/csim_hw_out.txt", std::ios::out | std::ios::trunc);
+    ifin.open("gold_sequence/TB_data/input.txt");
+    ifref.open("gold_sequence/TB_data/gold_seq.txt");
+    hw_out.open("gold_sequence/TB_data/csim_hw_out.txt", std::ios::out | std::ios::trunc);
 
     hls::stream<ap_uint<8>> fins("ins");
     hls::stream<ap_uint<8>> frefs("refs");

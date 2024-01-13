@@ -31,6 +31,6 @@ if __name__ == '__main__':
     len_correction_img = len_correction.correct(image)
 
     image = np.asarray(image, dtype=np.uint8)
-    save_in_row_order(image, dirname + "/input.txt")
-    save_in_row_order(len_correction_img, dirname + "/gold_seq.txt")
+    save_in_row_order(image, dirname + "/TB_data/input.txt")
+    save_in_row_order(len_correction_img, dirname + "/TB_data/gold_seq.txt")
     
