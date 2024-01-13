@@ -6,6 +6,7 @@ It is a fp32 implementation of the color optimizer, only perform the blue channe
 
 Need to manally set some channel's depth to prevent deadlock.
 
+**Notice**: This module use RGB input output. Other module may use BGR format. PYNQ use BGR too.
 
 ## Files Organization
 

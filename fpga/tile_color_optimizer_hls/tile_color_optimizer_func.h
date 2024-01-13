@@ -84,19 +84,6 @@ namespace vr_prototype
 			hls::stream<float_array> dkl_stream;
 			read_dkl_loop(dkl_stream, din_stream1);
 
-
-
-			// // Print abc from in too dbug
-			// agg_inputs _din = din_stream2.read();
-			// for (int i = 0; i < 16; i++) {
-			// 	#pragma HLS PIPELINE II=1 rewind
-			// 	std::cout << "as" << i << ":" <<  _din.as[i] << std::endl;
-			// 	std::cout << "bs" << i << ":" <<  _din.bs[i] << std::endl;
-			// 	std::cout << "cs" << i << ":" <<  _din.cs[i] << std::endl;
-			// }
-			// // write back
-			// din_stream2.write(_din);
-
 			// Find inv_square of a, b, c, and compress it to 3 * ele_size width
 			hls::stream<float_array> inv_square_abc_stream;
 			inv_square_abc_loop(inv_square_abc_stream, din_stream2);
@@ -232,11 +219,6 @@ namespace vr_prototype
 					
 					out_srgb.rgb[i][j] = ap_uint<8>(float( hls::round(srgb * float(255.0)) ));
 
-					// print rgb, out_srgb for debug
-					// std::cout << "rgb: " << rgb << std::endl;
-					// std::cout << "srgb: " << srgb << std::endl;
-					// std::cout << "out_srgb: " << out_srgb.rgb[i][j] << std::endl;
-
 				}
 				if (i == 15)
 				{
@@ -252,21 +234,6 @@ namespace vr_prototype
 
 			// stage 0 
 
-			// print rgb, dkl, inv_square_abc for debug
-			// for (int i = 0; i < 16; i++) {
-			// 	#pragma HLS PIPELINE II=1 rewind
-			// 	float_array rgb_i = rgb_stream.read();
-			// 	float_array dkl_i = dkl_stream.read();
-			// 	float_array inv_square_abc_i = inv_square_abc_stream.read();
-			// 	// std::cout << "rgb_i: " << rgb_i.data[0] << " " << rgb_i.data[1] << " " << rgb_i.data[2] << std::endl;
-			// 	// std::cout << "dkl_i: " << dkl_i.data[0] << " " << dkl_i.data[1] << " " << dkl_i.data[2] << std::endl;
-			// 	// std::cout << "inv_square_abc_i: " << inv_square_abc_i.data[0] << " " << inv_square_abc_i.data[1] << " " << inv_square_abc_i.data[2] << std::endl;
-			// 	// write data back
-			// 	rgb_stream.write(rgb_i);
-			// 	dkl_stream.write(dkl_i);
-			// 	inv_square_abc_stream.write(inv_square_abc_i);
-			// }
-
 			hls::stream<float_array> rgb_stream1, rgb_stream2;
 			duplicate_stream<float_array, 16>(rgb_stream1, rgb_stream2, rgb_stream);
 
@@ -274,18 +241,6 @@ namespace vr_prototype
 
 			hls::stream<float_array> min_p_stream, max_p_stream;
 			min_p_max_p_loop(max_p_stream, min_p_stream, rgb_stream1, dkl_stream, inv_square_abc_stream);
-
-			// print min_p_stream, max_p_stream for debug
-			// for (int i = 0; i < 16; i++) {
-			// 	#pragma HLS PIPELINE II=1 rewind
-			// 	float_array min_p_i = min_p_stream.read();
-			// 	float_array max_p_i = max_p_stream.read();
-			//  	// std::cout << "min_p_i: " << min_p_i.data[0] << " " << min_p_i.data[1] << " " << min_p_i.data[2] << std::endl;
-			//  	// std::cout << "max_p_i: " << max_p_i.data[0] << " " << max_p_i.data[1] << " " << max_p_i.data[2] << std::endl;
-			//  	// write data back
-			// 	min_p_stream.write(min_p_i);	
-			// 	max_p_stream.write(max_p_i);
-			// }
 
 			// stage 2
 
@@ -297,9 +252,6 @@ namespace vr_prototype
 			change_array_type_loop(min_p_stream_1_half, min_p_stream1);
 			change_array_type_loop(max_p_stream_1_half, max_p_stream1);
 
-			// std::cout << "min_p_stream_1_half: " << min_p_stream_1_half.size() << std::endl;
-
-
 			// stage 3
 
 			hls::stream<half> min_max_stream_half, max_min_stream_half;
@@ -310,20 +262,6 @@ namespace vr_prototype
 			change_type_loop(min_max_stream, min_max_stream_half);
 			change_type_loop(max_min_stream, max_min_stream_half);
 
-			
-
-
-			// print max_min_stream, min_max_stream for debug
-
-			// float max_min_i = max_min_stream.read();
-			// float min_max_i = min_max_stream.read();
-			// std::cout << "max_min_i: " << max_min_i << std::endl;
-			// std::cout << "min_max_i: " << min_max_i << std::endl;
-			// // write data back
-			// max_min_stream.write(max_min_i);
-			// min_max_stream.write(min_max_i);
-
-
 			// stage 4
 			// prevent deadlock
 			#pragma HLS STREAM variable=min_p_stream2 depth=512
@@ -331,14 +269,6 @@ namespace vr_prototype
 			#pragma HLS STREAM variable=rgb_stream2 depth=512
 			converge_plane_loop(opt_points_stream, max_min_stream, min_max_stream, min_p_stream2, max_p_stream2, rgb_stream2);
 
-			// print opt_points_stream for debug
-			// for (int i = 0; i < 16; i++) {
-			// 	#pragma HLS PIPELINE II=1 rewind
-			// 	float_array opt_points_i = opt_points_stream.read();
-			// 	std::cout << "opt_points_i: " << opt_points_i.data[0] << " " << opt_points_i.data[1] << " " << opt_points_i.data[2] << std::endl;
-			// 	// write data back
-			// 	opt_points_stream.write(opt_points_i);
-			// }
 			// stage 5
 
 		}

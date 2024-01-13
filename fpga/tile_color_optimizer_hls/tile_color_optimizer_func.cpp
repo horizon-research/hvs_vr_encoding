@@ -15,7 +15,6 @@ void tile_color_optimizer_func(
 	#pragma HLS INTERFACE axis register both port=dout
 	#pragma HLS INTERFACE axis register both port=din
 	#pragma HLS INTERFACE ap_ctrl_none port=return
-	// #pragma HLS INTERFACE s_axilite port=return
 	// Initialization
 	vr_prototype::Tile_color_optimizer_blue<vr_prototype::Color::BLUE, vr_prototype::Color::RED, vr_prototype::Color::GREEN> blue_optimizer; // Blue opt
 	#pragma HLS DATAFLOW disable_start_propagation
