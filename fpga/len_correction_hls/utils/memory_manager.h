@@ -44,6 +44,7 @@ namespace vr_prototype
                             ap_uint<9> ordered_buffer_col[4];
                             for (int i = 0; i < 4; i++) {
                                 #pragma HLS unroll
+                                #pragma HLS LATENCY min=16
                                 ap_uint<7> buffer_row;
                                 ap_uint<9> buffer_col;
                                 img_cood_to_buffer_cood(buffer_idx[i], buffer_row, buffer_col, memory_query.rows[i], memory_query.cols[i]);
@@ -56,7 +57,7 @@ namespace vr_prototype
                             #pragma HLS ARRAY_PARTITION variable=ordered_pixels dim=0 complete
                             for (int i = 0; i < 4; i++) {
                                 #pragma HLS unroll
-                                #pragma HLS LATENCY min=4
+                                #pragma HLS LATENCY min=16
                                 ordered_pixels[i] = pixel_buffers[i][ordered_buffer_row[i]][ordered_buffer_col[i]];
                             }
 
@@ -64,6 +65,7 @@ namespace vr_prototype
                             #pragma HLS ARRAY_PARTITION variable=four_pixel.data complete
                             for (int i = 0; i < 4; i++) {
                                 #pragma HLS unroll
+                                #pragma HLS LATENCY min=16
                                 four_pixel.data[i] = ordered_pixels[buffer_idx[i]];
                             }
 
