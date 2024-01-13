@@ -146,7 +146,7 @@ class Tile_color_optimizer_hw_part:
         return plane_centers
 
 class Tile_color_optimizer:
-    def __init__(self, color_channel, r_max_vec, b_max_vec, fixed_c, ecc_no_compress):
+    def __init__(self, color_channel, r_max_vec, b_max_vec, fixed_c, ecc_no_compress, only_blue = False):
         # init the hardware
         self.hw_tile_optimizer = Tile_color_optimizer_hw_part(color_channel, r_max_vec, b_max_vec)
         self.color_channel = color_channel
@@ -156,6 +156,8 @@ class Tile_color_optimizer:
 
         self.fixed_c = fixed_c
         self.ecc_no_compress = ecc_no_compress
+
+        self.only_blue = only_blue
 
         self.color_model = base_color_model.BaseColorModel([])
         self.color_model.initialize()
@@ -175,6 +177,9 @@ class Tile_color_optimizer:
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
         blue_srgb_pts = (RGB2sRGB_cupy(blue_opt_points)*255).round()
+
+        if self.only_blue:
+            return blue_srgb_pts.astype(cp.uint8).reshape(-1,4,4,3)
         
         red_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["R"], dkl_centers, centers_abc)
         red_srgb_pts = (RGB2sRGB_cupy(red_opt_points)*255).round()
@@ -220,7 +225,7 @@ class Tile_color_optimizer:
         return bitlen_sum.astype(cp.int32)
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, fixed_c = 1e-3, ecc_no_compress = 15):
+    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, fixed_c = 1e-3, ecc_no_compress = 15, only_blue = False):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -230,7 +235,7 @@ class Image_color_optimizer:
         self.r_max_vec = cp.array([[0.61894476, -0.24312686,  0.62345751]], dtype=cp.float32)  
         self.b_max_vec = cp.array([[0.14766317, -0.13674196, 0.97936063]], dtype=cp.float32) 
 
-        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, fixed_c, ecc_no_compress)
+        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, fixed_c, ecc_no_compress, only_blue)
 
         self.img_height = img_height
         self.img_width =  img_width

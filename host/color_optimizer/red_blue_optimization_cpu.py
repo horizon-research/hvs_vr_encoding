@@ -1,5 +1,3 @@
-
-
 import sys
 import os
 
@@ -131,7 +129,7 @@ class Tile_color_optimizer_hw_part:
         return plane_centers
 
 class Tile_color_optimizer:
-    def __init__(self, color_channel, r_max_vec, b_max_vec, fixed_c = 1e-3, ecc_no_compress = 15):
+    def __init__(self, color_channel, r_max_vec, b_max_vec, fixed_c = 1e-3, ecc_no_compress = 15, only_blue = False):
         # init the hardware
         self.hw_tile_optimizer = Tile_color_optimizer_hw_part(color_channel, r_max_vec, b_max_vec)
         self.color_channel = color_channel
@@ -141,6 +139,8 @@ class Tile_color_optimizer:
 
         self.fixed_c = fixed_c
         self.ecc_no_compress = ecc_no_compress
+
+        self.only_blue = only_blue
 
         self.color_model = base_color_model.BaseColorModel([])
         self.color_model.initialize()
@@ -159,6 +159,9 @@ class Tile_color_optimizer:
         ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
         blue_srgb_pts = (RGB2sRGB(blue_opt_points)*255).round()
+
+        if self.only_blue:
+            return blue_srgb_pts.astype(np.uint8).reshape(-1,4,4,3)
         
         red_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["R"], dkl_centers, centers_abc)
         red_srgb_pts = (RGB2sRGB(red_opt_points)*255).round()
@@ -189,7 +192,9 @@ class Tile_color_optimizer:
         centers_abc = self.color_model.compute_ellipses(srgb_centers, ecc_tiles)
 
         centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
-        centers_abc[:, 2] = self.fixed_c
+        # centers_abc[:, 2] = self.fixed_c
+        centers_abc[:, 2] = centers_abc[:, 2] * 0.3
+
         centers_abc[np.tile(ecc_tiles.reshape(-1,1) < self.ecc_no_compress, (1,3))] = 1e-5
         
         return dkl_centers, centers_abc
@@ -203,7 +208,7 @@ class Tile_color_optimizer:
         return bitlen_sum.astype(np.int32)
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, fixed_c = 1e-3, ecc_no_compress = 15):
+    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, fixed_c = 1e-3, ecc_no_compress = 15, only_blue = False):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -214,7 +219,7 @@ class Image_color_optimizer:
         self.b_max_vec = np.array([[0.14766317, -0.13674196, 0.97936063]], dtype=np.float32) 
         
 
-        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, fixed_c, ecc_no_compress)
+        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, fixed_c, ecc_no_compress, only_blue)
 
         self.img_height = img_height
         self.img_width =  img_width
@@ -280,6 +285,12 @@ class Image_color_optimizer:
         tiles = tiles.reshape(-1, 16, 3)
         dkl_centers, centers_abc = self.Tile_color_optimizer.generate_ellipsoids(tiles, ecc_tiles)
 
+        dkl_centers = dkl_centers.reshape( self.img_height // self.tile_size,  self.img_width // self.tile_size, self.tile_size, self.tile_size, 3) \
+                .transpose(0, 2, 1, 3, 4).reshape(self.img_height, self.img_width, 3)
+
+        centers_abc = centers_abc.reshape( self.img_height // self.tile_size,  self.img_width // self.tile_size, self.tile_size, self.tile_size, 3) \
+                .transpose(0, 2, 1, 3, 4).reshape(self.img_height, self.img_width, 3)
+
         return dkl_centers, centers_abc
 
 
@@ -313,11 +324,6 @@ if __name__ == "__main__":
     fps = 1/(t2-t1)*test_time
 
     print(" only_generate_ellipses fps: ", fps)
-
-
-
-
-
 
     # save image
     opt_img = Image.fromarray(opt_img.astype("uint8"))
