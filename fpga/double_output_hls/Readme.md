@@ -9,3 +9,14 @@
   <img src="images/middle_perspective_image_len_correction.png" alt="Input Image" style="width: 30%; margin-right: 20px;" />
   <img src="images/doubled_image.png" alt="Output Image" style="width: 60%;" />
 </p>
+
+
+## Performance Estimation
+
+FPS = 300M (Hz) / 2073603 = 144
+
+![Alt text](images/pe.png)
+
+## Resource Util.
+![Alt text](images/util.png)
+
