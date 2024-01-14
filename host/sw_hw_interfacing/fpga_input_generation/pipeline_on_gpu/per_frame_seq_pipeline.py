@@ -9,6 +9,7 @@ from projection.equirect_to_pespective_cuda import Equirectangular_to_perspectiv
 from len_correction.len_correction_cuda import Len_correction
 from math import radians
 import cupy as cp
+import cv2
 
 
 class Perframe_FPGA_input_generation_pipeline():
@@ -25,26 +26,31 @@ class Perframe_FPGA_input_generation_pipeline():
 
         # step 1: Projection
         perspective_img = self.projector.project(equirect_img = equirect_img, roll =  self.args.roll, pitch =  self.args.pitch, yaw =  self.args.yaw)
-
+        perspective_img = perspective_img[:,:,::-1]
         # step 2: get dkl and abc
         dkl_centers, centers_abc = self.image_color_optimizer.only_generate_ellipses(perspective_img)
         # change to 4x4 tile order
-        dkl_centers = dkl_centers.reshape(1080 // 4, self.tile_size, 960 // self.tile_size, self.tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(1080, 960, 3)
-        centers_abc = centers_abc.reshape(1080 // 4, self.tile_size, 960 // self.tile_size, self.tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(1080, 960, 3)
+        dkl_centers = dkl_centers.reshape(1080 // 4, self.tile_size, 960 // self.tile_size, self.tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(1080 // 4, 960 // self.tile_size, 16, 3)
+        centers_abc = centers_abc.reshape(1080 // 4, self.tile_size, 960 // self.tile_size, self.tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(1080 // 4, 960 // self.tile_size, 16, 3)
+
+        # import ipdb; ipdb.set_trace()
+        img_6_channels = cp.concatenate((centers_abc[:, :, :, 0], centers_abc[:, :, :, 1], centers_abc[:, :, :, 2], dkl_centers[:, :, :, 0], dkl_centers[:, :, :, 1], dkl_centers[:, :, :, 2]), axis=2).reshape(1080, 960, 6).astype(cp.float16)
         
 
-        # step 3: Generate 2K output for FPGA sent through HDMI
-        img_6_channels = cp.concatenate((dkl_centers, centers_abc), axis=-1).astype(cp.float16)
-        img_int = img_6_channels.view(cp.uint16)
+        # step 3: Generate utput for FPGA sent through HDMI
+        # img_int = img_6_channels.view(cp.uint8)
 
-        high_bits = (img_int >> 8).astype(cp.uint8)
-        low_bits = (img_int & 0xFF).astype(cp.uint8)
+        # high_bits = (img_int >> 8).astype(cp.uint8)
+        # low_bits = (img_int & 0xFF).astype(cp.uint8)
 
         # import ipdb; ipdb.set_trace()
 
 
-        self.img_12_channels[:, :, 0::2] = low_bits
-        self.img_12_channels[:, :, 1::2] = high_bits
+        # self.img_12_channels[:, :, 0::2] = low_bits
+        # self.img_12_channels[:, :, 1::2] = high_bits
+
+        # import ipdb; ipdb.set_trace()
 
 
-        return self.img_12_channels
+
+        return img_6_channels.view(cp.uint8)

@@ -6,6 +6,8 @@ import pygame
 import numpy as np
 import argparse
 
+from pygame_drawer import Pygame_drawer
+
 def rendering():
     # initialize pygame
     pygame.init()
@@ -24,48 +26,26 @@ def rendering():
     frame_num = 1
     frame_dir = "./reversed_office_18_5_5/"
     i = 0
-    while running:
-        for event in pygame.event.get():
-            print(event)
-            if event.type == pygame.QUIT:
-                running = False
 
-        # ==================== Your Video Reading code here ====================
+    pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
+    while running:
+    
         i = i%frame_num
         # image_npy = np.load("./hogrider_20s_4k_out_t2r/"+ str(i) + ".npy")
         image_npy_reversed = np.load( frame_dir + "frame"+str(i)+".npy")
-        # image_npy = np.load("inframe.npy")
-
-        # image_npy_reversed = image_npy[:,:,::-1]
-
-        # np.save("inframe_rev.npy", image_npy_reversed)
-
-        # import ipdb
-        # ipdb.set_trace()
-        # image_npy[:, :, 0] = 100
-        # image_npy[:, :, 1] = 20
-        # image_npy[:, :, 2] = 100
-        # import ipdb
-        # ipdb.set_trace()
-
-        image = pygame.surfarray.make_surface(image_npy_reversed.transpose(1,0,2)).convert(24)
-
-        # image = pygame.image.load("./hogrider_20s_4k_out_t2r/"+ str(i) + ".png")
-        # image = pygame.image.load("./Image_Set/"+ str(i) + "_tile_to_row" + ".jpg")
+        pygame_drawer.draw(image_npy_reversed)
         i=i+1
 
 
         # image = pygame.transform.scale(image, (W, H))
-        window.blit(image, (0, 0)) # start drawing from the top left corner (0,0)
-        pygame.display.flip()
+        # window.blit(image, (0, 0)) # start drawing from the top left corner (0,0)
+        # pygame.display.flip()
         clock.tick(args.fps) # limit the frame rate
 
         # import ipdb
         # ipdb.set_trace()
         # import ipdb
         # ipdb.set_trace()
-
-    pygame.quit()
 
 def parse_args():
     parser = argparse.ArgumentParser()

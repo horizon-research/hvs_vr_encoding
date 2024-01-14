@@ -29,7 +29,7 @@ if __name__ == '__main__':
     loded_time = 0
     draw_acc_time = 0
 
-    pygame_drawer = Pygame_drawer(width = args.perspective_width * 2, height = args.perspective_height, display_port = args.display_port)
+    pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
 
     # pre-load images
     img_list = list()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     perframe_FPGA_input_generation_pipeline = Perframe_FPGA_input_generation_pipeline(args)
 
-    repeat_times = 100
+    repeat_times = 10000
 
     all_t1 = time.time()
     with tqdm(total=total_frames * repeat_times, desc="Running per frame loop") as pbar:
@@ -57,8 +57,9 @@ if __name__ == '__main__':
 
             pp_t1 = time.time()
             left_12_channel_img = perframe_FPGA_input_generation_pipeline(img)
-            right_12_channel_img = left_12_channel_img
-            combined_img = cp.concatenate((left_12_channel_img, right_12_channel_img), axis=1)
+            right_12_channel_img = cp.zeros_like(left_12_channel_img)
+            combined_img = cp.concatenate((left_12_channel_img, right_12_channel_img), axis=0)
+            # import ipdb; ipdb.set_trace()
             combined_img = combined_img.reshape(2160, 3840, 3)
             pp_t2 = time.time()
 
