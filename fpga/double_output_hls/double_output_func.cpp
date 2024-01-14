@@ -1,9 +1,18 @@
 #include "double_output_func.h"
 
+
+void double_output_func_df(hls::stream<Axis_pixel_t> &os, hls::stream<Pixel_t> &is) ;
+
 void double_output_func(hls::stream<Axis_pixel_t> &os, hls::stream<Pixel_t> &is) {
     #pragma HLS INTERFACE axis port=os
     #pragma HLS INTERFACE axis port=is
     #pragma HLS INTERFACE ap_ctrl_none port=return
+    #pragma HLS DATAFLOW
+	double_output_func_df(os, is);
+
+}
+
+void double_output_func_df(hls::stream<Axis_pixel_t> &os, hls::stream<Pixel_t> &is) {
     Pixel_t buf[960];
     #pragma HLS AGGREGATE compact=bit variable=buf// need to aggregate to prevent 3x resource usage, it will use ram in the way
                                                 // 24xd  instead 8xd 8xd 8xd (3x memory usage)
@@ -14,7 +23,7 @@ void double_output_func(hls::stream<Axis_pixel_t> &os, hls::stream<Pixel_t> &is)
             if (j < 960 ) {
                 Pixel_t p;
                 #pragma HLS AGGREGATE compact=bit variable=p
-            
+
                 p = is.read();
                 buf[j] = p;
                 Axis_pixel_t _p;
