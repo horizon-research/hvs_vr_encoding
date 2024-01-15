@@ -20,8 +20,10 @@ cd <top_folder>
 python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
 ```
 ### Run on GPU+FPGA
-
-TBA
+```bash
+cd <top_folder>
+python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
+```
 
 ## End to End FPS on different Coniguration
 

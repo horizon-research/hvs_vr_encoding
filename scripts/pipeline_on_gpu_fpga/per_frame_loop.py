@@ -16,22 +16,26 @@ from  pygame_drawer import Pygame_drawer
 
 from gui_trial import *
 
-def update_parameters(perframe_FPGA_input_generation_pipeline):
-    global slider_values
-    global running
+def update_parameters(pipeline):
+    slider_values = get_slider_values()
+    running = get_running()
+    pipeline.args.roll = slider_values["Roll"]
+    pipeline.args.pitch = slider_values["Pitch"]
+    pipeline.args.yaw = slider_values["Yaw"] 
+    if pipeline.args.h_fov != slider_values["Horizontal FOV"]:
+        # import ipdb; ipdb.set_trace()   
+        pipeline.projector.update_fov(slider_values["Horizontal FOV"])
+        pipeline.args.h_fov = slider_values["Horizontal FOV"]
 
-    perframe_FPGA_input_generation_pipeline.args.roll = slider_values["Roll"]
-    perframe_FPGA_input_generation_pipeline.args.pitch = slider_values["Yaw"]
-    perframe_FPGA_input_generation_pipeline.args.yaw = slider_values["Pitch"]
-    if perframe_FPGA_input_generation_pipeline.args.h_fov != slider_values["FOV"]:
-        perframe_FPGA_input_generation_pipeline.projector.update_fov(slider_values["FOV"])
-        perframe_FPGA_input_generation_pipeline.args.h_fov = slider_values["FOV"]
-    perframe_FPGA_input_generation_pipeline.image_color_optimizer.abc_scaler = slider_values["abc_scaler"]
+    pipeline.image_color_optimizer.set_abc_scaler(slider_values["abc_scaler"])
+    pipeline.image_color_optimizer.set_ecc_no_compress(slider_values["Center FOV"])
 
+    upadate_gradual_filter()
 
-    
+    orignal_right = get_use_uncompressed_image_on_right_eye()
 
-    return running
+    return running, orignal_right
+
 
 if __name__ == '__main__':
     args = get_args()
@@ -62,9 +66,9 @@ if __name__ == '__main__':
 
     perframe_FPGA_input_generation_pipeline = Perframe_FPGA_input_generation_pipeline(args)
 
-    with tqdm(leave=False, leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
-        running = True
-        while running:
+    with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
+        _running = True
+        while _running:
             i = i % total_frames
             img_idx = i % total_frames
             img = img_list[img_idx]
@@ -72,7 +76,7 @@ if __name__ == '__main__':
             root.update_idletasks()
             root.update()
 
-            running = update_parameters(perframe_FPGA_input_generation_pipeline)
+            running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
 
 
             img = cp.asarray(img, dtype=cp.uint8)
