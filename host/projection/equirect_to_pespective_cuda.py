@@ -41,6 +41,12 @@ class Equirectangular_to_perspective():
         self.h_fov = cp.asarray(self.h_fov, dtype=cp.float32)
         self.v_fov = cp.asarray(self.v_fov, dtype=cp.float32)
 
+        self.xs = cp.linspace(-1, 1, self.out_width, dtype=cp.float32) * cp.tan(self.h_fov / 2, dtype=cp.float32)
+        self.ys = cp.linspace(1, -1, self.out_height , dtype=cp.float32) * cp.tan(self.v_fov / 2, dtype=cp.float32 )
+        self.xp, self.yp = cp.meshgrid(self.xs, self.ys)
+        self.zp = cp.ones_like(self.xp)
+        self.vec = cp.array([self.xp, self.yp, self.zp])
+
     def update_out_dims(self, out_height, out_width):
         self.out_height = out_height
         self.out_width = out_width
@@ -80,8 +86,9 @@ class Equirectangular_to_perspective():
 
         # Convert 3D coordinates to spherical coordinates
         r = cp.linalg.norm(rotated_vec, axis=0)
-        theta_s = cp.arctan2(rotated_vec[1], rotated_vec[0])
-        phi_s = cp.arccos(rotated_vec[2] / r)
+        theta_s = cp.arctan2(rotated_vec[1], rotated_vec[0]) 
+        # import ipdb; ipdb.set_trace()
+        phi_s = cp.arccos(rotated_vec[2] / r) 
 
         # Map the spherical coordinates to equirectangular pixel coordinates
         eq_x = (theta_s + cp.pi) * self.h_res

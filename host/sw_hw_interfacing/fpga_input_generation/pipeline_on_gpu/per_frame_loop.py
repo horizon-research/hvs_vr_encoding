@@ -14,8 +14,24 @@ import time
 import cupy as cp
 from  pygame_drawer import Pygame_drawer
 
+from gui_trial import *
+
+def update_parameters(perframe_FPGA_input_generation_pipeline):
+    global slider_values
+    global running
+
+    perframe_FPGA_input_generation_pipeline.args.roll = slider_values["Roll"]
+    perframe_FPGA_input_generation_pipeline.args.pitch = slider_values["Yaw"]
+    perframe_FPGA_input_generation_pipeline.args.yaw = slider_values["Pitch"]
+    if perframe_FPGA_input_generation_pipeline.args.h_fov != slider_values["FOV"]:
+        perframe_FPGA_input_generation_pipeline.projector.update_fov(slider_values["FOV"])
+        perframe_FPGA_input_generation_pipeline.args.h_fov = slider_values["FOV"]
+    perframe_FPGA_input_generation_pipeline.image_color_optimizer.abc_scaler = slider_values["abc_scaler"]
 
 
+    
+
+    return running
 
 if __name__ == '__main__':
     args = get_args()
@@ -46,44 +62,33 @@ if __name__ == '__main__':
 
     perframe_FPGA_input_generation_pipeline = Perframe_FPGA_input_generation_pipeline(args)
 
-    repeat_times = 10000
-
-    all_t1 = time.time()
-    with tqdm(total=total_frames * repeat_times, desc="Running per frame loop") as pbar:
-        for i in range(total_frames * repeat_times):
+    with tqdm(leave=False, leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
+        running = True
+        while running:
+            i = i % total_frames
             img_idx = i % total_frames
             img = img_list[img_idx]
-            img = cp.asarray(img, dtype=cp.uint8)
 
-            pp_t1 = time.time()
+            root.update_idletasks()
+            root.update()
+
+            running = update_parameters(perframe_FPGA_input_generation_pipeline)
+
+
+            img = cp.asarray(img, dtype=cp.uint8)
             left_12_channel_img = perframe_FPGA_input_generation_pipeline(img)
             right_12_channel_img = cp.zeros_like(left_12_channel_img)
             combined_img = cp.concatenate((left_12_channel_img, right_12_channel_img), axis=0)
-            # import ipdb; ipdb.set_trace()
             combined_img = combined_img.reshape(2160, 3840, 3)
-            pp_t2 = time.time()
-
             combined_img = cp.asnumpy(combined_img)
+
             pygame_drawer.draw(combined_img)
 
-
-            draw_acc_time += pp_t2 - pp_t1
-
-
             pbar.update(1)
-
-
-    all_t2 = time.time()
+            i=i+1
 
     pygame_drawer.close()
 
-    print("pp_time: ", pp_acc_time)
-    print("draw time: ", draw_acc_time)
-    print("all time: ", all_t2-all_t1)
-    
-    print("pp_fps: ", 1/pp_acc_time*total_frames*repeat_times)
-    print("draw fps: ", 1/draw_acc_time*total_frames*repeat_times)
-    print("overall fps: ", 1/(all_t2-all_t1)*total_frames*repeat_times)
 
 
 
