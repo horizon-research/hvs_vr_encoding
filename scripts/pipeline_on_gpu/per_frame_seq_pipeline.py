@@ -23,8 +23,8 @@ class Perframe_color_optimizer_pipeline():
 
         # step 1: Projection
         perspective_img = self.projector.project(equirect_img = equirect_img, roll =  self.args.roll, pitch =  self.args.pitch, yaw =  self.args.yaw)
-        perspective_img = perspective_img[:,:,::-1]
-
+        perspective_img = perspective_img[:,:,::-1]# BGR to RGB
+        
         # step 2: Color optimizer
         opt_img = self.image_color_optimizer.color_conversion(perspective_img)
         # opt_img = perspective_img

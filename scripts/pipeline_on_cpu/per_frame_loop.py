@@ -48,6 +48,7 @@ if __name__ == '__main__':
             right_corrected_img = left_corrected_img
             combined_img = np.concatenate((left_corrected_img, right_corrected_img), axis=1)
             combined_img = combined_img.astype(np.uint8)
+            combined_img = combined_img[:,:,::-1]# RGB to BGR
             pp_t2 = time.time()
             
             pp_acc_time += pp_t2 - pp_t1

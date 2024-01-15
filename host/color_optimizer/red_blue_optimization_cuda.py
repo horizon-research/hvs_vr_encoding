@@ -320,6 +320,7 @@ if __name__ == "__main__":
     # load image
     img = Image.open("Images/orig/" + image_name)
     img = np.array(img)
+    img = img[:, :, ::-1] # convert to RGB
 
     # optimize colors
     image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = 4)
@@ -354,7 +355,7 @@ if __name__ == "__main__":
 
 
     # save image
-    opt_img = Image.fromarray(opt_img.astype("uint8"))
+    opt_img = Image.fromarray(opt_img[:,:,::-1].astype("uint8")) # convert to RGB
     opt_img.save("Images/opt/" + image_name)
 
     orig_sz = os.stat("Images/orig/" + image_name).st_size
