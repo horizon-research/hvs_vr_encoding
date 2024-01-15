@@ -295,6 +295,12 @@ class Image_color_optimizer:
                 .transpose(0, 2, 1, 3, 4).reshape(self.img_height, self.img_width, 3)
 
         return dkl_centers, centers_abc
+    
+    def set_abc_scaler(self, abc_scaler):
+        self.Tile_color_optimizer.abc_scaler = abc_scaler
+
+    def set_ecc_no_compress(self, ecc_no_compress):
+        self.Tile_color_optimizer.ecc_no_compress = ecc_no_compress
 
 
 if __name__ == "__main__":

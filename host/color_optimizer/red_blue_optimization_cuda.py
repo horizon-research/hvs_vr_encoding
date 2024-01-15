@@ -209,7 +209,7 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL[cp.newaxis, :, :] @ rgb_centers.transpose(0,2,1)).transpose(0,2,1)
         centers_abc = self.color_model.compute_ellipses_gpu(srgb_centers, ecc_tiles)
         # centers_abc[:, 2] = self.fixed_c
-        centers_abc[:, 2] = centers_abc[:, 2] * 0.2
+        centers_abc[:, 2] = centers_abc[:, 2] * 0.3
         centers_abc = centers_abc * self.abc_scaler
 
         centers_abc[centers_abc <= 1e-5] = 1e-5 # fix devided by zero error and too large inv_square_abc
@@ -255,6 +255,9 @@ class Image_color_optimizer:
     
     def set_abc_scaler(self, abc_scaler):
         self.Tile_color_optimizer.abc_scaler = abc_scaler
+
+    def set_ecc_no_compress(self, ecc_no_compress):
+        self.Tile_color_optimizer.ecc_no_compress = ecc_no_compress
 
     def set_ecc_map(self, gaze_x, gaze_y):
         """
