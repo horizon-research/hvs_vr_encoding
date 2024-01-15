@@ -26,8 +26,8 @@ def get_args():
     parser.add_argument('--tile_size', type=int, default=4, help='tile_size')
     parser.add_argument('--foveated', action='store_true', help='foveated')
     parser.add_argument('--max_ecc', type=float, default=30.0, help='max_ecc')
-    parser.add_argument('--fixed_c', type=float, default=1e-4, help='c will be fixed to this value, since we empirically found that predicted c_s were too small')
-    parser.add_argument('--ecc_no_compress', type=float, default=0.0, help='ecc (deg) smaller than this value will not be compressed (I will set abc = 1e-5)')
+    parser.add_argument('--abc_scaler', type=float, default=1.0, help='abc_scaler')
+    parser.add_argument('--ecc_no_compress', type=float, default=10.0, help='ecc (deg) smaller than this value will not be compressed (I will set abc = 1e-5)')
     
     parser.add_argument('--num_workers', type=int, default=8, help='num_workers')
     parser.add_argument('--save_imgs', action='store_true', help='save_imgs')
