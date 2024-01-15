@@ -13,7 +13,7 @@ class Pygame_drawer:
         self.clock = pygame.time.Clock()
     
     def draw(self, image):
-        image = pygame.image.frombuffer(image.tostring(), image.shape[1::-1], "BGR")
+        image = pygame.image.frombuffer(image.tostring(), image.shape[1::-1], "BGR") #need to use BGR for pygame since it is BGR too
         self.window.blit(image, (0, 0))
         pygame.display.flip()
 
