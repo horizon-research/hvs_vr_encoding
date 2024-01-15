@@ -81,6 +81,7 @@ if __name__ == '__main__':
 
             img = cp.asarray(img, dtype=cp.uint8)
             left_12_channel_img = perframe_FPGA_input_generation_pipeline(img)
+
             right_12_channel_img = cp.zeros_like(left_12_channel_img)
             combined_img = cp.concatenate((left_12_channel_img, right_12_channel_img), axis=0)
             combined_img = combined_img.reshape(2160, 3840, 3)

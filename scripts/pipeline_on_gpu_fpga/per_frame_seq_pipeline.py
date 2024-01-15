@@ -20,8 +20,6 @@ class Perframe_FPGA_input_generation_pipeline():
                                                             foveated = args.foveated, max_ecc = args.max_ecc, h_fov = args.h_fov, abc_scaler = args.abc_scaler, ecc_no_compress = args.ecc_no_compress)
         self.tile_size = args.tile_size
 
-        self.img_12_channels = cp.empty((1080, 960, 12), dtype=cp.uint8)
-
     def __call__(self, equirect_img):
 
         # step 1: Projection
