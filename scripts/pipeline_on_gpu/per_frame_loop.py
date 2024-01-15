@@ -23,14 +23,19 @@ def update_parameters(pipeline):
     pipeline.args.roll = slider_values["Roll"]
     pipeline.args.pitch = slider_values["Pitch"]
     pipeline.args.yaw = slider_values["Yaw"] 
-    if pipeline.args.h_fov != slider_values["FOV"]:
+    if pipeline.args.h_fov != slider_values["Horizontal FOV"]:
         # import ipdb; ipdb.set_trace()   
-        pipeline.projector.update_fov(slider_values["FOV"])
-        pipeline.args.h_fov = slider_values["FOV"]
+        pipeline.projector.update_fov(slider_values["Horizontal FOV"])
+        pipeline.args.h_fov = slider_values["Horizontal FOV"]
 
     pipeline.image_color_optimizer.set_abc_scaler(slider_values["abc_scaler"])
+    pipeline.image_color_optimizer.set_ecc_no_compress(slider_values["Center FOV"])
 
-    return running
+    upadate_gradual_filter()
+
+    orignal_right = get_use_uncompressed_image_on_right_eye()
+
+    return running, orignal_right
 
 
 
@@ -74,13 +79,16 @@ if __name__ == '__main__':
             root.update_idletasks()
             root.update()
 
-            _running = update_parameters(perframe_color_optimizer_pipeline)
+            _running, orignal_right = update_parameters(perframe_color_optimizer_pipeline)
 
 
             img = cp.asarray(img, dtype=cp.uint8)
-            left_img = perframe_color_optimizer_pipeline(img)
-            right_img = left_img
-            combined_img = cp.concatenate((left_img, right_img), axis=1)
+            left_opt_img, left_orig_img = perframe_color_optimizer_pipeline(img)
+            if orignal_right:
+                right_img = left_orig_img
+            else:
+                right_img = left_opt_img
+            combined_img = cp.concatenate((left_opt_img, right_img), axis=1)
             combined_img = cp.asnumpy(combined_img)
 
             pygame_drawer.draw(combined_img)
