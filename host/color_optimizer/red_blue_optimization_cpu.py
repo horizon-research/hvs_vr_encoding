@@ -129,7 +129,7 @@ class Tile_color_optimizer_hw_part:
         return plane_centers
 
 class Tile_color_optimizer:
-    def __init__(self, color_channel, r_max_vec, b_max_vec, fixed_c = 1e-3, ecc_no_compress = 15, only_blue = False):
+    def __init__(self, color_channel, r_max_vec, b_max_vec, abc_scaler = 1, ecc_no_compress = 15, only_blue = False):
         # init the hardware
         self.hw_tile_optimizer = Tile_color_optimizer_hw_part(color_channel, r_max_vec, b_max_vec)
         self.color_channel = color_channel
@@ -137,7 +137,7 @@ class Tile_color_optimizer:
 
         self.max_dump_id = 100
 
-        self.fixed_c = fixed_c
+        self.abc_scaler = abc_scaler
         self.ecc_no_compress = ecc_no_compress
 
         self.only_blue = only_blue
@@ -191,9 +191,12 @@ class Tile_color_optimizer:
         dkl_centers = (RGB2DKL[np.newaxis, :, :] @ rgb_centers.transpose(0,2,1)).transpose(0,2,1)
         centers_abc = self.color_model.compute_ellipses(srgb_centers, ecc_tiles)
 
+        centers_abc = centers_abc * self.abc_scaler
+
+        centers_abc[:, 2] = centers_abc[:, 2] * 0.2
+
         centers_abc[centers_abc <= 1e-5] = 1e-5  ## fix devided by zero error and too large inv_square
         # centers_abc[:, 2] = self.fixed_c
-        centers_abc[:, 2] = centers_abc[:, 2] * 0.3
 
         centers_abc[np.tile(ecc_tiles.reshape(-1,1) < self.ecc_no_compress, (1,3))] = 1e-5
         
@@ -208,7 +211,7 @@ class Tile_color_optimizer:
         return bitlen_sum.astype(np.int32)
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, fixed_c = 1e-3, ecc_no_compress = 15, only_blue = False):
+    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, abc_scaler = 1e-3, ecc_no_compress = 15, only_blue = False):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -219,7 +222,7 @@ class Image_color_optimizer:
         self.b_max_vec = np.array([[0.14766317, -0.13674196, 0.97936063]], dtype=np.float32) 
         
 
-        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, fixed_c, ecc_no_compress, only_blue)
+        self.Tile_color_optimizer = Tile_color_optimizer(self.color_channel, self.r_max_vec, self.b_max_vec, abc_scaler, ecc_no_compress, only_blue)
 
         self.img_height = img_height
         self.img_width =  img_width
