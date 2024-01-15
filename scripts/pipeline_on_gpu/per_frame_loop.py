@@ -14,6 +14,24 @@ import time
 import cupy as cp
 from  pygame_drawer import Pygame_drawer
 
+from gui_trial import *
+
+
+def update_parameters(pipeline):
+    slider_values = get_slider_values()
+    running = get_running()
+    pipeline.args.roll = slider_values["Roll"]
+    pipeline.args.pitch = slider_values["Pitch"]
+    pipeline.args.yaw = slider_values["Yaw"] 
+    if pipeline.args.h_fov != slider_values["FOV"]:
+        # import ipdb; ipdb.set_trace()   
+        pipeline.projector.update_fov(slider_values["FOV"])
+        pipeline.args.h_fov = slider_values["FOV"]
+
+    pipeline.image_color_optimizer.set_abc_scaler(slider_values["abc_scaler"])
+
+    return running
+
 
 
 
@@ -46,53 +64,32 @@ if __name__ == '__main__':
 
     perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
 
-    repeat_times = 100
-
-    all_t1 = time.time()
-    with tqdm(total=total_frames * repeat_times, desc="Running per frame loop") as pbar:
-        for i in range(total_frames * repeat_times):
+    with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
+        _running = True
+        while _running:
+            i = i % total_frames
             img_idx = i % total_frames
             img = img_list[img_idx]
+
+            root.update_idletasks()
+            root.update()
+
+            _running = update_parameters(perframe_color_optimizer_pipeline)
+
+
             img = cp.asarray(img, dtype=cp.uint8)
-
-            pp_t1 = time.time()
-            left_corrected_img = perframe_color_optimizer_pipeline(img)
-            right_corrected_img = left_corrected_img
-            combined_img = cp.concatenate((left_corrected_img, right_corrected_img), axis=1)
-            pp_t2 = time.time()
-            pp_acc_time += pp_t2 - pp_t1
-
+            left_img = perframe_color_optimizer_pipeline(img)
+            right_img = left_img
+            combined_img = cp.concatenate((left_img, right_img), axis=1)
             combined_img = cp.asnumpy(combined_img)
 
-            t1 = time.time()
-            if args.display:
-                pygame_drawer.draw(combined_img)
-            # time.sleep(1/30)
-            t2 = time.time()
-
-            draw_acc_time += t2 - t1
-            
-            if args.save_imgs:
-                out_img_filename = args.out_images_folder + "/" + "frame" + str(i) + ".jpg"
-                cv2.imwrite(out_img_filename, combined_img.astype(np.uint8))
+            pygame_drawer.draw(combined_img)
 
             pbar.update(1)
-
-            # if i % (10*total_frames) == 0:
-            #     import ipdb; ipdb.set_trace()
-            #     perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
-
-    all_t2 = time.time()
+            i=i+1
 
     pygame_drawer.close()
 
-    print("pp_time: ", pp_acc_time)
-    print("draw time: ", draw_acc_time)
-    print("all time: ", all_t2-all_t1)
-    
-    print("pp_fps: ", 1/pp_acc_time*total_frames*repeat_times)
-    print("draw fps: ", 1/draw_acc_time*total_frames*repeat_times)
-    print("overall fps: ", 1/(all_t2-all_t1)*total_frames*repeat_times)
 
 
 

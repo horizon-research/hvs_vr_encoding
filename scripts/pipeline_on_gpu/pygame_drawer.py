@@ -16,7 +16,7 @@ class Pygame_drawer:
         # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # image = image.transpose(1,0,2)
         # image = pygame.surfarray.make_surface(image)
-        image = pygame.image.frombuffer(image.tostring(), image.shape[1::-1], "BGR")
+        image = pygame.image.frombuffer(image.tostring(), image.shape[1::-1], "RGB")
         self.window.blit(image, (0, 0))
         pygame.display.flip()
 
