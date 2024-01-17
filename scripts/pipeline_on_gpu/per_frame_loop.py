@@ -12,10 +12,9 @@ from per_frame_seq_pipeline import Perframe_color_optimizer_pipeline
 
 import time
 import cupy as cp
-from  pygame_drawer import Pygame_drawer
 
 from gui_trial import *
-
+from  pygame_drawer import Pygame_drawer
 
 def update_parameters(pipeline):
     slider_values = get_slider_values()

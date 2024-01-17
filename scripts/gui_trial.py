@@ -8,6 +8,21 @@ import tkinter as tk
 root = tk.Tk()
 root.title("Parameter Adjustment")
 
+# Set the size of the window
+window_width = 800
+window_height = 600
+
+# Get the screen width and height
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+# Calculate x and y coordinates for positioning the window
+# Adjust these values based on your monitor's configuration
+
+# Set the geometry of the window
+root.geometry(f"{window_width}x{window_height}+{0}+{0}")
+
+
 # Value dictionary
 slider_values = {
     "Roll": 0,
@@ -36,7 +51,7 @@ parameters = [
     ("Center FOV", 0, 50, 20),
     ("Gradual Filter Period(s)", 0.00, 10.0, 50),
     ("Horizontal FOV", 80, 120, 0),
-    ("abc_scaler", 0.00, 2.0, 50)
+    ("abc_scaler", 0.00, 10.0, 50)
 ]
 
 # store the labels in a dictionary
@@ -64,6 +79,7 @@ for name, min_val, max_val, default_v in parameters:
     if name == "abc_scaler":
         abc_scaler_slider = slider
 
+running = True
 def on_close():
     global running
     running = False
@@ -118,6 +134,8 @@ def get_use_uncompressed_image_on_right_eye():
 use_uncompressed_image_on_right_eye_button = tk.Button(root, text="Uncompressed Image on Right (click twice to disable)", command=set_use_uncompressed_image_on_right_eye)
 use_uncompressed_image_on_right_eye_button.pack()
 
+
+# root.mainloop()
 
 
     

@@ -16,6 +16,8 @@ from  pygame_drawer import Pygame_drawer
 
 from gui_trial import *
 
+# import ipdb; ipdb.set_trace()
+
 def update_parameters(pipeline):
     slider_values = get_slider_values()
     running = get_running()
@@ -38,6 +40,7 @@ def update_parameters(pipeline):
 
 
 if __name__ == '__main__':
+
     args = get_args()
     if not os.path.exists(args.out_images_folder):
         os.makedirs(args.out_images_folder)
@@ -48,8 +51,6 @@ if __name__ == '__main__':
     pp_acc_time = 0
     loded_time = 0
     draw_acc_time = 0
-
-    pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
 
     # pre-load images
     img_list = list()
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     args.equi_height = img_list[0].shape[0]
 
 
-
+    pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
     perframe_FPGA_input_generation_pipeline = Perframe_FPGA_input_generation_pipeline(args)
 
     with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
@@ -76,7 +77,7 @@ if __name__ == '__main__':
             root.update_idletasks()
             root.update()
 
-            running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
+            _running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
 
 
             img = cp.asarray(img, dtype=cp.uint8)
