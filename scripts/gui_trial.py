@@ -10,6 +10,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import random
 import time
 
+import numpy as np
+
 # init tkinter
 root = tk.Tk()
 root.title("Parameter Adjustment")
@@ -154,6 +156,7 @@ new_scale = None
 
 min_rate = 1
 max_rate = 0
+acc_num = 0
 
 # Function to update the BD Compression Rate plot
 def update_rate_and_plot():
@@ -161,20 +164,28 @@ def update_rate_and_plot():
     global new_rate
     global min_rate
     global max_rate
+    global acc_num
 
     ellipsode_scales.append(new_scale)
     ellipsode_scales.pop(0)
 
-    line2.set_ydata(ellipsode_scales)
-    line2.set_xdata(timer)
-    canvas2.draw()
+    # line2.set_ydata(ellipsode_scales)
+    # line2.set_xdata(timer)
+    # canvas2.draw()
+
+    compression_rates.append(new_rate)
+    compression_rates.pop(0)
 
     if new_rate is not None:
         min_rate = min(min_rate, new_rate)
         max_rate = max(max_rate, new_rate)
         ax1.set_ylim([min_rate-0.05, max_rate+0.05])
-    compression_rates.append(new_rate)
-    compression_rates.pop(0)
+        # acc_num += 1
+    # elif new_rate is not None:
+    #     min_rate = np.min(np.asarray(compression_rates))
+    #     max_rate = np.max(np.asarray(compression_rates))
+    #     ax1.set_ylim([min_rate-0.05, max_rate+0.05])
+
     line1.set_ydata(compression_rates)
     line1.set_xdata(timer)
     canvas1.draw()
@@ -202,18 +213,18 @@ ax1.set_ylabel("Compression Rate")
 ax1.set_xlim([-14, 0])
 ax1.legend(loc='upper right')
 
-fig2, ax2 = plt.subplots()
-canvas2 = FigureCanvasTkAgg(fig2, master=root)
-widget2 = canvas2.get_tk_widget()
-widget2.pack(side='right', padx=10, pady=10)
+# fig2, ax2 = plt.subplots()
+# canvas2 = FigureCanvasTkAgg(fig2, master=root)
+# widget2 = canvas2.get_tk_widget()
+# widget2.pack(side='right', padx=10, pady=10)
 
-line2, = ax2.plot(timer, ellipsode_scales, color="r", label='Ellipsode Scale')
-ax2.set_title("Ellipsode Scale Over Time")
-ax2.set_xlabel("Time Steps")
-ax2.set_ylabel("Ellipsode Scale")
-ax2.set_ylim([-0.5, 10.5])
-ax2.set_xlim([-14, 0])
-ax2.legend(loc='upper right')
+# line2, = ax2.plot(timer, ellipsode_scales, color="r", label='Ellipsode Scale')
+# ax2.set_title("Ellipsode Scale Over Time")
+# ax2.set_xlabel("Time Steps")
+# ax2.set_ylabel("Ellipsode Scale")
+# ax2.set_ylim([-0.5, 10.5])
+# ax2.set_xlim([-14, 0])
+# ax2.legend(loc='upper right')
 
 root.after(1000, update_rate_and_plot)
 

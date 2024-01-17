@@ -8,7 +8,7 @@ sys.path.append(dirname + '/..') # for args.py
 from args import get_args
 from tqdm import tqdm
 
-from per_frame_seq_pipeline import Perframe_color_optimizer_pipeline
+from per_frame_seq_pipeline import Perframe_color_optimizer_pipeline, Perframe_compress_rate_pipeline
 
 import time
 import cupy as cp
@@ -19,16 +19,16 @@ from  pygame_drawer import Pygame_drawer
 def update_parameters(pipeline):
     slider_values = get_slider_values()
     running = get_running()
-    pipeline.args.roll = slider_values["Roll"]
-    pipeline.args.pitch = slider_values["Pitch"]
-    pipeline.args.yaw = slider_values["Yaw"] 
-    if pipeline.args.h_fov != slider_values["Horizontal FOV"]:
+    pipeline.args.roll = slider_values["Roll (rad)"]
+    pipeline.args.pitch = slider_values["Pitch (rad)"]
+    pipeline.args.yaw = slider_values["Yaw (rad)"] 
+    if pipeline.args.h_fov != slider_values["Horizontal FOV (deg)"]:
         # import ipdb; ipdb.set_trace()   
-        pipeline.projector.update_fov(slider_values["Horizontal FOV"])
-        pipeline.args.h_fov = slider_values["Horizontal FOV"]
+        pipeline.projector.update_fov(slider_values["Horizontal FOV (deg)"])
+        pipeline.args.h_fov = slider_values["Horizontal FOV (deg)"]
 
-    pipeline.image_color_optimizer.set_abc_scaler(slider_values["abc_scaler"])
-    pipeline.image_color_optimizer.set_ecc_no_compress(slider_values["Center FOV"])
+    pipeline.image_color_optimizer.set_abc_scaler(slider_values["Ellipsoid Scale"])
+    pipeline.image_color_optimizer.set_ecc_no_compress(slider_values["Center FOV (deg)"])
 
     upadate_gradual_filter()
 
@@ -67,7 +67,9 @@ if __name__ == '__main__':
 
 
     perframe_color_optimizer_pipeline = Perframe_color_optimizer_pipeline(args)
+    perframe_compress_rate_pipeline = Perframe_compress_rate_pipeline(args)
 
+    last_time = time.time()
     with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
         _running = True
         while _running:
@@ -91,6 +93,15 @@ if __name__ == '__main__':
             combined_img = cp.asnumpy(combined_img)
 
             pygame_drawer.draw(combined_img)
+
+
+            if time.time() - last_time > 1.0:
+                _running, _ = update_parameters(perframe_compress_rate_pipeline)
+                slider_values = get_slider_values()
+                update_new_scale(slider_values["Ellipsoid Scale"])
+                compression_rates = perframe_compress_rate_pipeline(img)
+                update_new_rate(compression_rates)
+                last_time = time.time()
 
             pbar.update(1)
             i=i+1

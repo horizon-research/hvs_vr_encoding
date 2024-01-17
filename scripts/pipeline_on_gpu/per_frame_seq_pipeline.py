@@ -7,8 +7,10 @@ sys.path.append(dirname + '/../../host')
 from color_optimizer.red_blue_optimization_cuda import Image_color_optimizer
 from projection.equirect_to_pespective_cuda import Equirectangular_to_perspective
 from len_correction.len_correction_cuda import Len_correction
+from color_optimizer.util.opt_BD_enc import bd_compress_rate
 from math import radians
 
+import cupy as cp
 
 class Perframe_color_optimizer_pipeline():
     def __init__(self, args):
@@ -42,22 +44,19 @@ class Perframe_compress_rate_pipeline():
         self.projector = Equirectangular_to_perspective(args.h_fov, args.equi_height, args.equi_width, args.perspective_height, args.perspective_width)
         self.image_color_optimizer = Image_color_optimizer(img_height = args.perspective_height, img_width = args.perspective_width, tile_size = args.tile_size,\
                                                             foveated = args.foveated, max_ecc = args.max_ecc, h_fov = args.h_fov, abc_scaler = args.abc_scaler, \
-                                                            ecc_no_compress = args.ecc_no_compress, only_blue = True)
-        self.equirect_img = None
-    def __call__(self):
+                                                            ecc_no_compress = args.ecc_no_compress, only_blue = False)
 
-        if self.equirect_img is None:
-            return None
-
+    def __call__(self, equirect_img):
         # step 1: Projection
-        perspective_img = self.projector.project(equirect_img = self.equirect_img, roll =  self.args.roll, pitch =  self.args.pitch, yaw =  self.args.yaw)
+        perspective_img = self.projector.project(equirect_img = equirect_img, roll =  self.args.roll, pitch =  self.args.pitch, yaw =  self.args.yaw)
         perspective_img = perspective_img[:,:,::-1]# BGR to RGB
         
+        opt_img = self.image_color_optimizer.color_conversion(perspective_img)
         # step 2: Color optimizer
+        opt_img = cp.asnumpy(opt_img)
         opt_img = self.image_color_optimizer.color_conversion(perspective_img)
 
         # step 3: Compute compression rate
-        orig_sz = perspective_img.nbytes
 
-        return self.get_compression_rate()  
+        return bd_compress_rate(opt_img)
     
