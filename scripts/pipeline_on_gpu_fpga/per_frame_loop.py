@@ -21,16 +21,16 @@ from gui_trial import *
 def update_parameters(pipeline):
     slider_values = get_slider_values()
     running = get_running()
-    pipeline.args.roll = slider_values["Roll"]
-    pipeline.args.pitch = slider_values["Pitch"]
-    pipeline.args.yaw = slider_values["Yaw"] 
-    if pipeline.args.h_fov != slider_values["Horizontal FOV"]:
+    pipeline.args.roll = slider_values["Roll (rad)"]
+    pipeline.args.pitch = slider_values["Pitch (rad)"]
+    pipeline.args.yaw = slider_values["Yaw (rad)"] 
+    if pipeline.args.h_fov != slider_values["Horizontal FOV (deg)"]:
         # import ipdb; ipdb.set_trace()   
-        pipeline.projector.update_fov(slider_values["Horizontal FOV"])
-        pipeline.args.h_fov = slider_values["Horizontal FOV"]
+        pipeline.projector.update_fov(slider_values["Horizontal FOV (deg)"])
+        pipeline.args.h_fov = slider_values["Horizontal FOV (deg)"]
 
-    pipeline.image_color_optimizer.set_abc_scaler(slider_values["abc_scaler"])
-    pipeline.image_color_optimizer.set_ecc_no_compress(slider_values["Center FOV"])
+    pipeline.image_color_optimizer.set_abc_scaler(slider_values["Ellipsoid Scale"])
+    pipeline.image_color_optimizer.set_ecc_no_compress(slider_values["Center FOV (deg)"])
 
     upadate_gradual_filter()
 
@@ -67,15 +67,23 @@ if __name__ == '__main__':
     pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
     perframe_FPGA_input_generation_pipeline = Perframe_FPGA_input_generation_pipeline(args)
 
+    last_time = time.time()
+
     with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
         _running = True
         while _running:
+
             i = i % total_frames
             img_idx = i % total_frames
             img = img_list[img_idx]
 
             root.update_idletasks()
             root.update()
+
+            if time.time() - last_time > 1.0:
+                slider_values = get_slider_values()
+                update_new_scale(slider_values["Ellipsoid Scale"])
+                last_time = time.time()
 
             _running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
 
