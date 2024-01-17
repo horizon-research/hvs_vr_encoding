@@ -61,7 +61,7 @@ def bd_compress_rate(npimage):
     compressed_size = base_sum + tag_sum + delta_sum
     orig_size = height * width * 3 
 
-    return 1 - (compressed_size / orig_size).get()
+    return 1 - float(compressed_size / orig_size)
 
 # import ipdb; ipdb.set_trace()
 
@@ -72,19 +72,13 @@ if __name__ == "__main__":
     img = Image.open("../Images/orig/" + image_name)
     npimage = np.array(img)
 
-    height, width, _ = npimage.shape
-
-    orig_size = height * width * 3 
-
     test_time = 10
     t1 = time.time()
     for i in range(test_time):
-        compressed_size = bd_compress_rate(npimage)
+        compress_rate = bd_compress_rate(npimage)
 
     t2 = time.time()
 
-    print ("Original size: " + str(orig_size))
-    print ("Compressed size: " + str(compressed_size))
-    print ("Compression rate: " + str(1 - (compressed_size / orig_size)))
+    print ("Compression rate: " + str(compress_rate))
     print ("FPS: " + str(test_time / (t2 - t1)))
 
