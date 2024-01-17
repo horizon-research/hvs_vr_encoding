@@ -8,7 +8,7 @@ sys.path.append(dirname + '/..') # for args.py
 from args import get_args
 from tqdm import tqdm
 
-from per_frame_seq_pipeline import Perframe_FPGA_input_generation_pipeline
+from per_frame_seq_pipeline import Perframe_FPGA_input_generation_pipeline, Perframe_compress_rate_pipeline
 
 import time
 import cupy as cp
@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
     pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
     perframe_FPGA_input_generation_pipeline = Perframe_FPGA_input_generation_pipeline(args)
+    perframe_compress_rate_pipeline = Perframe_compress_rate_pipeline(args)
 
     last_time = time.time()
 
@@ -81,9 +82,10 @@ if __name__ == '__main__':
             root.update()
 
             if time.time() - last_time > 1.0:
+                _running, _ = update_parameters(perframe_compress_rate_pipeline)
                 slider_values = get_slider_values()
                 update_new_scale(slider_values["Ellipsoid Scale"])
-                compression_rates = slider_values["Ellipsoid Scale"] / 10.0# not done
+                compression_rates = perframe_compress_rate_pipeline(img)
                 update_new_rate(compression_rates)
                 last_time = time.time()
 

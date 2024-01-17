@@ -5,6 +5,7 @@ file_path = os.path.abspath(__file__)
 dirname = os.path.dirname(file_path)
 sys.path.append(dirname + '/../../host') 
 from color_optimizer.red_blue_optimization_cuda import Image_color_optimizer
+from color_optimizer.util.opt_BD_enc import bd_compress_rate
 from projection.equirect_to_pespective_cuda import Equirectangular_to_perspective
 from len_correction.len_correction_cuda import Len_correction
 from math import radians
@@ -33,3 +34,26 @@ class Perframe_FPGA_input_generation_pipeline():
         img_6_channels = cp.concatenate((centers_abc[:, :, :, 0], centers_abc[:, :, :, 1], centers_abc[:, :, :, 2], dkl_centers[:, :, :, 0], dkl_centers[:, :, :, 1], dkl_centers[:, :, :, 2]), axis=2).reshape(1080, 960, 6).astype(cp.float16)
         
         return img_6_channels.view(cp.uint8)
+    
+
+
+class Perframe_compress_rate_pipeline():
+    def __init__(self, args):
+        self.args = args
+        self.projector = Equirectangular_to_perspective(args.h_fov, args.equi_height, args.equi_width, args.perspective_height, args.perspective_width)
+        self.image_color_optimizer = Image_color_optimizer(img_height = args.perspective_height, img_width = args.perspective_width, tile_size = args.tile_size,\
+                                                            foveated = args.foveated, max_ecc = args.max_ecc, h_fov = args.h_fov, abc_scaler = args.abc_scaler, \ 
+                                                            ecc_no_compress = args.ecc_no_compress, only_blue = True)
+
+    def __call__(self, equirect_img):
+        # step 1: Projection
+        perspective_img = self.projector.project(equirect_img = equirect_img, roll =  self.args.roll, pitch =  self.args.pitch, yaw =  self.args.yaw)
+        perspective_img = perspective_img[:,:,::-1]# BGR to RGB
+        
+        # step 2: Color optimizer
+        opt_img = self.image_color_optimizer.color_conversion(perspective_img)
+
+        # step 3: Compute compression rate
+
+        return bd_compress_rate(perspective_img, opt_img)
+    
