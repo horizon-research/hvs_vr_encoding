@@ -59,8 +59,9 @@ def bd_compress_rate(npimage):
     base_sum = (height // 4) * (width // 4) * 3
     delta_sum = np.sum(bitlens) / 8 * 16
     compressed_size = base_sum + tag_sum + delta_sum
+    orig_size = height * width * 3 
 
-    return compressed_size
+    return 1 - (compressed_size / orig_size).get()
 
 # import ipdb; ipdb.set_trace()
 

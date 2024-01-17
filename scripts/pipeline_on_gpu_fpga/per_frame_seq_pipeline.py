@@ -42,7 +42,7 @@ class Perframe_compress_rate_pipeline():
         self.args = args
         self.projector = Equirectangular_to_perspective(args.h_fov, args.equi_height, args.equi_width, args.perspective_height, args.perspective_width)
         self.image_color_optimizer = Image_color_optimizer(img_height = args.perspective_height, img_width = args.perspective_width, tile_size = args.tile_size,\
-                                                            foveated = args.foveated, max_ecc = args.max_ecc, h_fov = args.h_fov, abc_scaler = args.abc_scaler, \ 
+                                                            foveated = args.foveated, max_ecc = args.max_ecc, h_fov = args.h_fov, abc_scaler = args.abc_scaler, \
                                                             ecc_no_compress = args.ecc_no_compress, only_blue = True)
 
     def __call__(self, equirect_img):
@@ -50,10 +50,12 @@ class Perframe_compress_rate_pipeline():
         perspective_img = self.projector.project(equirect_img = equirect_img, roll =  self.args.roll, pitch =  self.args.pitch, yaw =  self.args.yaw)
         perspective_img = perspective_img[:,:,::-1]# BGR to RGB
         
+        opt_img = self.image_color_optimizer.color_conversion(perspective_img)
         # step 2: Color optimizer
+        opt_img = cp.asnumpy(opt_img)
         opt_img = self.image_color_optimizer.color_conversion(perspective_img)
 
         # step 3: Compute compression rate
 
-        return bd_compress_rate(perspective_img, opt_img)
+        return bd_compress_rate(opt_img)
     

@@ -152,10 +152,15 @@ timer = list(range(-record_length + 1, 1))
 new_rate = None
 new_scale = None
 
+min_rate = 1
+max_rate = 0
+
 # Function to update the BD Compression Rate plot
 def update_rate_and_plot():
     global new_scale
     global new_rate
+    global min_rate
+    global max_rate
 
     ellipsode_scales.append(new_scale)
     ellipsode_scales.pop(0)
@@ -164,7 +169,10 @@ def update_rate_and_plot():
     line2.set_xdata(timer)
     canvas2.draw()
 
-    new_rate = new_rate  # Simulated data
+    if new_rate is not None:
+        min_rate = min(min_rate, new_rate)
+        max_rate = max(max_rate, new_rate)
+        ax1.set_ylim([min_rate-0.05, max_rate+0.05])
     compression_rates.append(new_rate)
     compression_rates.pop(0)
     line1.set_ydata(compression_rates)
@@ -190,7 +198,7 @@ line1, = ax1.plot(timer, compression_rates, color="b", label='Compression Rate')
 ax1.set_title("BD Compression Rate Over Time")
 ax1.set_xlabel("Time Steps")
 ax1.set_ylabel("Compression Rate")
-ax1.set_ylim([0, 1])
+# ax1.set_ylim([0.2, 0.5])
 ax1.set_xlim([-14, 0])
 ax1.legend(loc='upper right')
 
@@ -203,7 +211,7 @@ line2, = ax2.plot(timer, ellipsode_scales, color="r", label='Ellipsode Scale')
 ax2.set_title("Ellipsode Scale Over Time")
 ax2.set_xlabel("Time Steps")
 ax2.set_ylabel("Ellipsode Scale")
-ax2.set_ylim([0, 10])
+ax2.set_ylim([-0.5, 10.5])
 ax2.set_xlim([-14, 0])
 ax2.legend(loc='upper right')
 

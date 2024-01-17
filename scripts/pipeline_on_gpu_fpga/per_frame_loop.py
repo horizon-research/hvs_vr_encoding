@@ -81,14 +81,6 @@ if __name__ == '__main__':
             root.update_idletasks()
             root.update()
 
-            if time.time() - last_time > 1.0:
-                _running, _ = update_parameters(perframe_compress_rate_pipeline)
-                slider_values = get_slider_values()
-                update_new_scale(slider_values["Ellipsoid Scale"])
-                compression_rates = perframe_compress_rate_pipeline(img)
-                update_new_rate(compression_rates)
-                last_time = time.time()
-
             _running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
 
 
@@ -101,6 +93,15 @@ if __name__ == '__main__':
             combined_img = cp.asnumpy(combined_img)
 
             pygame_drawer.draw(combined_img)
+
+
+            if time.time() - last_time > 1.0:
+                _running, _ = update_parameters(perframe_compress_rate_pipeline)
+                slider_values = get_slider_values()
+                update_new_scale(slider_values["Ellipsoid Scale"])
+                compression_rates = perframe_compress_rate_pipeline(img)
+                update_new_rate(compression_rates)
+                last_time = time.time()
 
             pbar.update(1)
             i=i+1
