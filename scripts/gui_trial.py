@@ -186,7 +186,7 @@ canvas1 = FigureCanvasTkAgg(fig1, master=root)
 widget1 = canvas1.get_tk_widget()
 widget1.pack(side='left', padx=10, pady=10)
 
-line1 = ax1.plot(timer, compression_rates, label='BD Compression Rate')
+line1, = ax1.plot(timer, compression_rates, color="b", label='Compression Rate')  # Line object creation
 ax1.set_title("BD Compression Rate Over Time")
 ax1.set_xlabel("Time Steps")
 ax1.set_ylabel("Compression Rate")
