@@ -149,8 +149,8 @@ ellipsode_scales = [None] * record_length  # Assuming this is similar to compres
 timer = list(range(-record_length + 1, 1))
 
 
-new_rate = 0.5
-new_scale = slider_values["Ellipsoid Scale"]
+new_rate = None
+new_scale = None
 
 # Function to update the BD Compression Rate plot
 def update_rate_and_plot():

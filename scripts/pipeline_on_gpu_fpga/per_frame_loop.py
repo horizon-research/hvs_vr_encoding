@@ -83,6 +83,8 @@ if __name__ == '__main__':
             if time.time() - last_time > 1.0:
                 slider_values = get_slider_values()
                 update_new_scale(slider_values["Ellipsoid Scale"])
+                compression_rates = slider_values["Ellipsoid Scale"] / 10.0# not done
+                update_new_rate(compression_rates)
                 last_time = time.time()
 
             _running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
