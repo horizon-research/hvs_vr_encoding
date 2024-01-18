@@ -4,7 +4,7 @@
 
 &nbsp; &nbsp; This project demonstrates color optimizer in the ASPLOS-2024 Paper [Exploiting Human Color Discrimination for Memory and Energy-Efficient Image Encoding in Virtual Reality](https://horizon-lab.org/pubs/asplos24-vr.pdf) on a FPGA board. This optimizer uses the limits of human color perception to reduce image color size. By subtly adjusting pixel colors within a humanly imperceptible range which depends on eccentricity, it brings colors of pixels closer, enhancing the efficiency of the following Base Delta compression algorithm. Finally, this foveated compression can make the system more memory and energy-efficient
 
-### 1.1 Overall Pipeline
+### 1.1 Overall Pipeline (BD not included now.)
 
 &nbsp; &nbsp; The figure illustrates the project's comprehensive pipeline, transforming panoramic video into the foveated compressed (Color Optimiz) video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
 
@@ -20,6 +20,9 @@
     - `projection/`: codes for eqirectangular to perspective images projection.
     - `len_correction/`: codes for len correction (implemented in software)
     - `color_optimizer/`:  codes for color optimizer (implemented in software)
+    - `BD_enc/` : TBD
+    - `BD_dec/` : TBD
+    - `fpga_interfaceing/` : To be seperated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
 
 - `fpga/`: Modules run on FPGA.
     - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
@@ -29,6 +32,8 @@
     - `pynq_scripts/`: Jupyter note code run on PS of ZCU104
     - `end2end_bitstream/` : Built bitstream for the GPU+FPGA demo.
     - `ip_repo/`: Contain exported HLS IPs needed by GPU+FPGA demo.
+    - `BD_enc_hls/` : TBD
+    - `BD_dec_hls/` : TBD
 
 - `scripts/` :
     - `pipeline_on_cpu/`: scripts for running software-only pipeline on CPU.
@@ -93,6 +98,12 @@ cd <top_folder>
 python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
 ```
 
+For GPU implementation, we provide a GUI as below for real-time parameters adjustment:
+
+<p float="left">
+  <img src="doc_images/gui.png" alt="Input Image" style="width: 30.5%; margin-right: 20px;" />
+</p>
+
 See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
 
 
@@ -116,9 +127,9 @@ Hint: You can choose to skip this since we provide pre-generated .bit and .hwh [
 
 We provide fully automatic script that can build vivado block design and generate bitstream and hardware handoff file. See Readme in [sripts/vivado](sripts/vivado) for detailed tutorial and reminder. 
 ```bash
-source build_bd.sh
-source generate_bit_hwh.sh
-source timing_check.sh # make sure the implemented result meet timing requirement
+source sripts/vivado/build_bd.sh
+source sripts/vivado/generate_bit_hwh.sh
+source sripts/vivado/timing_check.sh # make sure the implemented result meet timing requirement
 ```
 
 ### 4.2 Setup PYNQ
@@ -136,15 +147,17 @@ source timing_check.sh # make sure the implemented result meet timing requiremen
 
 ### 4.3 Run the GPU+FPGA demo
 
-(1) On the host, run:
+(1) On the host, run: (You need to prepare `./decoded_images` as shown in 3.2 before run this )
 
 ```bash
 cd <top_folder>
-python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
+python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated # change the display port the display representing ZCU104
 ```
 
-(2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) 
+After running the above code, you should see a Pygame window and a GUI like GPU demo.
 
-(3) You should see output on the display now. Don't forget to close HDMI after demo.
+(2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) , then you will se output on the display.
+
+(3) You should see output on the display now. Don't forget to close HDMI before ending the demo.
 
 
