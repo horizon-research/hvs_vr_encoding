@@ -30,7 +30,7 @@
     - `BD_dec/` : TBD
     - `fpga_interfaceing/` : To be seperated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
 
-- `fpga/`: Modules run on FPGA.
+- `fpga/`: Modules run on FPGA board.
     - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
     - `len_correction_hls/`: HLS implementation of lens correction.
     - `rearrangment_hls/`: Verilog and HLS implementation of 4x4 to 1x1 reaarange ment IP (RIP) on FPGA.
@@ -133,9 +133,9 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 
 ### 4.2 Setup PYNQ
 
-(1) Put the generated `end2end.bit` and `end2end.hwh` to a folder in PYNQ.
+(1) Put the generated `end2end.bit` and `end2end.hwh` to a folder in ZCU104.
 
-(2) Put our [PYNQ scripts](fpga/pynq_scripts) to the SAME script
+(2) Put our [PYNQ scripts](fpga/pynq_scripts) to the SAME folder.
 
 (3) If this is the first time you run this demo, you need to config your diver:
 - First, plug HDMI to ZCU104's HDMI-IN, plug display to ZCU104's HDMI-OUT, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help your GPU driver recognize the ZCU104's HDMI (it will be treated as a display).
