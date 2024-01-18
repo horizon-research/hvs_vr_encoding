@@ -1,1 +1,0 @@
-{"modules": {"color_model": "base"}, "config": {"nsamples": 100, "data_path": "./io/color_data", "ellipse_fn": "ellipse.csv", "path": "./io/color_model", "model_fn": "model.pth", "power_weights": [231.5384684, 245.6795914, 530.7596369, 977.2813229], "color_model": {"layer_widths": [4, 3], "layer_centres": [5], "rng_seed": 0}}}

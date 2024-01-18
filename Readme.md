@@ -25,12 +25,20 @@
     - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
     - `len_correction_hls/`: HLS implementation of lens correction.
     - `rearrangment_hls/`: Verilog and HLS implementation of 4x4 to 1x1 reaarange ment IP (RIP) on FPGA.
-    - `vivado/`: scripts for generate and connect all modules in the block design.
+    - `double_output_hls/`:  HLS implementation of copy left image to right on FPGA. It also has t_last signal needed by DMA.
     - `pynq_scripts/`: Jupyter note code run on PS of ZCU104
+    - `end2end_bitstream/` : Built bitstream for the GPU+FPGA demo.
+    - `ip_repo/`: Contain exported HLS IPs needed by GPU+FPGA demo.
 
-## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA) )
+- `scripts/` :
+    - `pipeline_on_cpu/`: scripts for running software-only pipeline on CPU.
+    - `pipeline_on_gpu/`: scripts for running software-only pipeline on GPU.
+    - `pipeline_on_gpu_fpga/`: scripts for running pipeline on GPU + FPGA.
+    - `vivado_scripts/`: scripts for generate and connect all modules in the block design.
 
-&nbsp; &nbsp;  This section is about how to run the full pipeline in software only manner. It is useful quick check of  expected result. It mainly contains below pipeline
+## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA only) )
+
+&nbsp; &nbsp;  This section is about how to run the full pipeline in software only manner. It is useful for quick check of expected result. It mainly contains below pipeline
 
 <img src="doc_images/pipeline_software_only.png" alt="Alt text" width="800"/>
 
@@ -61,39 +69,82 @@ bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 
 ### 3.3 Run the Full color optimizer pipeline
 
+&nbsp; &nbsp;  We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run in sequential order. It can be extend to ROS-like parrallel implementation in the future.
 
-(1) The scripts to run the whole pipeline for one frame is implemented in [scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py](scripts/pipeline_on_cpu/per_frame_seq_pipeline.py) (this link is to cpu imlemetation), please refer it to see how to use and concatenate all modules implemented in CPU. For CUDA (GPU) implementation, see the one under GPU folder[scripts/pipeline_on_gpu/per_frame_seq_pipeline.py](scripts/pipeline_on_gpu/per_frame_seq_pipeline.py).
+&nbsp; &nbsp;  For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
-(2) Every module's main function also shows example of how to use it. You just need to go to the corresponding folder and run the python code. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
+(1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py`, please refer them to see how to use and concatenate all modules implemented in CPU , GPU.
+
+(2) Every module's main function also shows example of how to use it. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
 ```bash
 cd <top_folder>/host/projection
 python3 equirect_to_pespective_cpu.py # if you want to use cuda acceleration, run: python3 equirect_to_pespective_cuda.py
 ```
 
-(3) We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All of them contain sequential loop implementation and ROS-like parrallel implementation. For CPU, we also provide multicore version. Here we only introduce how to run CPU implementation using single core and sequential loop.
-
-For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
-
-See [<top_folder>/scripts/args.py](scripts/args.py) for supported args.
-
-- To run CPU implementation using single core and sequential loop. (For other settings please see readme in [scripts/](scripts/))
-```bash 
+(3) Here is how to run on CPU and GPU
+- For CPU:
+```bash
 cd <top_folder>
-python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --save_imgs --foveated
-
+python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --foveated
 ```
+- For GPU:
+```bash
+cd <top_folder>
+python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
+```
+
+See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
+
 
 (4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add --save_imgs)
 
 ### 3.5 Video Encoding
-If you use CPU implementation, and you want to observe the realtime results. You can encode images back to video then playback it on your VR display in realtime.
+If you use CPU implementation and want to observe the realtime results. You can encode images back to video then playback it on your VR display in realtime.
 ```bash
 cd <top_folder> 
-python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos/opt_corrected_video.mp4 --images_folder ./corrected_opt_images --fps 30
+python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos/corrected_opt_images.mp4 --images_folder ./corrected_opt_images --fps 30
 ```
-
-The output video will be at ```./videos/opt_corrected_video.mp4```
+The output video will be in ```./videos/corrected_opt_images.mp4```
 
 ## 4. Usage of SW-HW Pipeline (GPU-FPGA)
 
-TO BE DONE
+This pipeline are basically the same as overall pipeline, except that we add a `output_doubler` after the `lens_correction` since we use same image for both eye because of restriction comes from input equirectangular image as explaned above.
+
+### 4.1 Setup vivado block design and get bitstream for FPGA
+
+Hint: You can choose to skip this since we provide pre-generated .bit and .hwh [here](fpga/end2end_bitstream/).
+
+We provide fully automatic script that can build vivado block design and generate bitstream and hardware handoff file. See Readme in [sripts/vivado](sripts/vivado) for detailed tutorial and reminder. 
+```bash
+source build_bd.sh
+source generate_bit_hwh.sh
+source timing_check.sh # make sure the implemented result meet timing requirement
+```
+
+### 4.2 Setup PYNQ
+
+(1) Put the generated `end2end.bit` and `end2end.hwh` to a folder in PYNQ.
+
+(2) Put our [PYNQ scripts](fpga/pynq_scripts) to the SAME script
+
+(3) If this is the first time you run this demo, you need to config your diver:
+- First, plug HDMI to ZCU104's HDMI-IN, plug display to ZCU104's HDMI-OUT, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help your GPU driver recognize the ZCU104's HDMI (it will be treated as a display).
+- Turn off ANY augmentation on the display representing ZCU104, the reason is we want to send the unchanged Ellipsode data through HDMI port.
+- Set that display to be 4K@60Hz since we will use 4K@60Hz bandwidth.
+
+(4) Setup is done, run hdmi_close block in the script then close the notebook. (It is important or pynq will  likely crash)
+
+### 4.3 Run the GPU+FPGA demo
+
+(1) On the host, run:
+
+```bash
+cd <top_folder>
+python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
+```
+
+(2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) 
+
+(3) You should see output on the display now. Don't forget to close HDMI after demo.
+
+
