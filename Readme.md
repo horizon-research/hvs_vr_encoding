@@ -100,9 +100,8 @@ python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_i
 
 For GPU implementation, we provide a GUI as below for real-time parameters adjustment:
 
-<p float="left">
-  <img src="doc_images/gui.png" alt="Input Image" style="width: 30.5%; margin-right: 20px;" />
-</p>
+<img src="doc_images/gui.png" alt="Input Image" style="width: 30.5%; margin-right: 20px;" />
+
 
 See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
 
