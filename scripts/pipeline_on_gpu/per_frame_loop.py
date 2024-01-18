@@ -94,6 +94,9 @@ if __name__ == '__main__':
 
             pygame_drawer.draw(combined_img)
 
+            if args.save_imgs:
+                cv2.imwrite(combined_img[:, :, ::-1], combined_img)
+
 
             if time.time() - last_time > 1.0:
                 _running, _ = update_parameters(perframe_compress_rate_pipeline)
