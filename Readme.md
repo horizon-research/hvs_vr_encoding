@@ -164,8 +164,8 @@ See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (--s
 
 ## 5. FPS Results
 ### Variants:
-- CPU 
-- GPU 
+- CPU : Parrallelized Numpy implementation.
+- GPU : Cupy or Pytorch-GPU implementation.
 - GPU + FPGA (Offload color_optimizer+Len_correction+Display_rendering to FPGA.)
 
 ### End to End FPS on different Coniguration
