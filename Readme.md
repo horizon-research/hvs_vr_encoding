@@ -154,7 +154,9 @@ cd <top_folder>
 python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated # change the display port the display representing ZCU104
 ```
 
-After running the above code, you should see a Pygame window and a GUI like GPU demo.
+After running the above code, you should see a Pygame window and a GUI like GPU demo. (turn-off compression on the right eye is not supported here)
+
+See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (--save_img is not supported here)
 
 (2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) , then you will se output on the display.
 
