@@ -10,7 +10,6 @@
   <img src="images/doubled_image.png" alt="Output Image" style="width: 60%;" />
 </p>
 
-
 ## Performance Estimation
 
 FPS = 300M (Hz) / 2073603 = 144
@@ -19,4 +18,12 @@ FPS = 300M (Hz) / 2073603 = 144
 
 ## Resource Util.
 ![Alt text](images/util.png)
+
+
+## Generate Golden Sequence
+```bash
+cd gold_sequence/
+python3 len_correction_get_gold_seq.py
+```
+
 

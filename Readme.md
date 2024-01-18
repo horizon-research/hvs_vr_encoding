@@ -162,3 +162,33 @@ See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (--s
 (3) You should see output on the display now. Don't forget to close HDMI before ending the demo.
 
 
+## 5. FPS Results
+### Variants:
+- CPU 
+- GPU 
+- GPU + FPGA (Offload color_optimizer+Len_correction+Display_rendering to FPGA.)
+
+### End to End FPS on different Coniguration
+
+For each configuration there are two settings, one is SW is run sequentially, which will result in lower FPS, and another is that SW is run on ROS, which can enable parallelized pipelined computations and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
+
+(1) Pipeline with: Projection → Len Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. (need to add BD ENC / DEC)
+
+| Config          | Squential SW (pipeline only \| whole loop w. display) | SW on ROS(pipeline ony / whole loop w. display) |
+|:-----------------:|:-------------:|:-------------:|
+| CPU (EPYC-Zen3)       | 0.66 \| 0.65 |TBA|
+| GPU (RTX-4090)        | 51.0 \| 40.5 |TBA|
+| GPU (RTX-4060 Laptop WSL) | 18.9 \| 17.1 |TBA|
+| GPU + FPGA (ZCU104)   | TBA |TBA|
+
+###  Modules' FPS on different Platforms
+Below table shows FPS achieved used different HW.
+
+| HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
+|:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
+| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | TBA | TBA
+| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | TBA | TBA
+| GPU (RTX-4060 Laptop WSL)   | 409.6    | 448.7            | 115.4                 | 26.7            | TBA | TBA
+| FPGA (ZCU104)   | --      | TBA           | --                   | 288 *            | TBA | TBA
+
+*GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.

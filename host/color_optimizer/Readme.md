@@ -1,14 +1,14 @@
 ## Color Optimizer Examples
-### How to run example usecase :
+### How to run example usecase that
 #### - (1) measure fps of ```color_optimizer``` and ```only_generate_ellipseson``` 1080x960 images 
 #### - (2) optimize color of an 1080 x 1920 image
 
-For CPU vrsion (about 1 fps / 4.3 fps on EPYC-Zen3 CPU), run:
+For CPU vrsion (about 1 fps and 4.3 fps on EPYC-Zen3 CPU), run:
 ```bash
 python3 equirect_to_pespective_cpu.py
 ```
 
-For GPU version (about 53 fps / 275 fps on RTX-4090), run:
+For GPU version (about 53 fps and 275 fps on RTX-4090), run:
 ```bash
 python3 red_blue_optimization_cuda.py 
 ```
@@ -22,7 +22,7 @@ python3 red_blue_optimization_cuda.py
 
 
 
-### Compression rate Improvement from example: 17.07%
+### Compression rate Improvement from example: 9.36%
 
 ```
 original base delta compression rate: 21.31%

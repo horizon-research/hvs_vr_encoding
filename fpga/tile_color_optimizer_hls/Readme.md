@@ -25,3 +25,10 @@ Need to manally set some channel's depth to prevent deadlock.
 ![Alt text](imgs/util_hls.png)
 ### Dataflow
 ![Alt text](imgs/data_flow.png)
+
+
+## Generate Golden Sequence 
+```bash
+cd gold_sequence/
+python3 len_correction_get_gold_seq.py
+```

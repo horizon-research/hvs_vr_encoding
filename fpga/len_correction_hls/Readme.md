@@ -26,16 +26,16 @@ FPS = 300M (Hz) / 2074522 (Latency for one frame)  = 144
 ![Alt text](images/HLS_dataflow.png)
 
 
-## 4. Usage
-
-### 4.1 Generate Golden Sequence 
+## 4. Generate Golden Sequence 
 ```bash
 cd gold_sequence/
 python3 len_correction_get_gold_seq.py
 ```
 
-### 4.2 Generate Precomputed Buffer management parameters
+## 5. Generate Precomputed Buffer management parameters
 ```bash
 cd precomputation/
 python3 generate_precompute_constants.py
 ```
+
+
