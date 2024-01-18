@@ -15,6 +15,12 @@
 
 ## 2. Files Organization
 
+- `scripts/` : Scripts for running demo.
+    - `pipeline_on_cpu/`: scripts for running software-only pipeline on CPU.
+    - `pipeline_on_gpu/`: scripts for running software-only pipeline on GPU.
+    - `pipeline_on_gpu_fpga/`: scripts for running pipeline on GPU + FPGA.
+    - `vivado_scripts/`: scripts for generate and connect all modules in the block design.
+
 - `host/`: Modules run on Host Machine.
     - `video_encode_decode/`: codes for video decode and encode.
     - `projection/`: codes for eqirectangular to perspective images projection.
@@ -34,12 +40,6 @@
     - `ip_repo/`: Contain exported HLS IPs needed by GPU+FPGA demo.
     - `BD_enc_hls/` : TBD
     - `BD_dec_hls/` : TBD
-
-- `scripts/` :
-    - `pipeline_on_cpu/`: scripts for running software-only pipeline on CPU.
-    - `pipeline_on_gpu/`: scripts for running software-only pipeline on GPU.
-    - `pipeline_on_gpu_fpga/`: scripts for running pipeline on GPU + FPGA.
-    - `vivado_scripts/`: scripts for generate and connect all modules in the block design.
 
 ## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA only) )
 
