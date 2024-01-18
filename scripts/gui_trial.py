@@ -203,7 +203,7 @@ def update_ellipsode_scale_and_plot():
 fig1, ax1 = plt.subplots()
 canvas1 = FigureCanvasTkAgg(fig1, master=root)
 widget1 = canvas1.get_tk_widget()
-# widget1.pack(side='left', padx=10, pady=10)
+widget1.pack( padx=10, pady=10)
 
 line1, = ax1.plot(timer, compression_rates, color="b", label='Compression Rate')  # Line object creation
 ax1.set_title("BD Compression Rate Over Time")

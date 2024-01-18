@@ -15,22 +15,18 @@
 
 ## 2. Files Organization
 
-- `host/`: Codes for the Host Machine.
-    - `video_decode/`: codes for video decode.
-    - `projection/`: codes for eqirectangular to binocular images projection.
-    - `fpga_input_generation/`: codes for abc, dkl computaton and reaarangement.
-    - `pygame/`: codes for sending image contains parameters through HDMI.
+- `host/`: Modules run on Host Machine.
+    - `video_encode_decode/`: codes for video decode and encode.
+    - `projection/`: codes for eqirectangular to perspective images projection.
     - `len_correction/`: codes for len correction (implemented in software)
-    - `color_optimizer`:  codes for color optimizer (implemented in software)
-    - `full_pipeline_in_software/`: codes to run the full pipeline in software. Convenient for expected results observation and parameter configuration.
+    - `color_optimizer/`:  codes for color optimizer (implemented in software)
 
-
-- `fpga/`:  Codes for FPGA.
+- `fpga/`: Modules run on FPGA.
     - `tile_color_optimizer_hls/`: HLS implementation of color optimizer.
-    - `len_correction_hls/`: HLS implementation of len correction.
-    - `rearrangment/`: Verilog and HLS implementation of reaarange ment IP (RIP) on FPGA.
-    - `vivado/`: codes for generate and connect all other modules in a block design.
-    - `pynq_scripts/`: Jupyter note code for control modules in run time using ARM on the fpga board. 
+    - `len_correction_hls/`: HLS implementation of lens correction.
+    - `rearrangment_hls/`: Verilog and HLS implementation of 4x4 to 1x1 reaarange ment IP (RIP) on FPGA.
+    - `vivado/`: scripts for generate and connect all modules in the block design.
+    - `pynq_scripts/`: Jupyter note code run on PS of ZCU104
 
 ## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA) )
 
