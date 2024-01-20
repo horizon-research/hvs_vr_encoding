@@ -1,7 +1,7 @@
 ##  Base-Delta Encoder
 ### How to run example usecase (Compress one 960x1080 image with fps measurement, tile_size = 4x4):
 
-This BD-Encoder Decoder use signed value to represent Delta, unsigned value maybe a little more effictient and intuitive, but here we just align with the paper.
+This BD-Encoder use signed value to represent Delta, unsigned value maybe a little more effictient and intuitive, but here we just align with the paper.
 
 (1) For CPU version, we use fully vectorized numpy and numba for acceleration. It runs at about 6.57 fps on EPYC-Zen3 CPU, you can try the example by running:
 ```bash
