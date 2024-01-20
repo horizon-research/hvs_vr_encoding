@@ -6,6 +6,8 @@ import time
 
 from pack_cpu import pack_data_numba_wrapper
 
+import pickle
+
 
 def bd_encoder(npimage, tile_size=4):
     # Assuming npimage is your input image with shape (height, width, 3)
@@ -89,3 +91,7 @@ if __name__ == "__main__":
     compress_rate = 1 - compressed_size / npimage.nbytes
     print ("Compression rate: " + str(compress_rate))
     print ("FPS: " + str(test_time / (t2 - t1)))
+
+
+    with open('enc_result.pkl', 'wb') as pickle_file:
+        pickle.dump(enc_result, pickle_file)

@@ -1,5 +1,5 @@
 ##  Base-Delta Encoder
-### How to run example usecase (Compress one 960x1080 image with fps measurement, tile_size = 4x4):
+### How to run example usecase (Compress one 960x1080 image with fps measurement, tile_size = 4x4, the result will be saved using pickle):
 
 This BD-Encoder use signed value to represent Delta, unsigned value maybe a little more effictient and intuitive, but here we just align with the paper.
 
