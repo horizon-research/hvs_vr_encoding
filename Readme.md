@@ -23,10 +23,10 @@
 
 - `host/`: Modules run on Host Machine.
     - `video_encode_decode/`: codes for video decode and encode.
-    - `projection/`: codes for eqirectangular to perspective images projection.
-    - `len_correction/`: codes for len correction (implemented in software)
-    - `color_optimizer/`:  codes for color optimizer (implemented in software)
-    - `BD_enc/` : TBD
+    - `projection/`: codes for eqirectangular to perspective images projection. 
+    - `len_correction/`: codes for len correction 
+    - `color_optimizer/`:  codes for color optimizer 
+    - `BD_enc/` : codes for base delta compression encoder
     - `BD_dec/` : TBD
     - `fpga_interfaceing/` : To be seperated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
 
@@ -186,9 +186,9 @@ Below table shows FPS achieved used different HW.
 
 | HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
-| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | TBA | TBA
-| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | TBA | TBA
-| GPU (RTX-4060 Laptop WSL)   | 409.6    | 448.7            | 115.4                 | 26.7            | TBA | TBA
+| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 7.29 | TBA
+| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 417.49 | TBA
+| GPU (RTX-4060 Laptop WSL)   | 409.6    | 448.7            | 115.4    | 26.7            | TBA | TBA
 | FPGA (ZCU104)   | --      | TBA           | --                   | 288 *            | TBA | TBA
 
 *GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.
