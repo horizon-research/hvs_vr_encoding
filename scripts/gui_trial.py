@@ -55,7 +55,7 @@ def update_value(name, val, scale_min, scale_max):
 parameters = [
     ("Roll (rad)", 0, 6.28, 25),
     ("Yaw (rad)", 0, 6.28, 0),
-    ("Pitch (rad)", -1.57, +1.57, 100),
+    ("Pitch (rad)", -3.14, +3.14, 75),
     ("Center FOV (deg)", 0, 50, 20),
     # ("Gradual Filter Period(s)", 0.00, 10.0, 50),
     ("Horizontal FOV (deg)", 80, 120, 0),

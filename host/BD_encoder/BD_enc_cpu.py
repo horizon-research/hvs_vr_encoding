@@ -1,8 +1,12 @@
 import numpy as np
-
+import sys
+import os
 from PIL import Image
 
 import time
+file_path = os.path.abspath(__file__)
+dirname = os.path.dirname(file_path)
+sys.path.append(dirname) 
 
 from pack_cpu import pack_data_numba_wrapper
 
