@@ -7,12 +7,12 @@ import time
 from pack_cpu import pack_data_numba_wrapper
 
 
-def bd_encoder(npimage):
+def bd_encoder(npimage, tile_size=4):
     # Assuming npimage is your input image with shape (height, width, 3)
     height, width, _ = npimage.shape
 
     # Reshape npimage to process 4x4 tiles, output shape (height // 4, width // 4, 4, 4, 3), uint8
-    npimage = npimage.reshape(height // 4, 4, width // 4, 4, 3).transpose(0, 2, 1, 3, 4).astype(np.float32)
+    npimage = npimage.reshape(height // tile_size, tile_size, width // tile_size, tile_size, 3).transpose(0, 2, 1, 3, 4).astype(np.float32)
 
     # Compute min, max, and base for each tile and each color channel, output shape (height // 4, width // 4, 3), uint8
     tiles_min = npimage.min(axis=(2, 3))
@@ -54,7 +54,7 @@ def bd_encoder(npimage):
 
     # Pack deltas
     deltas = deltas.reshape(-1).astype(np.int8).view(np.uint8)
-    deltas_lengths = np.tile(bitlens[:, :, np.newaxis, np.newaxis, :], (1, 1, 4, 4, 1)).astype(np.uint8).reshape(-1)
+    deltas_lengths = np.tile(bitlens[:, :, np.newaxis, np.newaxis, :], (1, 1, tile_size, tile_size, 1)).astype(np.uint8).reshape(-1)
     packed_deltas = pack_data_numba_wrapper(deltas, deltas_lengths)
 
     # Compute total compressed size
@@ -70,18 +70,18 @@ def bd_encoder(npimage):
 
 
 if __name__ == "__main__":
-    image_name = "WaterScape.bmp"
+    image_name = "middle_perspective_image.png"
     # load image
     img = Image.open("./image/" + image_name)
     npimage = np.array(img)
 
     # warm up numba JIT
-    enc_result = bd_encoder(npimage)
+    enc_result = bd_encoder(npimage, tile_size=4)
 
     test_time = 10
     t1 = time.time()
     for i in range(test_time):
-        enc_result = bd_encoder(npimage)
+        enc_result = bd_encoder(npimage, tile_size=4)
     t2 = time.time()
     compressed_size = enc_result["tags"].nbytes + enc_result["deltas"].nbytes + enc_result["bases"].nbytes + enc_result["tags_bitlens"].nbytes
 
