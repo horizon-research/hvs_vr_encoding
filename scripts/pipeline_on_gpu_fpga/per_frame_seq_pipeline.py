@@ -5,7 +5,7 @@ file_path = os.path.abspath(__file__)
 dirname = os.path.dirname(file_path)
 sys.path.append(dirname + '/../../host') 
 from color_optimizer.red_blue_optimization_cuda import Image_color_optimizer
-from color_optimizer.util.opt_BD_enc import bd_compress_rate
+from BD_encoder.BD_enc_gpu import bd_encoder
 from projection.equirect_to_pespective_cuda import Equirectangular_to_perspective
 from len_correction.len_correction_cuda import Len_correction
 from math import radians
@@ -56,6 +56,12 @@ class Perframe_compress_rate_pipeline():
         opt_img = self.image_color_optimizer.color_conversion(perspective_img)
 
         # step 3: Compute compression rate
+        bd_encoder_result = bd_encoder(opt_img, tile_size=self.args.tile_size)
+        compressed_size = bd_encoder_result["tags"].nbytes + bd_encoder_result["deltas"].nbytes + bd_encoder_result["bases"].nbytes + bd_encoder_result["tags_bitlens"].nbytes
 
-        return bd_compress_rate(opt_img)
+
+        compress_rate = 1 - compressed_size / opt_img.nbytes
+
+
+        return compress_rate
     
