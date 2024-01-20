@@ -1,5 +1,5 @@
 ## Color Optimizer Examples
-### How to run example usecase that
+### We have example usecase that
 #### - (1) measure fps of ```color_optimizer``` and ```only_generate_ellipseson``` 1080x960 images 
 #### - (2) optimize color of an 1080 x 1920 image
 
