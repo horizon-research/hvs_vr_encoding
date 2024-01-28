@@ -26,9 +26,9 @@ def bd_encoder(npimage, tile_size=4):
     bases = np.ceil((tiles_max + tiles_min) / 2)
 
     # Compute bit lengths, output shape (height // 4, width // 4, 3), uint8
-    mag = bases - tiles_min
-    bitlens = np.zeros_like(mag, dtype=np.float32)
-    bitlens[mag > 0] = np.ceil(np.log2( mag[mag > 0] )) + 1 # +1 for sign bit
+    pos_mag = tiles_max - bases
+    bitlens = np.zeros_like(pos_mag, dtype=np.float32)
+    bitlens[pos_mag > 0] = np.ceil(np.log2( pos_mag[pos_mag > 0] +1 )) + 1 # +1 for sign bit
 
     # Compute deltas, output shape (height // 4, width // 4, 4, 4, 3), int8
     deltas = (npimage - bases[:, :, np.newaxis, np.newaxis, :])
@@ -55,6 +55,7 @@ def bd_encoder(npimage, tile_size=4):
     tag_bitlens_8 = tag_bitlens_8.astype(np.uint8)
 
     tags = tags.astype(np.uint32).view(np.uint8).reshape(tags.shape[0], tags.shape[1], tags.shape[2], 4)
+
     tags_lengths_8 = np.tile(tag_bitlens_8[np.newaxis, np.newaxis, :, :], (tags.shape[0], tags.shape[1], 1, 1))
     packed_tags = pack_data_numba_wrapper(tags.reshape(-1), tags_lengths_8.reshape(-1))
 
@@ -63,12 +64,12 @@ def bd_encoder(npimage, tile_size=4):
     deltas_lengths = np.tile(bitlens[:, :, np.newaxis, np.newaxis, :], (1, 1, tile_size, tile_size, 1)).astype(np.uint8).reshape(-1)
     packed_deltas = pack_data_numba_wrapper(deltas, deltas_lengths)
 
-    # Compute total compressed size
     enc_result = dict()
     enc_result["tags"] = packed_tags
     enc_result["tags_bitlens"] = tag_bitlens.astype(np.uint8)
     enc_result["bases"] = bases.astype(np.uint8)
     enc_result["deltas"] = packed_deltas
+    
 
     return enc_result
 

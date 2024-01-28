@@ -4,7 +4,7 @@ import time
 
 
 @cuda.jit
-def unpack_bits_to_ints_cuda(packed_data, bit_lengths, start_indices, end_indices, output):
+def unpack_bits_to_int8s_cuda(packed_data, bit_lengths, start_indices, end_indices, output):
     # Determine the index of the current thread
     i = cuda.grid(1)
     
@@ -20,7 +20,7 @@ def unpack_bits_to_ints_cuda(packed_data, bit_lengths, start_indices, end_indice
             int_value = (int_value << 1) | bit
         output[i] = int_value
 
-def unpack_bits_to_ints_cuda_wrapper(packed_data, bit_lengths):
+def unpack_bits_to_int8s_cuda_wrapper(packed_data, bit_lengths):
     total_bits = packed_data.size * 8
     end_indices = cp.cumsum(bit_lengths).astype(cp.int32)
     start_indices = cp.zeros_like(end_indices)
@@ -32,7 +32,7 @@ def unpack_bits_to_ints_cuda_wrapper(packed_data, bit_lengths):
     blockspergrid = (bit_lengths.size + (threadsperblock - 1)) // threadsperblock
 
     # Launch kernel
-    unpack_bits_to_ints_cuda[blockspergrid, threadsperblock](packed_data, bit_lengths, start_indices, end_indices, output)
+    unpack_bits_to_int8s_cuda[blockspergrid, threadsperblock](packed_data, bit_lengths, start_indices, end_indices, output)
 
     return output
 
@@ -45,10 +45,10 @@ if __name__ == "__main__":
     test_times = 1000
     packed_data = cp.ones(test_size, dtype=cp.uint8) * 0b11110000
     bit_lengths = cp.ones( test_size * 2, dtype=cp.uint8) * 4
-    unpack_bits_to_ints_cuda_wrapper(packed_data, bit_lengths)
+    unpack_bits_to_int8s_cuda_wrapper(packed_data, bit_lengths)
     t1 = time.time()
     for i in range(test_times):
-        unpacked_data = unpack_bits_to_ints_cuda_wrapper(packed_data, bit_lengths)
+        unpacked_data = unpack_bits_to_int8s_cuda_wrapper(packed_data, bit_lengths)
     t2 = time.time()
     print("FPS:",test_times/(t2 - t1))
     print("Unpacked Data:", unpacked_data[0:10])

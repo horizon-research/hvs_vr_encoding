@@ -30,7 +30,7 @@ def bd_encoder(cpimage, tile_size=4):
     # Compute bit lengths, output shape (height // 4, width // 4, 3), uint8
     mag = bases - tiles_min
     bitlens = cp.zeros_like(mag, dtype=cp.float32)
-    bitlens[mag > 0] = cp.ceil(cp.log2( mag[mag > 0] )) + 1 # +1 for sign bit
+    bitlens[mag > 0] = cp.ceil(cp.log2( mag[mag > 0] + 1 )) + 1 # +1 for sign bit
 
     # Compute deltas, output shape (height // 4, width // 4, 4, 4, 3), int8
     deltas = (cpimage - bases[:, :, cp.newaxis, cp.newaxis, :])
@@ -66,7 +66,6 @@ def bd_encoder(cpimage, tile_size=4):
     deltas_lengths = cp.tile(bitlens[:, :, cp.newaxis, cp.newaxis, :], (1, 1, tile_size, tile_size, 1)).astype(cp.uint8).reshape(-1)
     packed_deltas = pack_data_cuda_wrapper(deltas, deltas_lengths)
 
-    # Compute total compressed size
     enc_result = dict()
     enc_result["tags"] = packed_tags
     enc_result["tags_bitlens"] = tag_bitlens.astype(cp.uint8)
@@ -98,6 +97,11 @@ if __name__ == "__main__":
     print ("Compression rate: " + str(compress_rate))
     print ("FPS: " + str(test_time / (t2 - t1)))
 
+
+    enc_result["tags"] = cp.asnumpy(enc_result["tags"])
+    enc_result["tags_bitlens"] = cp.asnumpy(enc_result["tags_bitlens"])
+    enc_result["bases"] = cp.asnumpy(enc_result["bases"])
+    enc_result["deltas"] = cp.asnumpy(enc_result["deltas"])
 
     with open('enc_result.pkl', 'wb') as pickle_file:
         pickle.dump(enc_result, pickle_file)
