@@ -10,7 +10,7 @@ def pack_data_numba_wrapper(values: types.Array(types.uint8, 1, 'C'), lengths: t
     # Create an array to store the start position of each value
     positions = np.zeros(len(lengths), dtype=np.uint32)
     # Manually calculate the cumulative sum
-    cum_sum = 0
+    cum_sum = np.uint32(0)
     for i in range(len(lengths)):
         positions[i] = cum_sum
         cum_sum += lengths[i]
