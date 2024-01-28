@@ -34,6 +34,9 @@ class Perframe_FPGA_input_generation_pipeline():
         img_6_channels = cp.concatenate((centers_abc[:, :, :, 0], centers_abc[:, :, :, 1], centers_abc[:, :, :, 2], dkl_centers[:, :, :, 0], dkl_centers[:, :, :, 1], dkl_centers[:, :, :, 2]), axis=2).reshape(1080, 960, 6).astype(cp.float16)
         
         return img_6_channels.view(cp.uint8)
+
+    def update_equi_dims(self, equi_height, equi_width):
+        self.projector.update_equi_dims(equi_height, equi_width)
     
 
 
@@ -64,4 +67,7 @@ class Perframe_compress_rate_pipeline():
 
 
         return compress_rate
+    
+    def update_equi_dims(self, equi_height, equi_width):
+        self.projector.update_equi_dims(equi_height, equi_width)
     

@@ -36,32 +36,29 @@ def update_parameters(pipeline):
 
     orignal_right = get_use_uncompressed_image_on_right_eye()
 
-    return running, orignal_right
+    return running, orignal_right, get_video_idx() % args.video_num
 
+
+def preload_image(in_images_folder, i):
+    file_num = len(os.listdir(in_images_folder))
+    total_frames = file_num
+    # pre-load images
+    img_list = list()
+    with tqdm(total=file_num, desc="Preloading "+str(i)+"th Video") as pbar:
+        for i in range(total_frames):
+            in_img_filename = in_images_folder + "/" + "frame" + str(i) + ".jpg"
+            img = cv2.imread(in_img_filename)
+            img_list.append(img)
+            pbar.update(1)
+    return img_list
+
+    
 
 if __name__ == '__main__':
 
     args = get_args()
     if not os.path.exists(args.out_images_folder):
         os.makedirs(args.out_images_folder)
-    file_num = len(os.listdir(args.in_images_folder))
-    total_frames = file_num
-
-    all_acc_time = 0
-    pp_acc_time = 0
-    loded_time = 0
-    draw_acc_time = 0
-
-    # pre-load images
-    img_list = list()
-    with tqdm(total=file_num, desc="Preloading") as pbar:
-        for i in range(total_frames):
-            in_img_filename = args.in_images_folder + "/" + "frame" + str(i) + ".jpg"
-            img = cv2.imread(in_img_filename)
-            img_list.append(img)
-            pbar.update(1)
-    args.equi_width = img_list[0].shape[1]
-    args.equi_height = img_list[0].shape[0]
 
 
     pygame_drawer = Pygame_drawer(width = 3840, height = 2160, display_port = args.display_port)
@@ -70,9 +67,30 @@ if __name__ == '__main__':
 
     last_time = time.time()
 
+    count = 0
+    img_lists = list()
+    for i in range(args.video_num):
+        in_images_folder = args.in_images_folder + str(i)
+        img_list = preload_image(in_images_folder, i)
+        img_lists.append(img_list)
+
+    _video_idx = get_video_idx()
+    total_frames_nums = [len(img_list) for img_list in img_lists]
+    total_frames = total_frames_nums[_video_idx]
+    img_list = img_lists[_video_idx]
+    args.equi_width = img_list[0].shape[1]
+    args.equi_height = img_list[0].shape[0]
+    perframe_FPGA_input_generation_pipeline.update_equi_dims(args.equi_height, args.equi_width )
+    perframe_compress_rate_pipeline.update_equi_dims(args.equi_height, args.equi_width )
     with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
         _running = True
         while _running:
+            if (count+1) % args.skip_interval == 0:
+                count = 0
+                i += 1
+                continue
+            else:
+                count += 1
 
             i = i % total_frames
             img_idx = i % total_frames
@@ -81,7 +99,17 @@ if __name__ == '__main__':
             root.update_idletasks()
             root.update()
 
-            _running, _ = update_parameters(perframe_FPGA_input_generation_pipeline)
+            old_video_idx = _video_idx
+            _running, _, _video_idx= update_parameters(perframe_FPGA_input_generation_pipeline)
+            if _video_idx != old_video_idx:
+                i = -1
+                total_frames = total_frames_nums[_video_idx]
+                img_list = img_lists[_video_idx]
+                args.equi_width = img_list[0].shape[1]
+                args.equi_height = img_list[0].shape[0]
+                perframe_FPGA_input_generation_pipeline.update_equi_dims(args.equi_height, args.equi_width )
+                perframe_compress_rate_pipeline.update_equi_dims(args.equi_height, args.equi_width )
+
 
 
             img = cp.asarray(img, dtype=cp.uint8)
@@ -96,7 +124,7 @@ if __name__ == '__main__':
 
 
             if time.time() - last_time > 1.0:
-                _running, _ = update_parameters(perframe_compress_rate_pipeline)
+                _running, _, _ = update_parameters(perframe_compress_rate_pipeline)
                 slider_values = get_slider_values()
                 update_new_scale(slider_values["Ellipsoid Scale"])
                 compression_rates = perframe_compress_rate_pipeline(img)

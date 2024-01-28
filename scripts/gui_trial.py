@@ -239,4 +239,16 @@ def update_new_rate(rate):
 def update_new_scale(scale):
     global new_scale
     new_scale = scale
-    
+
+
+video_idx = 0
+def add_video_idx():
+    global video_idx
+    video_idx = video_idx + 1
+
+def get_video_idx():
+    global video_idx
+    return video_idx
+
+add_video_idx_button = tk.Button(root, text="Change Video", command=add_video_idx)
+add_video_idx_button.pack()
