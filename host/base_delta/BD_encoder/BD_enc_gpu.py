@@ -80,7 +80,7 @@ def bd_encoder(cpimage, tile_size=4):
 if __name__ == "__main__":
     image_name = "middle_perspective_image.png"
     # load image
-    img = Image.open("./image/" + image_name)
+    img = Image.open("../test_data/" + image_name)
     cpimage = cp.array(img)
 
     # warm up numba JIT
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     enc_result["bases"] = cp.asnumpy(enc_result["bases"])
     enc_result["deltas"] = cp.asnumpy(enc_result["deltas"])
 
-    with open('enc_result.pkl', 'wb') as pickle_file:
+    with open('../test_data/enc_result.pkl', 'wb') as pickle_file:
         pickle.dump(enc_result, pickle_file)
 
 

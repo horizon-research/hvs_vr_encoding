@@ -79,7 +79,7 @@ def bd_encoder(npimage, tile_size=4):
 if __name__ == "__main__":
     image_name = "middle_perspective_image.png"
     # load image
-    img = Image.open("./image/" + image_name)
+    img = Image.open("../test_data/" + image_name)
     npimage = np.array(img)
 
     # warm up numba JIT
@@ -98,5 +98,5 @@ if __name__ == "__main__":
     print ("FPS: " + str(test_time / (t2 - t1)))
 
 
-    with open('enc_result.pkl', 'wb') as pickle_file:
+    with open('../test_data/enc_result.pkl', 'wb') as pickle_file:
         pickle.dump(enc_result, pickle_file)

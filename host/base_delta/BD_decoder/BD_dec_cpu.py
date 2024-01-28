@@ -11,6 +11,8 @@ import numpy as np
 
 from PIL import Image
 
+import time
+
 def bd_decoder(enc_result, tile_size=4):
     packed_tags = enc_result["tags"]
     packed_deltas = enc_result["deltas"]
@@ -52,13 +54,24 @@ def bd_decoder(enc_result, tile_size=4):
 
 
 if __name__ == "__main__":
-    filename = 'test_pkl_result/enc_result.pkl'
+    filename = '../test_data/enc_result.pkl'
     with open(filename, 'rb') as file:
         enc_result = pickle.load(file)
+
+    # warm up numba JIT
     img = bd_decoder(enc_result, tile_size=4)
 
-    img = Image.fromarray(img)
-    img.save("test_pkl_result/decoded.png")
+    test_time = 10
+    t1 = time.time()
+    for i in range(test_time):
+        img = bd_decoder(enc_result, tile_size=4)
+    t2 = time.time()
+
+    print ("FPS: " + str(test_time / (t2 - t1)))
+
+
+
+    
 
 
 

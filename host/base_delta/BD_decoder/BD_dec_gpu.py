@@ -10,6 +10,7 @@ from unpack_gpu import unpack_bits_to_int8s_cuda_wrapper, unpack_bits_to_uint8s_
 import cupy as cp
 
 from PIL import Image
+import time
 
 def bd_decoder(enc_result, tile_size=4):
     packed_tags = enc_result["tags"]
@@ -52,16 +53,25 @@ def bd_decoder(enc_result, tile_size=4):
 
 
 if __name__ == "__main__":
-    filename = 'test_pkl_result/enc_result.pkl'
+    filename = '../test_data/enc_result.pkl'
     with open(filename, 'rb') as file:
         enc_result = pickle.load(file)
 
-    
+    enc_result["tags"] = cp.asarray(enc_result["tags"])
+    enc_result["tags_bitlens"] = cp.asarray(enc_result["tags_bitlens"])
+    enc_result["bases"] = cp.asarray(enc_result["bases"])
+    enc_result["deltas"] = cp.asarray(enc_result["deltas"])
+
+    # warm up numba JIT
     img = bd_decoder(enc_result, tile_size=4)
 
-    img = cp.asnumpy(img)
-    img = Image.fromarray(img)
-    img.save("test_pkl_result/decoded.png")
+    test_time = 200
+    t1 = time.time()
+    for i in range(test_time):
+        img = bd_decoder(enc_result, tile_size=4)
+    t2 = time.time()
+
+    print ("FPS: " + str(test_time / (t2 - t1)))
 
 
 
