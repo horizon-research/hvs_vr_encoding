@@ -186,8 +186,8 @@ Below table shows FPS achieved used different HW.
 
 | HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
-| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 7.29 | TBA
-| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 417.49 | TBA
+| CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 6.57 | 20.6
+| GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 409.9 |  410.4
 | GPU (RTX-4060 Laptop WSL)   | 409.6    | 448.7            | 115.4    | 26.7            | TBA | TBA
 | FPGA (ZCU104)   | --      | TBA           | --                   | 288 *            | TBA | TBA
 

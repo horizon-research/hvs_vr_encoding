@@ -24,7 +24,7 @@ cd BD_encoder
 python3 BD_enc_cpu.py 
 ```
 
-(2) For GPU version, we use fully vectorized cupy and fine-grained cuda (from numba) for acceleration. It runs at about 400 fps on RTX-4090, you can try the example by running:
+(2) For GPU version, we use fully vectorized cupy and fine-grained cuda (from numba) for acceleration. It runs at about 409.9 fps on RTX-4090, you can try the example by running:
 ```bash
 cd BD_encoder
 python3 BD_enc_gpu.py
