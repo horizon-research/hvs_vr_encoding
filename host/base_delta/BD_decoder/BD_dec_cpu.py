@@ -1,5 +1,12 @@
+import os
+import sys
+
+file_path = os.path.abspath(__file__)
+dirname = os.path.dirname(file_path)
+sys.path.append(dirname) 
+
 import pickle
-from unpack_cpu import unpack_bits_to_int8s
+from unpack_cpu import unpack_bits_to_int8s, unpack_bits_to_uint8s
 import numpy as np
 
 from PIL import Image
@@ -23,7 +30,7 @@ def bd_decoder(enc_result, tile_size=4):
     tag_bitlens_8 = tag_bitlens_8.clip(min=0, max=8)
     tag_bitlens_8 = tag_bitlens_8.astype(np.uint8)
     tags_lengths_8 = np.tile(tag_bitlens_8[np.newaxis, np.newaxis, :, :], (bases.shape[0], bases.shape[1], 1, 1))
-    unpacked_tags = unpack_bits_to_int8s(packed_tags.reshape(-1), tags_lengths_8.reshape(-1))
+    unpacked_tags = unpack_bits_to_uint8s(packed_tags.reshape(-1), tags_lengths_8.reshape(-1))
     unpacked_tags = unpacked_tags.view(np.uint32).reshape(bases.shape[0], bases.shape[1], 3)
 
     start = np.roll(unpacked_tags, 1, axis=1)
@@ -37,7 +44,6 @@ def bd_decoder(enc_result, tile_size=4):
     # Compute image
     deltas = unpacked_deltas.reshape(bases.shape[0], bases.shape[1], tile_size, tile_size, 3).view(np.int8) 
 
-    # import ipdb ; ipdb.set_trace()
     img = deltas + bases[:, :, np.newaxis, np.newaxis, :]
     img = img.transpose(0, 2, 1, 3, 4)
     img = img.reshape(img_height, img_width, 3).astype(np.uint8)

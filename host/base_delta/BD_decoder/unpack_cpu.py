@@ -1,10 +1,10 @@
 import numpy as np
 import numba
 import time
-
+from numba import types
 
 @numba.jit(nopython=True)
-def unpack_bits_to_uint8s(packed_data, bit_lengths):
+def unpack_bits_to_uint8s(packed_data: types.Array(types.uint8, 1, 'C'), bit_lengths: types.Array(types.uint8, 1, 'C')):
     """
     Manually unpack bits from packed_data into integers based on specified bit_lengths.
     """
@@ -49,7 +49,7 @@ def unpack_bits_to_int8s(packed_data, bit_lengths):
         if neg:
             bitnum = end - start
             int_value = int_value - (1 << bitnum)
-        ints[i] = np.uint8(int_value)
+        ints[i] = np.int8(int_value).view(np.uint8)
 
     return ints
 

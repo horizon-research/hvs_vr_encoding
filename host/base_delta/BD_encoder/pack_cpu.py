@@ -2,9 +2,8 @@ import numpy as np
 import numba
 import time
 
-from numba import cuda
 from numba import types
-# @cuda.jit(nopython=True, parallel=True)
+
 @numba.jit(nopython=True)
 def pack_data_numba_wrapper(values: types.Array(types.uint8, 1, 'C'), lengths: types.Array(types.uint8, 1, 'C')):
     # Create an array to store the start position of each value

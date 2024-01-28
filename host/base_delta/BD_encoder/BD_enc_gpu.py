@@ -28,9 +28,9 @@ def bd_encoder(cpimage, tile_size=4):
     bases = cp.ceil( (tiles_max + tiles_min) / 2)
 
     # Compute bit lengths, output shape (height // 4, width // 4, 3), uint8
-    mag = bases - tiles_min
-    bitlens = cp.zeros_like(mag, dtype=cp.float32)
-    bitlens[mag > 0] = cp.ceil(cp.log2( mag[mag > 0] + 1 )) + 1 # +1 for sign bit
+    v_range = tiles_max - tiles_min + 1
+    bitlens = cp.zeros_like(v_range, dtype=cp.float32)
+    bitlens[v_range > 0] = cp.ceil(cp.log2( v_range[v_range > 0])) 
 
     # Compute deltas, output shape (height // 4, width // 4, 4, 4, 3), int8
     deltas = (cpimage - bases[:, :, cp.newaxis, cp.newaxis, :])
