@@ -50,13 +50,12 @@
 ### 3.1 Video Preparation: 
 To start this experiment, you need to prepare a panoramic Video in equirectangular format.
 
-If you don't have one, you can download our demo video from https://drive.google.com/file/d/1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw/view?usp=sharing
+If you don't have one, you can download our raw video from https://drive.google.com/drive/folders/1A16SSEeHIVEVFFKJjBaMvGev1zm46eUa?usp=sharing, it contains 6 videos used in the paper.
 
 ```bash
 cd <top_folder>
 mkdir videos # make videos directory in the main folder
-# this link is for wget, above one is for browser
-wget 'https://drive.google.com/uc?id=1feO5JxJLpI8r2QzsmC18rC69gUGPxRmw' -O videos/demo_video.mp4
+cp <video_you_downloaded> videos/demo_video.mp4
 ```
 
 ### 3.2 Decode Video to a Folder of Images
