@@ -1,5 +1,7 @@
 ##  Base-Delta Encoder and Decoder
-This BD implementation use signed value to represent Delta, unsigned value maybe a little more effictient and intuitive, but here we just align with the paper. Also, in this implementation we store tags instead of bitlens, which might not be the optimal ase too.
+This BD implementation is a little different from the paper implementation, we add two improvement:
+- store bitlens instead onf tags since bitlens is shorter.
+- using minimum value as base instead of average of max and min since it can prevent signed / unsigned conversion.
 
 ### 1. Encoder - Decoder Loop back test:
 
