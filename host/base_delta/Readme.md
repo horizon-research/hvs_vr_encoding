@@ -1,6 +1,6 @@
 ##  Base-Delta Encoder and Decoder
-This BD implementation is a little different from the paper implementation, we add two improvement:
-- store bitlens instead onf tags since bitlens is shorter.
+This BD implementation is a little different from the paper implementation, we add two improvements:
+- store bitlens instead of tags since bitlens is shorter.
 - using minimum value as base instead of average of max and min since it can prevent signed / unsigned conversion.
 
 ### 1. Encoder - Decoder Loop back test:
