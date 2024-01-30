@@ -177,8 +177,10 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 |:-----------------:|:-------------:|:-------------:|
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 |TBA|
 | GPU (RTX-4090)        | 51.0 \| 40.5 |TBA|
-| GPU (RTX-4060 Laptop WSL) | 18.9 \| 17.1 |TBA|
+| GPU (RTX-4060 Mobile on WSL*) | 18.9 \| 17.1 |TBA|
 | GPU + FPGA (ZCU104)   | TBA |TBA|
+
+*: WSL is acronym for Windows Subsystem for Linux, it may affect the performace.
 
 ###  Modules' FPS on different Platforms
 Below table shows FPS achieved used different HW.
@@ -187,7 +189,7 @@ Below table shows FPS achieved used different HW.
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 7.2 | 23.4
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 614.4 |  511.8
-| GPU (RTX-4060 Laptop WSL)   | 409.6    | 448.7            | 115.4    | 26.7            | TBA | TBA
+| GPU (RTX-4060 Mobile on WSL)   | 409.6    | 448.7            | 115.4    | 26.7            | TBA | TBA
 | FPGA (ZCU104)   | --      | 144           | --                   | 288 *            | TBA | TBA
 
 *GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.
