@@ -1,4 +1,5 @@
 # Gaze-Contingent Image/Video Encoding For Virtual Reality: An FPGA Demo
+[Weikai Lin](https://linwk20.github.io/)
 
 ## 1. Overview
 
