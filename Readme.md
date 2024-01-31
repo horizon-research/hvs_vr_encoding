@@ -3,7 +3,7 @@
 
 ## 1. Overview
 
-&nbsp; &nbsp; This project demonstrates color optimizer in the ASPLOS-2024 Paper [Exploiting Human Color Discrimination for Memory and Energy-Efficient Image Encoding in Virtual Reality](https://horizon-lab.org/pubs/asplos24-vr.pdf) on a FPGA board. This optimizer uses the limits of human color perception to reduce image color size. By subtly adjusting pixel colors within a humanly imperceptible range which depends on eccentricity, it brings colors of pixels closer, enhancing the efficiency of the following Base Delta compression algorithm. Finally, this foveated compression can make the system more memory and energy-efficient
+&nbsp; &nbsp; This is an FPGA demonstration of the color perception-guided framebuffer compression for VR described in our [ASPLOS 2024 paper](https://horizon-lab.org/pubs/asplos24-vr.pdf). Our algorithm leverages the (eccentricity-dependent) color discrimination of human visual system to bring pixel colors closer to each other and, thus, enhance the efficiency of the existing Base Delta algorithm used in today's frame buffer compression.
 
 ### 1.1 Overall Pipeline (BD not included now.)
 
