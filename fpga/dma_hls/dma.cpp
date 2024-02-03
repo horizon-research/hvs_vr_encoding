@@ -3,7 +3,7 @@
 
 
 // #define Cosim 
-
+// Manual for burst memory access: https://docs.xilinx.com/r/en-US/ug1399-vitis-hls/Using-Manual-Burst
 void axi_dma(hls::burst_maxi<data_t> axi_mm2s, hls::burst_maxi<data_t>  axi_s2mm, hls::stream<dma_t> &axis_mm2s, hls::stream<dma_t> &axis_s2mm, const ap_uint<32> &frame_offset){
 #pragma HLS AGGREGATE compact=bit variable=axis_s2mm
 #pragma HLS AGGREGATE compact=bit variable=axis_mm2s
