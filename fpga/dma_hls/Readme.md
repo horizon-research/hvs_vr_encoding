@@ -19,10 +19,10 @@ struct dma_t
 
 ## Configuration
 
-You can config the data_width (data_t) and MaxBurstSize in dma.h at line 6 and line 7
+You can config the data_width (data_t) and MaxBurstSize in [dma.h](./dma.h) at line 6 and line 7
 
 ## Limitation
-- Csim works fine, however, Cosim doesn't support volatile input memory with burst acess as agument, which means the memory will only be read/write once at the start and end of Cosim, as a result, the update from Writer can't be propagate to reader, it cause that we need to initial the memory properly before start cosim, and we can only test 2 frames.(since we only have double buffer)
+- Csim works fine, however, Cosim doesn't support volatile input memory with burst acess as agument, which means the memory will only be read/write once at the start and end of Cosim, as a result, the update from Writer can't be propagated to Reader, it cause that we need to initial the memory properly before start cosim, and we can only test 2 frames.(since we only have double buffer)
     - if we want to test the actual hardware behavior, we need to do it in Vivado, including writing a test pattern generator, concatenating it with DMA, and using BRAM to emulate DDR behavior.
 
 
