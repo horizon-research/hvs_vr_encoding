@@ -6,23 +6,19 @@
 int main() {
     hls::stream<dma_t> axis_mm2s("axis_mm2s");
     hls::stream<dma_t> axis_s2mm("axis_s2mm");
-    data_t axi_mem[tb_mem_size];
-    for (int i = 0; i < tb_mem_size; i++){
+    data_t axi_mem[frame_size * 2];
+    for (int i = 0; i < frame_size * 2; i++){
         axi_mem[i] = i;
     }
 
-    for (int i = 0; i < test_size; i++){
+    for (int i = 0; i < frame_size * frame_num; i++){
         dma_t dma;
         dma.data = i;
         dma.last = (i % frame_size == frame_size - 1);
         axis_s2mm.write(dma);
     }
 
-    ap_uint<32> frame_offset;
-    if(frame_size % MaxBurstSize == 0)
-        frame_offset = frame_size / MaxBurstSize * MaxBurstSize;
-    else
-        frame_offset = (frame_size / MaxBurstSize + 1) * MaxBurstSize;
+    ap_uint<32> frame_offset = frame_size;
         
     std::cout << "frame_offset: " << frame_offset << std::endl; 
     hls::burst_maxi<data_t> myBurstMaxi(axi_mem);
@@ -37,12 +33,6 @@ int main() {
                 return 1;
             }
         }
-        if (frame_size % MaxBurstSize > 0){
-            for (int i = 0; i < MaxBurstSize - (frame_size % MaxBurstSize); i++){
-                dma = axis_mm2s.read();
-            }
-        }
-
         if (dma.last != true){
                 std::cout << "Error: " << dma.last << " != " << true << std::endl;
                 return 1;

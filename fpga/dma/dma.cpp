@@ -30,8 +30,15 @@ static hls::stream<ap_uint<1>> lasts("lasts");
 for(int i = 0; i < sim_times; i++)
 {
 #endif
-    ddr_writer(lasts, axi_s2mm, axis_s2mm, reader_resps, frame_offset);
-    ddr_reader(axis_mm2s, reader_resps, axi_mm2s, lasts, frame_offset);
+    hls::stream<data_t> input_fifo("input_fifo");
+    hls::stream<burst_info_t> burst_infos1("burst_infos1");
+    hls::stream<burst_info_t> burst_infos2("burst_infos2");
+    #pragma HLS STREAM variable=input_fifo depth=MaxBurstSize
+    #pragma HLS STREAM variable=burst_infos1 depth=2
+    #pragma HLS STREAM variable=burst_infos2 depth=2
+    input_counter(input_fifo, burst_infos1, axis_s2mm);
+    ddr_writer(burst_infos2, axi_s2mm, input_fifo, burst_infos1, reader_resps, frame_offset);
+    ddr_reader(axis_mm2s, reader_resps, axi_mm2s, burst_infos2, frame_offset);
 #ifndef  __SYNTHESIS__
 }
 reader_resps.read(); // to make sure the reader_resps stream is empty
@@ -39,8 +46,36 @@ reader_resps.read(); // to make sure the reader_resps stream is empty
 
 }
 
-void ddr_writer(hls::stream<ap_uint<1>> &lasts, hls::burst_maxi<data_t> axi_s2mm, hls::stream<dma_t> &axis_s2mm, hls::stream<ap_uint<1>> &reader_resps, const ap_uint<32> frame_offset){
-    static burst_len_t burst_len;
+void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_lens, hls::stream<dma_t> &axis_s2mm){
+#ifdef  __SYNTHESIS__
+#ifdef Cosim
+    for(int i = 0; i < sim_times; i++){
+#else
+    while (true){
+#endif
+#endif
+    burst_len_t burst_len = 0;
+    ap_uint<1> last=0;
+    for (int i = 0; i < MaxBurstSize; i++){
+        #pragma HLS PIPELINE II = 1
+        dma_t dma = axis_s2mm.read();
+        input_fifo.write(dma.data);
+        if (dma.last){
+            burst_len++;
+            last = 1;
+            break;
+        }
+    }
+    burst_info_t burst_info;
+    burst_info.last = last;
+    burst_info.burst_len = burst_len;
+    burst_lens.write(burst_info);
+#ifdef  __SYNTHESIS__
+    }   
+#endif
+}
+
+void ddr_writer(hls::stream<burst_info_t> &burst_infos2, hls::burst_maxi<data_t> axi_s2mm, hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_infos1, hls::stream<ap_uint<1>> &reader_resps, const ap_uint<32> frame_offset){
     static ap_uint<32> offset = 0; // or size_t
     static ap_uint<1> wait_for_reader_resp = 0;
 #ifdef  __SYNTHESIS__
@@ -50,33 +85,34 @@ void ddr_writer(hls::stream<ap_uint<1>> &lasts, hls::burst_maxi<data_t> axi_s2mm
     while (true){
 #endif
 #endif
+        // read burst_len
+        burst_info_t burst_info = burst_infos1.read();
+        burst_len_t burst_len = burst_info.burst_len;
+        ap_uint<1> last = burst_info.last;
         // send request
-        axi_s2mm.write_request(offset, MaxBurstSize);
+        axi_s2mm.write_request(offset, burst_len);
+
         //update offset
-        offset += MaxBurstSize;
+        offset += burst_len;
+
         // send data
-        ap_uint<1> frame_done = 0;
-        for (int i = 0; i < MaxBurstSize; i++){
+        // set the min max trip count to the burst_len
+        for (int i = 0; i < burst_len; i++){
+            #pragma HLS loop_tripcount max = MaxBurstSize
             #pragma HLS PIPELINE II = 1
-            if (frame_done == 0){
-                dma_t dma = axis_s2mm.read();
-                data_t data = dma.data;
-                frame_done = dma.last;
-                axi_s2mm.write(data);
-            } else {
-                axi_s2mm.write(0); // padding
-            }
+            data_t data = input_fifo.read();
+            axi_s2mm.write(data);
         }
 
         // wait for response
         axi_s2mm.write_response();
 
-        if (frame_done){
-            // notify reader about this burst by writing a bit to lasts stream
-            lasts.write(1);
+        // notify reader about this burst by writing a bit to lasts stream
+        burst_infos2.write(burst_info);
 
+        if (last){
             // change offset
-            if ( offset >= 0 && offset <= frame_offset){
+            if ( offset <= frame_offset){
                 offset = frame_offset;
             }
             else {
@@ -93,14 +129,13 @@ void ddr_writer(hls::stream<ap_uint<1>> &lasts, hls::burst_maxi<data_t> axi_s2mm
         }
         else {
             // notify reader about this burst by writing a bit to lasts stream
-            lasts.write(0);
         }
 #ifdef  __SYNTHESIS__
     }   
 #endif
 }
 
-void ddr_reader(hls::stream<dma_t> &axis_mm2s, hls::stream<ap_uint<1>> &reader_resps, hls::burst_maxi<data_t> axi_mm2s, hls::stream<ap_uint<1>> &lasts, const ap_uint<32> frame_offset){
+void ddr_reader(hls::stream<dma_t> &axis_mm2s, hls::stream<ap_uint<1>> &reader_resps, hls::burst_maxi<data_t> axi_mm2s, hls::stream<burst_info_t> &burst_infos2, const ap_uint<32> frame_offset){
     static ap_uint<32> offset = 0;
 #ifdef  __SYNTHESIS__
 #ifdef Cosim
@@ -110,25 +145,28 @@ void ddr_reader(hls::stream<dma_t> &axis_mm2s, hls::stream<ap_uint<1>> &reader_r
 #endif
 #endif
         // read info from writer
-        ap_uint<1> last = lasts.read();
+        burst_info_t burst_info = burst_infos2.read();
+        burst_len_t burst_len = burst_info.burst_len;
+        ap_uint<1> last = burst_info.last;
         // send request
-        axi_mm2s.read_request(offset, MaxBurstSize);
+        axi_mm2s.read_request(offset, burst_len);
         // update offset
-        offset += MaxBurstSize;
+        offset += burst_len;
         // read data
-        for (int i = 0; i < MaxBurstSize; i++){
+        for (int i = 0; i < burst_len; i++){
+            #pragma HLS loop_tripcount max = MaxBurstSize
             #pragma HLS PIPELINE II = 1
             data_t data = axi_mm2s.read();
             dma_t dma;
             dma.data = data;
-            dma.last = (i == MaxBurstSize - 1) && last;
+            dma.last = (i == burst_len - 1) && last;
             axis_mm2s.write(dma);
         }
 
         // notify writer aboutfinishig a frame by  writing a bit to reader_resps stream (enable it to write this frame)
         if (last){
             reader_resps.write(1);
-            if ( offset >= 0 && offset <= frame_offset){
+            if ( offset <= frame_offset){
                 offset = frame_offset;
             }
             else {
