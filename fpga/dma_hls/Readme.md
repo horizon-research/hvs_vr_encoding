@@ -8,7 +8,7 @@
 - Double Buffering inside DDR
 last of a frame.
 
-
+Example for input type:
 ```c++
 struct dma_t
 {
