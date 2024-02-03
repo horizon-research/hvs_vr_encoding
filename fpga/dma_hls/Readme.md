@@ -22,7 +22,10 @@ struct dma_t
 You can config the data_width (data_t) and MaxBurstSize in [dma.h](./dma.h) at line 6 and line 7
 
 ## Limitation
-- Csim works fine, however, Cosim doesn't support volatile input memory with burst acess as agument, which means the memory will only be read/write once at the start and end of Cosim, as a result, the update from Writer can't be propagated to Reader, it cause that we need to initial the memory properly before start cosim, and we can only test 2 frames.(since we only have double buffer)
+There are two components during simulation, outer memory (emulated by an array in C++) and DMA (HW)
+- In Csim, the simulation works well.
+However, in Cosim, it only support  read / write outer C++ memory array once , which means it will collect the outside (SW) array value before start and write the results back after whole RTL simulation.
+It cause the problem that the data written by DDR writer can never be propagated to DDR reader during RTL simulation since the memory array is outside of HW and will be updated after RTL simulation. Due to this, now I can only simulate 2 frames transmission by initializing the double buffer with correct values before simulation so reader can read them. If we want to do RTL simulation with more than two frames with the real behavior.
     - if we want to test the actual hardware behavior, we need to do it in Vivado, including writing a test pattern generator, concatenating it with DMA, and using BRAM to emulate DDR behavior.
 
 
