@@ -21,11 +21,6 @@ void axi_dma(hls::burst_maxi<data_t> axi_mm2s, hls::burst_maxi<data_t>  axi_s2mm
 #pragma HLS STABLE variable=axi_s2mm
 #pragma HLS STABLE variable=axi_mm2s
 
-static hls::stream<ap_uint<1>> reader_resps("reader_resps");
-static hls::stream<ap_uint<1>> lasts("lasts");
-#pragma HLS STREAM variable=reader_resps depth=8
-#pragma HLS STREAM variable=lasts depth=8
-
 #ifndef  __SYNTHESIS__
 // Because squential nature of csim , I need to use this loop to prevent stall
 // hls::task (multi-thread) is not supported well
