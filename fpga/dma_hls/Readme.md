@@ -21,7 +21,7 @@ struct dma_t
 
 You can config the data_width (data_t) and MaxBurstSize in [dma.h](./dma.h) at line 6 and line 7
 
-## Limitation
+## COSIM Limitation
 There are two components during simulation, outer memory (emulated by an array in C++) and DMA (HW)
 - In Csim, the simulation works well.
 However, in Cosim, it only support  read / write outer C++ memory array once , which means it will collect the outside (SW) array value before start and write the results back after whole RTL simulation.
