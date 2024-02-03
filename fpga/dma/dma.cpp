@@ -2,7 +2,7 @@
 #include <hls_stream.h>
 
 
-#define Cosim 
+// #define Cosim 
 
 void axi_dma(hls::burst_maxi<data_t> axi_mm2s, hls::burst_maxi<data_t>  axi_s2mm, hls::stream<dma_t> &axis_mm2s, hls::stream<dma_t> &axis_s2mm, const ap_uint<32> &frame_offset){
 #pragma HLS AGGREGATE compact=bit variable=axis_s2mm
@@ -27,6 +27,8 @@ static hls::stream<ap_uint<1>> lasts("lasts");
 #pragma HLS STREAM variable=lasts depth=8
 
 #ifndef  __SYNTHESIS__
+// Because squential nature of csim , I need to use this loop to prevent stall
+// hls::task (multi-thread) is not supported well
 for(int i = 0; i < sim_times; i++)
 {
 #endif
@@ -60,8 +62,8 @@ void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &b
         #pragma HLS PIPELINE II = 1
         dma_t dma = axis_s2mm.read();
         input_fifo.write(dma.data);
+        burst_len++;
         if (dma.last){
-            burst_len++;
             last = 1;
             break;
         }
