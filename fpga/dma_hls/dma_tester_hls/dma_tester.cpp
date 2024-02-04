@@ -4,6 +4,17 @@
 void dma_tester (hls::stream<dma_t> &axis_s2mm, hls::stream<ap_uint<32>> &error_nums, hls::stream<dma_t> &axis_mm2s)
 {
     #pragma HLS DATAFLOW
+    // ap_none
+    #pragma HLS INTERFACE ap_ctrl_none port=return
+    //axis
+    #pragma HLS INTERFACE axis port=axis_s2mm
+    #pragma HLS INTERFACE axis port=axis_mm2s
+    #pragma HLS INTERFACE axis port=error_nums
+    // compact
+    #pragma HLS AGGREGATE compact=bit variable=axis_s2mm
+    #pragma HLS AGGREGATE compact=bit variable=axis_mm2s
+    
+
     test_pattern_generator(axis_s2mm);
     result_checker(error_nums, axis_mm2s);
 }
