@@ -43,7 +43,7 @@ reader_resps.read(); // to make sure the reader_resps stream is empty
 
 }
 
-void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_lens, hls::stream<dma_t> &axis_s2mm){
+void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_lens, hls::stream<dma_t> &axis_s2mm, const ap_uint<32> frame_offset){
 #ifdef  __SYNTHESIS__
 #ifdef Cosim
     for(int i = 0; i < sim_times; i++){
@@ -51,22 +51,26 @@ void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &b
     while (true){
 #endif
 #endif
-    burst_len_t burst_len = 0;
-    ap_uint<1> last=0;
-    for (int i = 0; i < MaxBurstSize; i++){
-        #pragma HLS PIPELINE II = 1
-        dma_t dma = axis_s2mm.read();
-        input_fifo.write(dma.data);
-        burst_len++;
-        if (dma.last){
-            last = 1;
-            break;
+    if (frame_offset == 0)
+    {}
+    else{
+        burst_len_t burst_len = 0;
+        ap_uint<1> last=0;
+        for (int i = 0; i < MaxBurstSize; i++){
+            #pragma HLS PIPELINE II = 1
+            dma_t dma = axis_s2mm.read();
+            input_fifo.write(dma.data);
+            burst_len++;
+            if (dma.last){
+                last = 1;
+                break;
+            }
         }
+        burst_info_t burst_info;
+        burst_info.last = last;
+        burst_info.burst_len = burst_len;
+        burst_lens.write(burst_info);
     }
-    burst_info_t burst_info;
-    burst_info.last = last;
-    burst_info.burst_len = burst_len;
-    burst_lens.write(burst_info);
 #ifdef  __SYNTHESIS__
     }   
 #endif
