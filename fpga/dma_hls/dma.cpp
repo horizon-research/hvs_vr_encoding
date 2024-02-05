@@ -12,28 +12,34 @@ void axi_dma(hls::burst_maxi<data_t> axi_mm2s, hls::burst_maxi<data_t>  axi_s2mm
 #pragma HLS INTERFACE axis register both port=axis_mm2s
 #pragma HLS interface mode=m_axi port=axi_mm2s offset=slave bundle=axi_mm2s max_read_burst_length=MaxBurstSize num_read_outstanding=1 depth=MaxBurstSize
 #pragma HLS interface mode=m_axi port=axi_s2mm offset=slave bundle=axi_s2mm max_write_burst_length=MaxBurstSize num_write_outstanding=1 depth=MaxBurstSize
-#pragma HLS dataflow
 
 #pragma HLS interface s_axilite port=frame_offset bundle=control
-#pragma HLS interface s_axilite port=axi_mm2s
-#pragma HLS interface s_axilite port=axi_s2mm
+#pragma HLS interface s_axilite port=axi_mm2s bundle=control
+#pragma HLS interface s_axilite port=axi_s2mm bundle=control
 #pragma HLS STABLE variable=frame_offset
 #pragma HLS STABLE variable=axi_s2mm
 #pragma HLS STABLE variable=axi_mm2s
 
+#pragma HLS INTERFACE mode=ap_none port=frame_offset
+#pragma HLS INTERFACE mode=s_axilite port=return bundle=control
+
+
+#pragma HLS dataflow
 #ifndef  __SYNTHESIS__
 // Because squential nature of csim , I need to use this loop to prevent stall
 // hls::task (multi-thread) is not supported well
 for(int i = 0; i < sim_times; i++)
 {
 #endif
+    hls::stream<ap_uint<1>> reader_resps("reader_resps");
     hls::stream<data_t> input_fifo("input_fifo");
     hls::stream<burst_info_t> burst_infos1("burst_infos1");
     hls::stream<burst_info_t> burst_infos2("burst_infos2");
+    #pragma HLS STREAM variable=reader_resps depth=8
     #pragma HLS STREAM variable=input_fifo depth=MaxBurstSize
     #pragma HLS STREAM variable=burst_infos1 depth=2
     #pragma HLS STREAM variable=burst_infos2 depth=2
-    input_counter(input_fifo, burst_infos1, axis_s2mm);
+    input_counter(input_fifo, burst_infos1, axis_s2mm, frame_offset);
     ddr_writer(burst_infos2, axi_s2mm, input_fifo, burst_infos1, reader_resps, frame_offset);
     ddr_reader(axis_mm2s, reader_resps, axi_mm2s, burst_infos2, frame_offset);
 #ifndef  __SYNTHESIS__
@@ -43,7 +49,7 @@ reader_resps.read(); // to make sure the reader_resps stream is empty
 
 }
 
-void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_lens, hls::stream<dma_t> &axis_s2mm, const ap_uint<32> frame_offset){
+void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_lens, hls::stream<dma_t> &axis_s2mm, const ap_uint<32> &frame_offset){
 #ifdef  __SYNTHESIS__
 #ifdef Cosim
     for(int i = 0; i < sim_times; i++){
@@ -51,9 +57,6 @@ void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &b
     while (true){
 #endif
 #endif
-    if (frame_offset == 0)
-    {}
-    else{
         burst_len_t burst_len = 0;
         ap_uint<1> last=0;
         for (int i = 0; i < MaxBurstSize; i++){
@@ -70,13 +73,12 @@ void input_counter(hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &b
         burst_info.last = last;
         burst_info.burst_len = burst_len;
         burst_lens.write(burst_info);
-    }
 #ifdef  __SYNTHESIS__
     }   
 #endif
 }
 
-void ddr_writer(hls::stream<burst_info_t> &burst_infos2, hls::burst_maxi<data_t> axi_s2mm, hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_infos1, hls::stream<ap_uint<1>> &reader_resps, const ap_uint<32> frame_offset){
+void ddr_writer(hls::stream<burst_info_t> &burst_infos2, hls::burst_maxi<data_t> axi_s2mm, hls::stream<data_t> &input_fifo, hls::stream<burst_info_t> &burst_infos1, hls::stream<ap_uint<1>> &reader_resps, const ap_uint<32> &frame_offset){
     static ap_uint<32> offset = 0; // or size_t
     static ap_uint<1> wait_for_reader_resp = 0;
 #ifdef  __SYNTHESIS__
@@ -136,7 +138,7 @@ void ddr_writer(hls::stream<burst_info_t> &burst_infos2, hls::burst_maxi<data_t>
 #endif
 }
 
-void ddr_reader(hls::stream<dma_t> &axis_mm2s, hls::stream<ap_uint<1>> &reader_resps, hls::burst_maxi<data_t> axi_mm2s, hls::stream<burst_info_t> &burst_infos2, const ap_uint<32> frame_offset){
+void ddr_reader(hls::stream<dma_t> &axis_mm2s, hls::stream<ap_uint<1>> &reader_resps, hls::burst_maxi<data_t> axi_mm2s, hls::stream<burst_info_t> &burst_infos2, const ap_uint<32> &frame_offset){
     static ap_uint<32> offset = 0;
 #ifdef  __SYNTHESIS__
 #ifdef Cosim

@@ -1,7 +1,6 @@
 # Customized DMA
 
 ## In this folder we implement a DMA that is customized for irregular length DDR access, it is important for BD-encoder and BD-decoder to write to and read  from memory.
-
 ## Feature
 - Support transaction-granuity memory access, every in/out transaction can contain a extra last bit indicate whether this transaction is 
 - Burst Transmission: supported by hls::burst_maxi
@@ -16,10 +15,29 @@ struct dma_t
 	ap_uint<1> last;
 };
 ```
-
 ## Configuration
 
-You can config the data_width (data_t) and MaxBurstSize in [dma.h](./dma.h) at line 6 and line 7
+### -  Hard_coded Param in [dma.h](./dma.h) - (statically  configurable)
+You can config the data_width (data_t) and MaxBurstSize in [dma.h](./dma.h) at line 6 and line 7. But you need to regenerate the IP after this configuration.
+
+### - S_AXI_LITE - (dynamically configurable)
+
+For 0x00 - 0x10, the S_AXI_LITE signal related to IP control, please see :https://docs.xilinx.com/r/en-US/ug1399-vitis-hls/S_AXILITE-Control-Register-Map
+
+DMA:
+
+- axi_mm2s/axi_s2mm offset: 64 bit address of memory offset (base address)
+- frame offset: 32 bit frame offset for double buffering. Frame Size (byte) = Chunck Size(byte) * frame_offset
+
+![Alt text](s_axi_lite.png)
+
+
+Result Checker:
+- error_num: the error number, should be zero.
+- test_frame_num: test how many frames in this trigger.
+
+![Alt text](result_checker_hls/s_axi_lite.png)
+
 
 ## COSIM Limitation
 There are two components during simulation, outer memory (emulated by an array in C++) and DMA (HW)
