@@ -20,7 +20,7 @@ struct dma_t
 ### -  Hard_coded Param in [dma.h](./dma.h) - (statically  configurable)
 You can config the data_width (data_t) and MaxBurstSize in [dma.h](./dma.h) at line 6 and line 7. But you need to regenerate the IP after this configuration.
 
-### - S_AXI_LITE - (dynamically configurable)
+### - S_AXI_LITE - (dynamically configurable, and states that can be read by CPU in runtime)
 
 For 0x00 - 0x10, the S_AXI_LITE signal related to IP control, please see :https://docs.xilinx.com/r/en-US/ug1399-vitis-hls/S_AXILITE-Control-Register-Map
 
