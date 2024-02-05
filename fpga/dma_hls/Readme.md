@@ -45,6 +45,8 @@ There are two components during simulation, outer memory (emulated by an array i
 However, in Cosim, it only support  read / write outer C++ memory array once , which means it will collect the outside (SW) array value before start and write the results back after whole RTL simulation.
 It cause the problem that the data written by DDR writer can never be propagated to DDR reader during RTL simulation since the memory array is outside of HW and will be updated after RTL simulation. Due to this, now I can only simulate 2 frames transmission by initializing the double buffer with correct values before simulation so reader can read them. If we want to do RTL simulation with more than two frames with the real behavior.
     - if we want to test the actual hardware behavior, we need to do it in Vivado, including writing a test pattern generator, concatenating it with DMA, and using BRAM to emulate DDR behavior.
-    - The folder [/dma_tester_hls](/dma_tester_hls) contains the test pattern generator and results checker that can be used in Vivado end2end RTL test.
+        - The folder [/test_pattern_generator_hls](/test_pattern_generator_hls), [/result_checker_hls](/result_checker_hls)  contain the test pattern generator and results checker that can be used in Vivado end2end RTL/board test.
+        - The [./dma_verilog_tb.v](dma_verilog_tb.v) explain how to config the IP in Vivado RTL simulation.
+
 
 
