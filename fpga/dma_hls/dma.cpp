@@ -119,7 +119,7 @@ void ddr_writer(hls::stream<burst_info_t> &burst_infos2, hls::burst_maxi<data_t>
 #endif
 #endif
         if(!first_iter) {
-        	 burst_infos2.write(burst_info);
+        	 burst_infos2.write(burst_info); // need to move here, or it won't be blocked by the write resp, and will trigger reader too early.
         }
         first_iter = false;
         // read burst_len
