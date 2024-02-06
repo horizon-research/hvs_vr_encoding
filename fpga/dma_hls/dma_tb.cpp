@@ -11,7 +11,7 @@ int main() {
         axi_mem[i] = i;
     }
 
-    for (int i = 0; i < frame_size * frame_num; i++){
+    for (int i = 0; i < frame_size * (frame_num + 1); i++){
         dma_t dma;
         dma.data = i;
         dma.last = (i % frame_size == frame_size - 1);
@@ -23,6 +23,8 @@ int main() {
     std::cout << "frame_offset: " << frame_offset << std::endl; 
     hls::burst_maxi<data_t> myBurstMaxi(axi_mem);
     axi_dma(myBurstMaxi, myBurstMaxi, axis_mm2s, axis_s2mm, frame_offset);
+
+    std::cout << axis_mm2s.size() << std::endl;
 
     for (int j = 0; j < frame_num; j++){
         dma_t dma;
