@@ -54,7 +54,7 @@ void serializer(hls::stream<Pixel_t> &s_ins, hls::stream<SixteenPixel_t> &ins) {
 void encoder(hls::stream<pack_info_t> &pack_infos, hls::stream<Pixel_t> &ins) {
         #pragma HLS DATAFLOW
         hls::stream<Pixel_t> ins2("ins2");
-        #pragma HLS STREAM variable=ins2 depth=16
+        #pragma HLS STREAM variable=ins2 depth=18
         hls::stream<Pixel_t> mins("mins");
         hls::stream<Pixel_t> maxs("maxs");
         find_min_max(mins, maxs, ins2, ins);
@@ -101,10 +101,15 @@ void find_min_max(hls::stream<Pixel_t> &mins, hls::stream<Pixel_t> &maxs, hls::s
 }
 
 void get_encoded_data(hls::stream<pack_info_t> &pack_infos, hls::stream<Pixel_t> &mins, hls::stream<Pixel_t> &maxs, hls::stream<Pixel_t> &ins2) {
-    Pixel_t min = mins.read();
-    Pixel_t max = maxs.read();
+    Pixel_t min;
+    Pixel_t max;
     for (int j = 0; j < 16; j++) {
         #pragma HLS PIPELINE II=1 rewind
+
+        if (j==0){
+            min = mins.read();
+            max = maxs.read();
+        }
         Pixel_t in = ins2.read();
         pack_info_t pack_info;
         pack_info.base = min;
