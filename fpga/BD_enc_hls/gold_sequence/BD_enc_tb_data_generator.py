@@ -86,6 +86,7 @@ if __name__ == "__main__":
                         enc_hw_result_lenghts[count] = bitlens[i, j, k]
                         enc_hw_result[count] = deltas[i, j, l, m, k]
                         count += 1
+    import ipdb; ipdb.set_trace()
     packed_enc_hw_result = pack_data_numba_wrapper(enc_hw_result.reshape(-1), enc_hw_result_lenghts.reshape(-1))
 
     save(packed_enc_hw_result, "./TB_data/enc_hw_result.txt")

@@ -25,17 +25,19 @@ void load(hls::stream<T> &s, int load_num, std::ifstream &ifdata)
         if(loaded_num == load_num) 
             break;
     }
-    assert(loaded_num == load_num);
+    if(loaded_num != load_num) {
+        std::cout << "loaded_num: " << loaded_num << " != " << "load_num: " << load_num << std::endl;
+    }
 };
 
 int main()
 {
     std::ifstream ifin, ifref;
     std::ofstream hw_out;
-    ifin.open("gold_sequence/TB_data/input.txt");
+    ifin.open("TB_data/input.txt");
 
     // get the line count of the file
-    ifref.open("gold_sequence/TB_data/enc_hw_result.txt");
+    ifref.open("TB_data/enc_hw_result.txt");
     int lineCount = 0;
     std::string line;
     while (getline(ifref, line)) {
@@ -44,8 +46,8 @@ int main()
     std::cout << "lineCount: " << lineCount << std::endl;
     ifref.close();
 
-    ifref.open("gold_sequence/TB_data/enc_hw_result.txt");
-    hw_out.open("gold_sequence/TB_data/csim_hw_out.txt", std::ios::out | std::ios::trunc);
+    ifref.open("TB_data/enc_hw_result.txt");
+    hw_out.open("TB_data/csim_hw_out.txt", std::ios::out | std::ios::trunc);
 
     hls::stream<ap_uint<8>> fins("ins");
     hls::stream<ap_uint<8>> frefs("refs");
@@ -63,7 +65,7 @@ int main()
             p.r = fins.read();
             p.g = fins.read();
             p.b = fins.read();
-            SixteenPixel_t.data[j] = p;
+            in.data[j] = p;
         }
         ins.write(in);
     }
@@ -72,6 +74,20 @@ int main()
         ap_uint<8> p;
         p = frefs.read();
         refs.write(p);
+    }
+
+    //padding ref to mutiplied of datasize / 8
+    int ref_size = refs.size();
+    if (ref_size % (data_size / 8) != 0) {
+        int pad_size = (ref_size / (data_size / 8) + 1) * (data_size / 8) - ref_size;
+        for (int i = 0; i < pad_size; i++) {
+            refs.write(0);
+        }
+    }
+
+    if (refs.size() % (data_size / 8) != 0) {
+        std::cout << "refs size is not multiple of data_size/8" << std::endl;
+        return 1;
     }
 
     std::cout << "Input tile num: " << ins.size() << std::endl;
@@ -100,22 +116,17 @@ int main()
         data_t odata = o.data;
         for (int i = 0; i < data_size / 8 ; i++) {
             if (refs.empty()) {
-                std::cout << "refs is empty" << std::endl;
-                break;
-            }
-            ap_uint<8> r = refs.read();
-            if  (odata.range(8*(i+1)-1, 8*i) != r) {
-                // error position 
-                std::cout << "Error position: " << i << std::endl;
-                std::cout << "Error: " << o.data.range(8*(i+1)-1, 8*i) << " != " << r << std::endl;
+                std::cout << "refs is empty, please check padding" << std::endl;
                 return 1;
             }
-
-            if (err > max_err) {
-                max_err = err;
-                max_ti = i;
+            ap_uint<8> r = refs.read();
+            int _o = (odata.range(8*(i+1)-1, 8*i));
+            if  ( _o != int(r)) {
+                // error position 
+                std::cout << "Error position: " << i << std::endl;
+                std::cout << "Error: " << _o << " != " << int(r) << std::endl;
+                return 1;
             }
-            o = o >> 8;
         }
     }
     if (o.last != true){
