@@ -102,14 +102,9 @@ int main()
 
     //Check output
     std::cout << "Output size: " << os.size() << std::endl;
-
-    float acc_err = 0;
-    int count = 0;
-    float max_err = 0;
-    int max_ti = 0;  
-
     // Check output
     dma_t o;
+    int count = 0;
     while (!os.empty())
     {
         o = os.read();
@@ -123,10 +118,11 @@ int main()
             int _o = (odata.range(8*(i+1)-1, 8*i));
             if  ( _o != int(r)) {
                 // error position 
-                std::cout << "Error position: " << i << std::endl;
+                std::cout << "Error position: " << count << std::endl;
                 std::cout << "Error: " << _o << " != " << int(r) << std::endl;
                 return 1;
             }
+            count++;
         }
     }
     if (o.last != true){

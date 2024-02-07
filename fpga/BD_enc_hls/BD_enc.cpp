@@ -6,7 +6,7 @@ void bd_enc(hls::stream<dma_t> &outs, hls::stream<SixteenPixel_t> &ins) {
     #pragma HLS AGGREGATE compact=bit variable=outs
     #pragma HLS AGGREGATE compact=bit variable=ins
     #pragma HLS INTERFACE ap_ctrl_none port=return
-    #pragma HLS dataflow
+    #pragma HLS dataflow disable_start_propagation
 
     hls::stream<pack_info_t> pack_infos("pack_infos"); // max = base (24) + bitlen (12) + delta (24) = 60
     #pragma HLS STREAM variable=pack_infos depth=8
@@ -29,14 +29,15 @@ void bd_enc(hls::stream<dma_t> &outs, hls::stream<SixteenPixel_t> &ins) {
     serializer(s_ins, ins);
     encoder(pack_infos, s_ins);
     packer(compact_writes, pack_infos);
-    compact_writer(outs, compact_writes);
 
-    // if (i==60)
-    // {exit(0);}
-
+    
     #ifndef  __SYNTHESIS__
     }
     #endif
+
+    compact_writer(outs, compact_writes);
+
+    
 }
 
 void serializer(hls::stream<Pixel_t> &s_ins, hls::stream<SixteenPixel_t> &ins) {
@@ -54,7 +55,7 @@ void serializer(hls::stream<Pixel_t> &s_ins, hls::stream<SixteenPixel_t> &ins) {
 void encoder(hls::stream<pack_info_t> &pack_infos, hls::stream<Pixel_t> &ins) {
         #pragma HLS DATAFLOW
         hls::stream<Pixel_t> ins2("ins2");
-        #pragma HLS STREAM variable=ins2 depth=18
+        #pragma HLS STREAM variable=ins2 depth=32
         hls::stream<Pixel_t> mins("mins");
         hls::stream<Pixel_t> maxs("maxs");
         find_min_max(mins, maxs, ins2, ins);
@@ -183,49 +184,76 @@ void packer(hls::stream<compact_write_t> &compact_writes, hls::stream<pack_info_
 }
 
 void compact_writer(hls::stream<dma_t> &outs, hls::stream<compact_write_t> &compact_writes) {
-    static ap_uint<23> pixel_idx = 0;
     static ap_uint<data_size_bitlen> n_buf = 0;
     static ap_uint<data_size> buf = 0;
-    for (int j = 0; j < 16; j++) {
-        // std::cout << "j = " << j << std::endl;
-        // std::cout << "buf = " << j << std::endl;
-        // for (int i = 0; i < 128; i++) {
-        //     std::cout << buf[127-i];
-        // }
-        // std::cout << std::endl;
-        // std::cout << "n_buf = " << n_buf << std::endl;
+    for (int j = 0; j < 1080 * 960 +1 ; j++) {
         #pragma HLS PIPELINE II=1 rewind
-        compact_write_t compact_write = compact_writes.read();
-        data_t d = compact_write.data;
-        ap_uint<6> n = compact_write.n; // 63 is enough for 60 per pixel
-
-        // get temp variables for second step
-        auto _buf = buf;
-        auto _n_buf = n_buf;
-
-        // first step, update n_buf and buf (which has feedback)
-        if (n_buf + n < data_size) {
-            buf = buf | (d << n_buf);
-            n_buf += n;
+        if (j == 1080 * 960) {
+            if (n_buf > 0) {
+                dma_t out;
+                n_buf = 0;
+                out.data = buf;
+                // mask the invalid high bits to zero 
+                ap_uint<data_size_bitlen> valid_num = n_buf;
+                if (valid_num < data_size) {
+                    out.data = out.data & (~(~ap_uint<data_size>(0) << valid_num));
+                }
+                out.last = 1;
+                outs.write(out);
+            }
         }
         else {
-           n_buf = n_buf + n - data_size;
-           buf = data_t(d >> n-n_buf);
-        }
+            compact_write_t compact_write = compact_writes.read();
+            ap_uint<60> d = compact_write.data;
+            data_t _d = d;
+            ap_uint<6> n = compact_write.n; // 63 is enough for 60 per pixel
 
-        pixel_idx++;
-        // second step, write out if needed, no feedback
-        if (_n_buf + n >= data_size || pixel_idx == 1080 * 960) {
-            dma_t out;
-            out.data = _buf | (d << _n_buf);
-            if (pixel_idx == 1080 * 960 ) {
-                out.last = 1;
-                pixel_idx = 0;
+            // get temp variables for second step
+            auto _buf = buf;
+            auto _n_buf = n_buf;
+
+            // first step, update n_buf , buf (those have feedback)
+            if (n_buf + n < data_size) {
+                buf = buf | (_d << n_buf);
+                n_buf += n;
             }
             else {
-                out.last = 0;
+                n_buf = n_buf + n - data_size;
+                buf = _d >> n-n_buf;
             }
-            outs.write(out);
+
+            ap_uint<data_size_bitlen> valid_num = _n_buf + n;
+            bool final_pixel = (j == 1080 * 960 -1);
+            if (final_pixel) {
+                if (valid_num <= data_size) {
+                    n_buf = 0;
+                }
+            }
+
+
+            // second step, write out if needed, no feedback
+            if (valid_num >= data_size || final_pixel) {
+                dma_t out;
+                out.data = _buf | (_d << _n_buf);
+
+                // mask the invalid high bits to zero 
+                if (valid_num < data_size) {
+                    out.data = out.data & (~(~ap_uint<data_size>(0) << valid_num));
+                }
+
+                if (final_pixel) {
+                    if (valid_num <= data_size) {
+                        out.last = 1;
+                    }
+                    else {
+                        out.last = 0;
+                    }
+                }
+                else {
+                    out.last = 0;
+                }
+                outs.write(out);
+            }
         }
        
     }
