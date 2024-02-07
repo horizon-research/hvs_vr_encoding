@@ -15,9 +15,9 @@ def unpack_bits_to_uint8s_cuda(packed_data, bit_lengths, start_indices, end_indi
         end = end_indices[i]
         for bit_idx in range(start, end):
             byte_index = bit_idx // 8
-            bit_index = 7 - (bit_idx % 8)
+            bit_index = (bit_idx % 8)
             bit = (packed_data[byte_index] >> bit_index) & 1
-            int_value = (int_value << 1) | bit
+            int_value = int_value | (bit << (bit_idx - start))
         output[i] = int_value
 
 def unpack_bits_to_uint8s_cuda_wrapper(packed_data, bit_lengths):

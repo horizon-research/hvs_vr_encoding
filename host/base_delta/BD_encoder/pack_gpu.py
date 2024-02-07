@@ -12,10 +12,10 @@ def pack_data_cuda(packed, values, positions, lengths):
         bit_pos = positions[idx]
 
         for j in range(length):
-            if value & (1 << (length - j - 1)):
+            if value & (1 << j):
                 byte_index = bit_pos // 8
                 bit_index = bit_pos % 8
-                added_value = 1 << (7 - bit_index)
+                added_value = 1 << bit_index
                 cuda.atomic.add(packed, byte_index, added_value)
 
             bit_pos += 1

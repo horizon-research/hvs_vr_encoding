@@ -18,9 +18,9 @@ def unpack_bits_to_uint8s(packed_data: types.Array(types.uint8, 1, 'C'), bit_len
         int_value = 0
         for bit_idx in range(start, end):
             byte_index = bit_idx // 8
-            bit_index = 7 - (bit_idx % 8)
+            bit_index = (bit_idx % 8)
             bit = (packed_data[byte_index] >> bit_index) & 1
-            int_value = (int_value << 1) | bit
+            int_value = int_value | (bit << (bit_idx - start))
         ints[i] = np.uint8(int_value)
 
     return ints

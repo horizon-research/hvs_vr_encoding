@@ -27,10 +27,10 @@ def pack_data_numba_wrapper(values: types.Array(types.uint8, 1, 'C'), lengths: t
         bit_pos = positions[i]
         for j in range(length):
             # Set the bits of the value at the correct position
-            if value & (1 << (length - j - 1)):
+            if value & (1 << j):
                 byte_index = bit_pos // 8
                 bit_index = bit_pos % 8
-                packed[byte_index] |= 1 << (7 - bit_index)
+                packed[byte_index] |= 1 << bit_index
             bit_pos += 1
     return packed
 
