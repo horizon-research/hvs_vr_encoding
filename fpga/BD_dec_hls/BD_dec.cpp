@@ -27,7 +27,7 @@ void decoder(hls::stream<rec_info_t> &rec_infos, hls::stream<dma_t> &ins) {
             if(i==0) {
                 data_t rdata;
                 compact_reader(rdata, ins, ap_uint<6>(36), false );
-                ap_uint<36> meta_info = rdata.range(35,0);
+                ap_uint<36> meta_info = rdata;
                 base.r = meta_info.range(7,0);
                 base.g = meta_info.range(15,8);
                 base.b = meta_info.range(23,16);
@@ -41,7 +41,7 @@ void decoder(hls::stream<rec_info_t> &rec_infos, hls::stream<dma_t> &ins) {
                 bool flush_after_read = (i==16) && (j==1080 * 960 /16 - 1);
                 data_t rdata;
                 compact_reader(rdata, ins, ap_uint<6>(delta_query_num), flush_after_read);
-                ap_uint<24> deltas = rdata.range(23,0);
+                ap_uint<24> deltas = rdata;
                 rec_info_t rec_info;
                 rec_info.delta.r = deltas;
                 rec_info.delta.g = deltas >> bitlens.r;
@@ -63,14 +63,13 @@ void compact_reader(data_t &rdata, hls::stream<dma_t> &ins, ap_uint<6> n, bool f
     #pragma HLS INLINE
     static ap_uint<data_size_bitlen> n_buf = 0;
     static data_t buf = 0;
-    data_t in_data;
+    static data_t in_data;
     auto _buf = buf;
     auto _n_buf = n_buf;
      // first step, update n_buf , buf (those have feedback)
      if (n_buf <= n) {
-         auto in = ins.read();
-         in_data = in.data;
-         buf = in_data >> (n - n_buf);
+         in_data = ins.read().data;
+         buf = in_data >> ap_uint<6>(n - ap_uint<6>(n_buf));
          n_buf = n_buf + data_size - n;
      }
     else {
