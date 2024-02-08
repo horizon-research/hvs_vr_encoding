@@ -39,12 +39,14 @@ if __name__ == "__main__":
     tile_size = 4
 
     # if TB_data folder does not exist, create it
-    if not os.path.exists(module_path + "./TB_data"):
-        os.makedirs(module_path + "./TB_data")
+    if not os.path.exists("./TB_data"):
+        os.makedirs("./TB_data")
 
 
     reshaped_image = npimage.reshape(npimage.shape[0] // tile_size, tile_size, npimage.shape[1] // tile_size, tile_size, 3).transpose(0, 2, 1, 3, 4).reshape(-1)
     save(reshaped_image, "./TB_data/input.txt")
+
+    import ipdb; ipdb.set_trace()
 
     enc_result = bd_encoder(npimage, tile_size=4)
 

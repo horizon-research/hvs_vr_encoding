@@ -53,4 +53,3 @@ void get_encoded_data(hls::stream<pack_info_t> &pack_infos, hls::stream<Pixel_t>
 
 void serializer(hls::stream<Pixel_t> &s_ins, hls::stream<SixteenPixel_t> &ins);
 void compact_writer(hls::stream<dma_t> &outs, hls::stream<compact_write_t> &compact_writes);
-
