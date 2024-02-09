@@ -174,12 +174,19 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 
 (1) Pipeline with: Projection → Len Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. (need to add BD ENC / DEC)
 
-| Config          | Squential SW (pipeline only \| whole loop w. display) | SW on ROS(pipeline ony / whole loop w. display) |
+| Config          | Squential SW (pipeline only \| whole loop w. display)
+|:-----------------:|:-------------:|
+| CPU (EPYC-Zen3)       | 0.66 \| 0.65 
+| GPU (RTX-4090)        | 51.0 \| 40.5 
+| GPU (RTX-4060 Mobile on WSL*) | 18.9 \| 17.1 
+| GPU + FPGA (ZCU104)   | TBA |TBA|
+
+<!-- | Config          | Squential SW (pipeline only \| whole loop w. display) | SW on ROS(pipeline ony / whole loop w. display) |
 |:-----------------:|:-------------:|:-------------:|
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 |TBA|
 | GPU (RTX-4090)        | 51.0 \| 40.5 |TBA|
 | GPU (RTX-4060 Mobile on WSL*) | 18.9 \| 17.1 |TBA|
-| GPU + FPGA (ZCU104)   | TBA |TBA|
+| GPU + FPGA (ZCU104)   | TBA |TBA| -->
 
 *: WSL is acronym for Windows Subsystem for Linux, it may affect the performace.
 
@@ -191,6 +198,6 @@ Below table shows FPS achieved used different HW.
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 7.2 | 23.4
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 614.4 |  511.8
 | GPU (RTX-4060 Mobile on WSL)   | 409.6    | 448.7            | 115.4    | 26.7            | TBA | TBA
-| FPGA (ZCU104)   | --      | 144           | --                   | 288 *            | TBA | TBA
+| FPGA (ZCU104)   | --      | 144           | --                   | 288 *            | 288 | 280
 
 *GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.
