@@ -13,11 +13,11 @@ The figure illustrates the end-to-end system pipeline, which transforms a panora
 
 ### 1.2 Our system at work
 
-### 1.3 Output example
+### 1.3 Output examples
 Original frames without compression
 <img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
 
-Frames after out compression
+Compressed output frames
 <img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
 
 
