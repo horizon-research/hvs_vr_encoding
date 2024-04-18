@@ -1,13 +1,13 @@
-# Gaze-Contingent Image/Video Encoding For Virtual Reality: An FPGA Demo
+# Gaze-Contingent Framebuffer Compression for Virtual Reality: An FPGA Demo
 [Weikai Lin](https://linwk20.github.io/)
 
 ## 1. Overview
 
-&nbsp; &nbsp; This is an FPGA demonstration of the color perception-guided framebuffer compression for VR described in our [ASPLOS 2024 paper](https://horizon-lab.org/pubs/asplos24-vr.pdf). Our algorithm leverages the (eccentricity-dependent) color discrimination of human visual system to bring pixel colors closer to each other and, thus, enhance the efficiency of the existing Base Delta algorithm used in today's frame buffer compression.
+This is an FPGA demonstration of the color discrimination-guided framebuffer compression for VR described in our [ASPLOS 2024 paper](https://horizon-lab.org/pubs/asplos24-vr.pdf). Our algorithm leverages the (eccentricity-dependent) color discrimination of human visual system to bring pixel colors closer to each other and, thus, enhance the efficiency of the existing Base Delta algorithm used in today's framebuffer compression.
 
 ### 1.1 Overall Pipeline (BD not included now.)
 
-&nbsp; &nbsp; The figure illustrates the project's comprehensive pipeline, transforming panoramic video into the foveated compressed (Color Optimiz) video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
+The figure illustrates the project's comprehensive pipeline, transforming panoramic video into the foveated compressed (Color Optimiz) video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
