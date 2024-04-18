@@ -7,7 +7,7 @@ This is an FPGA demonstration of the color discrimination-guided framebuffer com
 
 ### 1.1 Overall Pipeline (BD not included now.)
 
-The figure illustrates the end-to-end system pipeline, which transforms a panoramic video into the foveated compressed (Color Optimiz) video, which we display on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. The FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable.
+The figure illustrates the end-to-end system pipeline, which takes a panoramic (equirectangular) video, projects it to both eyes, and compresses the projected videos using a numerically lossy but perceptually lossless algorithm.  The projected videos are displayed on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. The FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
@@ -36,7 +36,7 @@ Compressed output frames
 - `host/`: Modules run on Host Machine.
     - `video_encode_decode/`: codes for video decode and encode.
     - `projection/`: codes for eqirectangular to perspective images projection. 
-    - `len_correction/`: codes for len correction 
+    - `len_correction/`: codes for lens correction 
     - `color_optimizer/`:  codes for color optimizer 
     - `BD_enc/` : codes for base delta compression encoder
     - `BD_dec/` : TBD
@@ -85,11 +85,11 @@ bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 
 ### 3.3 Run the Full Pipeline
 
-We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run in sequential order. It can be extend to ROS-like parrallel implementation in the future.
+We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run sequentially. It can be extend to ROS-like parrallel implementation in the future.
 
 For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
-(1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py`, please refer them to see how to use and concatenate all modules implemented in CPU , GPU.
+(1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py`, please refer to them to see how to use and concatenate all modules implemented in CPU and GPU.
 
 (2) Every module's main function also shows example of how to use it. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
 ```bash
@@ -117,7 +117,7 @@ For GPU implementation, we provide a GUI as below for real-time parameters adjus
 See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
 
 
-(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add --save_imgs)
+(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add `--save_imgs`)
 
 ### 3.5 Video Encoding
 If you use CPU implementation and want to observe the realtime results. You can encode images back to video then playback it on your VR display in realtime.
@@ -166,7 +166,7 @@ python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./deco
 
 After running the above code, you should see a Pygame window and a GUI like GPU demo.
 
-See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (--save_img is not supported here)
+See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (`--save_img` is not supported here)
 
 (2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) , then you will se output on the display.
 
@@ -183,7 +183,7 @@ See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (--s
 
 For each configuration there are two settings, one is SW is run sequentially, which will result in lower FPS, and another is that SW is run on ROS, which can enable parallelized pipelined computations and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
 
-(1) Pipeline with: Projection → Len Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. (need to add BD ENC / DEC)
+(1) Pipeline with: Projection → Lens Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. (need to add BD ENC / DEC)
 
 | Config          | Squential SW (pipeline only \| whole loop w. display)
 |:-----------------:|:-------------:|
@@ -204,7 +204,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 ###  Modules' FPS on different Platforms
 Below table shows FPS achieved used different HW.
 
-| HW          | Projection | Len correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
+| HW          | Projection | Lens correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 7.2 | 23.4
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 614.4 |  511.8
