@@ -7,7 +7,7 @@ This is an FPGA demonstration of the color discrimination-guided framebuffer com
 
 ### 1.1 Overall Pipeline (BD not included now.)
 
-The figure illustrates the project's comprehensive pipeline, transforming panoramic video into the foveated compressed (Color Optimiz) video compatible with Google Cardboard. The pipeline is divided into two main module groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. In contrast, the FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable. The final output is rendered on the VR display for immersive viewing.
+The figure illustrates the end-to-end system pipeline, which transforms a panoramic video into the foveated compressed (Color Optimiz) video, which we display on a display compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. The FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
@@ -74,9 +74,9 @@ bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 
 ### 3.3 Run the Full color optimizer pipeline
 
-&nbsp; &nbsp;  We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run in sequential order. It can be extend to ROS-like parrallel implementation in the future.
+We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run in sequential order. It can be extend to ROS-like parrallel implementation in the future.
 
-&nbsp; &nbsp;  For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
+For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
 (1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py`, please refer them to see how to use and concatenate all modules implemented in CPU , GPU.
 
