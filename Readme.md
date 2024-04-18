@@ -7,12 +7,19 @@ This is an FPGA demonstration of the color discrimination-guided framebuffer com
 
 ### 1.1 Overall Pipeline (BD not included now.)
 
-The figure illustrates the end-to-end system pipeline, which transforms a panoramic video into the foveated compressed (Color Optimiz) video, which we display on a display compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. The FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable.
+The figure illustrates the end-to-end system pipeline, which transforms a panoramic video into the foveated compressed (Color Optimiz) video, which we display on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. The FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
-### 1.2 Examples of the foveated compressed output
+### 1.2 Our system at work
+
+### 1.3 Output example
+Original frames without compression
 <img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
+
+Frames after out compression
+<img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
+
 
 ## 2. Files Organization
 
@@ -44,7 +51,7 @@ The figure illustrates the end-to-end system pipeline, which transforms a panora
 
 ## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA only) )
 
-&nbsp; &nbsp;  This section is about how to run the full pipeline in software only manner. It is useful for quick check of expected result. It mainly contains below pipeline
+This section is about how to run the full pipeline in software only manner. It is useful for quick check of expected result. It mainly contains below pipeline
 
 <img src="doc_images/pipeline_software_only.png" alt="Alt text" width="800"/>
 
