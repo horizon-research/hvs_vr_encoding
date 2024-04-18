@@ -11,13 +11,17 @@ The figure illustrates the end-to-end system pipeline, which transforms a panora
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
-### 1.2 Our system at work
+### 1.2 Our System at Work
 
-### 1.3 Output examples
+### 1.3 Output Examples
+
 Original frames without compression
+
 <img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
 
+
 Compressed output frames
+
 <img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
 
 
@@ -49,7 +53,7 @@ Compressed output frames
     - `BD_enc_hls/` : TBD
     - `BD_dec_hls/` : TBD
 
-## 3. Usage of Software-Only Pipeline (CPU or GPU (CUDA only) )
+## 3. Using Software-Only Pipeline (CPU or GPU/CUDA)
 
 This section is about how to run the full pipeline in software only manner. It is useful for quick check of expected result. It mainly contains below pipeline
 
@@ -79,7 +83,7 @@ cd <top_folder>
 bash host/video_encode_decode/filter_decoded_images.bash "./decoded_images" 60
 ```
 
-### 3.3 Run the Full color optimizer pipeline
+### 3.3 Run the Full Pipeline
 
 We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run in sequential order. It can be extend to ROS-like parrallel implementation in the future.
 
@@ -123,11 +127,11 @@ python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos
 ```
 The output video will be in ```./videos/corrected_opt_images.mp4```
 
-## 4. Usage of SW-HW Pipeline (GPU-FPGA)
+## 4. Using GPU-FPGA Pipeline
 
 This pipeline are basically the same as overall pipeline, except that we add a `output_doubler` after the `lens_correction` since we use same image for both eye because of restriction comes from input equirectangular image as explaned above.
 
-### 4.1 Setup vivado block design and get bitstream for FPGA
+### 4.1 Setup Vivado Block Design and Get FPGA Bitstream
 
 Hint: You can choose to skip this since we provide pre-generated .bit and .hwh [here](fpga/end2end_bitstream/).
 
@@ -151,7 +155,7 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 
 (4) Setup is done, run hdmi_close block in the script then close the notebook. (It is important or pynq will  likely crash)
 
-### 4.3 Run the GPU+FPGA demo
+### 4.3 Run the GPU+FPGA Pipeline
 
 (1) On the host, run: (You need to prepare `./decoded_images` as shown in 3.2 before run this )
 
@@ -175,7 +179,7 @@ See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (--s
 - GPU : Cupy or Pytorch-GPU implementation.
 - GPU + FPGA: Offload color_optimizer+Len_correction+Display_rendering to FPGA.
 
-### End to End FPS on different Coniguration
+### End-to-End FPS
 
 For each configuration there are two settings, one is SW is run sequentially, which will result in lower FPS, and another is that SW is run on ROS, which can enable parallelized pipelined computations and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
 
