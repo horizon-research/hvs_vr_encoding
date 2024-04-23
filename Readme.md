@@ -11,20 +11,10 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
-<<<<<<< HEAD
-### 1.2 Our System at Work
-
-### 1.3 Output Examples
-
-Original frames without compression
-
-<img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
-=======
 ### 1.2 Examples of the foveated compressed output
 - Left: Original (BD compression rate = 34.62%), Right: Color-Optimized  (BD compression rate = 42.08%)
 
 <img src="doc_images/compares.png" alt="Alt text" width="800"/>
->>>>>>> 3f9cc88 (423)
 
 
 Compressed output frames
@@ -35,16 +25,6 @@ Compressed output frames
 ## 2. Files Organization
 
 
-<<<<<<< HEAD
-- `host/`: Modules run on Host Machine.
-    - `video_encode_decode/`: codes for video decode and encode.
-    - `projection/`: codes for eqirectangular to perspective images projection. 
-    - `len_correction/`: codes for lens correction 
-    - `color_optimizer/`:  codes for color optimizer 
-    - `BD_enc/` : codes for base delta compression encoder
-    - `BD_dec/` : TBD
-    - `fpga_interfaceing/` : To be seperated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
-=======
 - [scripts/](scripts/) : Scripts for running demo.
     - [pipeline_on_cpu/](scripts/pipeline_on_cpu/): scripts for running software-only pipeline on CPU.
     - [pipeline_on_gpu/](scripts/pipeline_on_gpu/): scripts for running software-only pipeline on GPU.
@@ -70,7 +50,6 @@ Compressed output frames
     - [BD_dec_hls/](fpga/BD_dec_hls/): HLS implementation of BD decoder on FPGA.
     - [dma_hls/](fpga/dma_hls/): HLS implementation of Customized DMA on FPGA, which can cooperate with BD enc/dec seamlessly.
     - [vivado_scripts/](fpga/vivado_scripts/): scripts for generate and connect all modules in the block design. (TBD)
->>>>>>> 3f9cc88 (423)
 
 
 ## 3. Using Software-Only Pipeline (CPU or GPU/CUDA)
@@ -96,17 +75,7 @@ We provide scripts to run the full color optimizer pipeline in SW, including CPU
 
 For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
 
-<<<<<<< HEAD
-### 3.3 Run the Full Pipeline
-
-We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run sequentially. It can be extend to ROS-like parrallel implementation in the future.
-
-For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
-
-(1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_\<device\>/per_frame_seq_pipeline.py`, please refer to them to see how to use and concatenate all modules implemented in CPU and GPU.
-=======
 (1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_<device>/per_frame_seq_pipeline.py`, please refer them to see how to use and concatenate all modules implemented in CPU , GPU.
->>>>>>> 3f9cc88 (423)
 
 (2) Every module's main function also shows example of how to use it. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
 ```bash
