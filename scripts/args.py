@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument('--save_imgs', action='store_true', help='save_imgs')
     parser.add_argument('--display', action='store_true', help='display real-time results')
     parser.add_argument('--display_port', type=int, default=0, help='port for video display')
-    parser.add_argument('--skip_interval', type=int, default=1, help='skip_interval, used to make video played faster')
+    # parser.add_argument('--skip_interval', type=int, default=1, help='skip_interval, used to make video played faster')
     parser.add_argument('--video_num', type=int, default=5, help=' number of videos')
 
     args = parser.parse_args()
