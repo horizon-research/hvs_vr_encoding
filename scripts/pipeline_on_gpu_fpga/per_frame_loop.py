@@ -85,12 +85,12 @@ if __name__ == '__main__':
     with tqdm(leave=False, mininterval=1, bar_format='{rate_fmt}') as pbar:
         _running = True
         while _running:
-            if (count+1) % args.skip_interval == 0:
-                count = 0
-                i += 1
-                continue
-            else:
-                count += 1
+            # if (count+1) % args.skip_interval == 0:
+            #     count = 0
+            #     i += 1
+            #     continue
+            # else:
+            #     count += 1
 
             i = i % total_frames
             img_idx = i % total_frames
