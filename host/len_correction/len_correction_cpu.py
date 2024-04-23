@@ -110,6 +110,7 @@ class Len_correction():
 if __name__ == '__main__':
     # Example usage:
     image_name =  "images/middle_perspective_image.png" # Load your image here
+    #image_name =  "images/orig_frame0.png" # Load your image here
     image = cv2.imread(image_name)
     height, width = image.shape[:2]
     k1, k2 = 0.33582564, 0.55348791 # Radial distortion coefficients
@@ -126,4 +127,6 @@ if __name__ == '__main__':
 
     print("fps: ", 1/(t2-t1)*test_times)
 
-    cv2.imwrite("images/middle_perspective_image_len_correction.png", len_correction_img.astype(np.uint8))
+    # auto rename
+    out_name = image_name.split("/")[1].split(".")[0] + "_len_correction.png"
+    cv2.imwrite(f"images/{out_name}", len_correction_img.astype(np.uint8))

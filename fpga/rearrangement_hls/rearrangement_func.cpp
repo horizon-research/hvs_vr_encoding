@@ -8,6 +8,6 @@ void rearrangement_func(
     #pragma HLS INTERFACE axis port=in
     #pragma HLS INTERFACE ap_ctrl_none port=return
     
-    vr_prototype::rearragement<4, 1920>(out, in);
+    vr_prototype::rearragement<4, 960>(out, in);
     
     }

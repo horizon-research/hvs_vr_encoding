@@ -18,6 +18,7 @@ Use ```#pragma HLS bind_storage variable=pixel_buffer_1 type=ram_1p impl=lutram`
 ![Alt text](images/lutram.png)
 
 ## Timing
+*this one is computed under 1920 x 1080 image size*
 
 Use the result from lutram variant  here
 

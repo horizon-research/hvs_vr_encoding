@@ -18,7 +18,7 @@ python3 loop_back_test_gpu.py
 ```
 
 
-### 2. Encoder example usecase: Compress one 960x1080 image with fps and compress rate measurement, tile_size = 4x4, the result will be saved in test_data/ using pickle:
+### 2. Encoder example usecase: Compress one 960x1080 image with fps and compress rate measurement, tile_size = 4x4, the result will be saved in [test_data/](test_data/) using pickle:
 
 (1) For CPU version, we use fully vectorized numpy and numba for acceleration. It runs at about 7.2 fps on EPYC-Zen3 CPU, you can try the example by running:
 ```bash

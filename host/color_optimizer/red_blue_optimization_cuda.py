@@ -174,7 +174,6 @@ class Tile_color_optimizer:
         tiles = tiles.reshape(-1, 16, 3)
         dkl_centers, centers_abc = self.generate_ellipsoids(tiles, ecc_tiles)
             
-        ### ========================= Hardware accelerated part Begin ========================= ###
         blue_opt_points = self.hw_tile_optimizer.col_opt(self.color_channel["B"], dkl_centers, centers_abc)
         blue_srgb_pts = (RGB2sRGB_cupy(blue_opt_points)*255).round()
 
@@ -197,9 +196,6 @@ class Tile_color_optimizer:
 
         return result_image.astype(cp.uint8).reshape(-1,4,4,3)
 
-        # return blue_srgb_pts.reshape(-1,4,4,3).astype(cp.uint8)
-
-        ### ========================= Hardware accelerated part End ========================= ###
 
     def generate_ellipsoids(self, tiles, ecc_tiles):
         srgb_centers = tiles / 255
@@ -227,7 +223,7 @@ class Tile_color_optimizer:
         return bitlen_sum.astype(cp.int32)
 
 class Image_color_optimizer:
-    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, abc_scaler = 1e-3, ecc_no_compress = 15, only_blue = False):
+    def __init__(self, foveated = True, max_ecc = 35, h_fov=110, img_height = 0, img_width = 0, tile_size = 4, abc_scaler = 1.0, ecc_no_compress = 10, only_blue = False):
         self.color_channel = dict()
 
         self.color_channel["R"] = 0
@@ -326,7 +322,7 @@ if __name__ == "__main__":
     img = img[:, :, ::-1] # convert to RGB
 
     # optimize colors
-    image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = 4)
+    image_color_optimizer = Image_color_optimizer(img_height = img.shape[0], img_width = img.shape[1], tile_size = 4, abc_scaler = 1.0, ecc_no_compress = 10, only_blue = False)
     img = cp.asarray(img, dtype=cp.float32)
     opt_img = image_color_optimizer.color_conversion(img)
 

@@ -44,7 +44,7 @@ class Perframe_compress_rate_pipeline():
         self.projector = Equirectangular_to_perspective(args.h_fov, args.equi_height, args.equi_width, args.perspective_height, args.perspective_width)
         self.image_color_optimizer = Image_color_optimizer(img_height = args.perspective_height, img_width = args.perspective_width, tile_size = args.tile_size,\
                                                             foveated = args.foveated, max_ecc = args.max_ecc, h_fov = args.h_fov, abc_scaler = args.abc_scaler, \
-                                                            ecc_no_compress = args.ecc_no_compress, only_blue = False)
+                                                            ecc_no_compress = args.ecc_no_compress, only_blue = True)
 
     def __call__(self, equirect_img):
         # step 1: Projection

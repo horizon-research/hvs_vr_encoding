@@ -22,11 +22,11 @@ python3 red_blue_optimization_cuda.py
 
 
 
-### Compression rate Improvement from example: 9.36%
+### Compression rate Improvement from example: 7.93%
 
 ```
 original base delta compression rate: 21.31%
-optimized base delta compression rate: 30.66%
-compression improvement: 9.36%
+optimized base delta compression rate: 29.24%
+compression improvement: 7.93%
 ```
 
