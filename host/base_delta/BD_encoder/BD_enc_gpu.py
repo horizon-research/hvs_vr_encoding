@@ -61,11 +61,18 @@ if __name__ == "__main__":
     # load image
     img = Image.open("../test_data/" + image_name)
     cpimage = cp.array(img)
+    # import ipdb; ipdb.set_trace()
 
     # warm up numba JIT
     enc_result = bd_encoder(cpimage, tile_size=4)
 
     test_time = 1000
+
+    # t1 = time.time()
+    # for i in range(test_time):
+    #     enc_result = bd_encoder(cpimage, tile_size=4)
+    # t2 = time.time()
+
     t1 = time.time()
     for i in range(test_time):
         enc_result = bd_encoder(cpimage, tile_size=4)
