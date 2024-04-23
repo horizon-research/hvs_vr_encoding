@@ -141,16 +141,18 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 
 (1) On the host, run: (You need to prepare `./decoded_images` as shown in 3.2 before run this )
 
+See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (`--save_imgs` is not supported here)
+
 ```bash
 cd <top_folder>
-# since we add video switch function in gpu+fpga demo, need to cp the video to folder with name <in_images_folderi> i=0 to video_num-1, the reason is our script will automatically search the folder with name <in_images_folderi> i=0 to video_num-1
+# since we add video switch function in gpu+fpga demo, need to cp the video to 
+# folder with name <in_images_folderi> i=0 to video_num-1, the reason is our 
+# script will automatically search the folder with name <in_images_folderi> i=0 to video_num-1
 cp -r ./decoded_images ./decoded_images0
 python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated --video_num 1  # change the display port the display representing ZCU104
 ```
 
 After running the above code, you should see a Pygame window and a GUI like GPU demo.
-
-See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (`--save_img` is not supported here)
 
 (2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) , then you will se output on the display.
 
