@@ -17,10 +17,6 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
 <img src="doc_images/compares.png" alt="Alt text" width="800"/>
 
 
-Compressed output frames
-
-<img src="doc_images/md_office.jpg" alt="Alt text" width="800"/>
-
 
 ## 2. Files Organization
 
