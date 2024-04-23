@@ -176,7 +176,7 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 
 | GPU1 (RTX-4090)        | 51.0 \| 40.5 
 | GPU2 (RTX-4060 Mobile on WSL*) | 18.9 \| 17.1 
-| GPU2  + FPGA (ZCU104)   | 31.95 |
+| GPU2  + FPGA (ZCU104)   | 29.76 |
 
 <!-- | Config          | Squential SW (pipeline only \| whole loop w. display) | SW on ROS(pipeline ony / whole loop w. display) |
 |:-----------------:|:-------------:|:-------------:|
