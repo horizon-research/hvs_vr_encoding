@@ -152,7 +152,7 @@ cp -r ./decoded_images ./decoded_images0
 python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated --video_num 1  # change the display port the display representing ZCU104
 ```
 
-After running the above code, you should see a Pygame window and a GUI like GPU demo.
+After running the above code, you should see a Pygame window and a GUI similar to GPU demo, but with switch button for video switch.
 
 (2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) , then you will se output on the display.
 
