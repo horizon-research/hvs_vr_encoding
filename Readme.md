@@ -199,4 +199,4 @@ Below table shows FPS achieved used different HW, the FPS is measured under 1080
 
 *: GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.
 
-†: The speed of BD DEC on 4060 is faster than 4090, the reason might be cpu difference, 4060 platform use 13900HX which has significantly higher single thread performance than EPYC-Zen3 on 4090 platform.
+†: The speed of BD DEC on 4060 is faster than 4090, the reason might be CPU difference, 4060 platform uses i9-13900HX which has significantly higher single thread performance than EPYC-Zen3 on 4090 platform.
