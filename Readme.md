@@ -133,14 +133,7 @@ For GPU implementation, we also provide a GUI as below for real-time parameters 
 <img src="doc_images/gui.png" alt="Input Image" style="width: 300px; margin-right: 20px;" />
 
 
-<<<<<<< HEAD
-See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
-
-
-(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add `--save_imgs`)
-=======
 (4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add --save_imgs)
->>>>>>> 3f9cc88 (423)
 
 ### 3.3 Video Encoding
 If you use CPU implementation and want to observe the realtime results. You can encode images back to video then playback it on your VR display in realtime.
