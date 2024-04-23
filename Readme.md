@@ -116,12 +116,8 @@ The output video will be in ```./videos/corrected_opt_images.mp4```
 
 This pipeline are basically the same as overall pipeline, except that we add a `output_doubler` after the `lens_correction` since we use same image for both eye because of restriction comes from input equirectangular image as explaned above.
 
-<<<<<<< HEAD
-### 4.1 Setup Vivado Block Design and Get FPGA Bitstream
-=======
 ### 4.1 Setup vivado block design and get bitstream for FPGA
 We provide the vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB). You can use it to generate bitstream for ZCU104.
->>>>>>> 3f9cc88 (423)
 
 Hint: You can choose to skip this since we provide pre-generated .bit and .hwh [here](fpga/end2end_bitstream/).
 
