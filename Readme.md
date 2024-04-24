@@ -138,7 +138,7 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 (2) Put our [PYNQ scripts](fpga/pynq_scripts) to the **same** folder.
 
 (3) If this is the first time you run this demo, you need to first configure your system:
-- First, connect your host machine with ZCU104's HDMI-IN port through an HDMI cable, and connect ZCU104's HDMI-OUT port with an external display, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help the GPU driver on your host machine recognize the ZCU104's HDMI.  Your FPGA will be recognized as an external display on your host machine.
+- First, connect your host machine with ZCU104's HDMI-IN port through an HDMI cable, and connect ZCU104's HDMI-OUT port with an external display, then run [host_setting.ipynb](fpga/pynq_scripts/host_setting.ipynb). This will help the GPU driver on your host machine recognize the ZCU104's HDMI.  Your FPGA will be recognized as an external display on your host machine.
 - Turn off ANY video augmentation setting on the display representing ZCU104.  If you use Nvidia Control Panel on a Windows machine, for instance, the setting might look something like the screenshot below.  The reason is that we are using HDMI to transmit data between the host machine and the FPGA board, and you don't want the GPU driver on your host machine to muck about the data, which they usually do to "optimize visual experience".
 - Set the display representing the FPGA to use 4K@60Hz since what the HDMI driver on the FPGA will use.
 
@@ -161,7 +161,7 @@ python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./deco
 
 After running the code above, you should see a Pygame window and a GUI similar to that in the GPU demo but with a button to switch videos.
 
-(2) In PYNQ, run [board_demo.ipynb](fpga/pynq_scripts/host_setting.ipynb).  You should see the video output on the display.
+(2) In PYNQ, run [board_demo.ipynb](fpga/pynq_scripts/board_demo.ipynb).  You should see the video output on the display.
 
 (3) You should see output on the display now. Don't forget to run the `hdmi_close` block in the PYNQ notebook before ending the demo.
 
