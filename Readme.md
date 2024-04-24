@@ -118,7 +118,7 @@ Two notes:
 - The color optimizer is now split into two components: elliptical prediction, which runs on the host, and color adjustment, which runs on the FPGA.
 - The IP blocks related to the baseline BD encoder/decoder are currently not integrated into the pipeline yet, but will be added soon enough.
 
-<img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
+<img src="doc_images/pipeline.svg" alt="Alt text" width="800"/>
 
 ### 4.1 Setup vivado block design and get bitstream for FPGA
 
