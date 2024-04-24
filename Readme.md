@@ -156,20 +156,20 @@ After running the code above, you should see a Pygame window and a GUI similar t
 
 (2) In PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb).  You should see the video output on the display.
 
-(3) You should see output on the display now. Don't forget to close HDMI before ending the demo.
+(3) You should see output on the display now. Don't forget to run the `hdmi_close` block in the PYNQ notebook before ending the demo.
 
 ## 5. Performance Measurement
 
 ### Variants:
 - CPU : Parrallelized Numpy, Pytorch-CPU implementation.
-- GPU : Cupy, Pytorch-GPU, or Numba Cuda implementation.
+- GPU : a combination of Cupy, Pytorch-GPU, or Numba implementations, whichever is faster.
 - GPU + FPGA: Offload color_optimizer, Lens correction, and Display_rendering to FPGA.
 
 ### End-to-End FPS
 
-For each configuration there are two settings, one is SW is run sequentially, which will result in lower FPS, and another is that SW is run on ROS, which can enable parallelized pipelined computations and reach higher FPS. The below FPSs do not contain image loading time since we preload the image before running.
+The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image. 
 
-(1) Pipeline with: Projection → Len Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). FPS is measured under a 1080x960 image. 
+(1) Pipeline with: Projection → Lens Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). 
 
 | Config          | Squential SW (pipeline only \| whole loop w. display)
 |:-----------------:|:-------------:|
@@ -185,10 +185,9 @@ For each configuration there are two settings, one is SW is run sequentially, wh
 | GPU (RTX-4060 Mobile on WSL*) | 18.9 \| 17.1 |TBA|
 | GPU + FPGA (ZCU104)   | TBA |TBA| -->
 
-*: WSL is acronym for Windows Subsystem for Linux, it may affect the performace.
+*: WSL is acronym for Windows Subsystem for Linux.
 
-###  Modules' FPS on different Platforms
-Below table shows FPS achieved used different HW, the FPS is measured under 1080x960 image.
+### FPS of individal modules
 
 | HW          | Projection | Lens correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
@@ -197,6 +196,6 @@ Below table shows FPS achieved used different HW, the FPS is measured under 1080
 | GPU (RTX-4060 Mobile on WSL)   | 409.6    | 448.7            | 115.4    | 26.7            | 606.11 | 700.18†
 | FPGA (ZCU104)   | --      | 144           | --                   | 288 *            | 288 | 280
 
-*: GPU and CPU optimize both red and blue channel, FPGA only perform blue optimization now, but it only take around 20% of the FPGA resource.
+*: GPU and CPU optimize both the red and blue channel, but the FPGA performs only the blue-channel optimization for now (basically a compression rate-vs-FPGA resource trade-off).
 
 †: The speed of BD DEC on 4060 is faster than 4090, the reason might be CPU difference, 4060 platform uses i9-13900HX which has significantly higher single thread performance than EPYC-Zen3 on 4090 platform.
