@@ -122,7 +122,7 @@ Two notes:
 
 ### 4.1 Setup vivado block design and get bitstream for FPGA
 
-We provide the entire vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB) which is used to generate the bitstream for ZCU104.  It's also useful if you want to check the detailed settings or use it to bootstrap your project.  If we get time, we will also share a script that's used to generate the vivado project (so that you don't need to download a giant file).  If you just want to run the code without having to generate the bistream youserlf, you can find the pre-generated .bit and .hwh files [here](fpga/end2end_bitstream/).
+We provide the entire vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB) which is used to generate the bitstream for ZCU104.  It's also useful if you want to check the detailed settings or use it to bootstrap your project.  If we get time, we will also share a script that's used to generate the vivado project (so that you don't need to download a giant file).  If you just want to run the code without having to generate the bistream youserlf, you can find the pre-generated `.bit` and `.hwh` files [here](fpga/end2end_bitstream/).
 
 <!-- We provide fully automatic script that can build vivado block design and generate bitstream and hardware handoff file. See Readme in [sripts/vivado](sripts/vivado) for detailed tutorial and reminder. 
 ```bash
@@ -166,13 +166,13 @@ After running the code above, you should see a Pygame window and a GUI similar t
 ## 5. Performance Measurement
 
 ### Variants:
-- CPU : Parrallelized Numpy, Pytorch-CPU implementation.
+- CPU : a combination of Numpy and Pytorch-CPU implementations.
 - GPU : a combination of Cupy, Pytorch-GPU, or Numba implementations, whichever is faster.
-- GPU + FPGA: Offload color_optimizer, Lens correction, and Display_rendering to FPGA.
+- GPU + FPGA
 
 ### End-to-End FPS
 
-The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.
+The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.  The "display" in "pipeline+display" refers to the operation that sends the generated pixels to the display (which in software pipelines would be things like `cv2.show()` and in the hardware pipeline is simply taken care of by VDMA).
 
 | Config          | Squential SW (pipeline only \| pipeline + display)
 |:-----------------:|:-------------:|
