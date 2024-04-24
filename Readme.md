@@ -7,15 +7,12 @@ This is an FPGA demonstration of the color discrimination-guided framebuffer com
 
 ### 1.1 Overall Pipeline
 
-The figure illustrates the end-to-end system pipeline, which takes a panoramic (equirectangular) video, projects it to both eyes, and compresses the projected videos using our (numerically lossy but perceptually lossless) compression algorithm, which works on top of the BD algorithm.  For the description of a variant of the BD algorithm, see [this paper](https://dl.acm.org/doi/10.1145/3352460.3358298) (among other sources you can find online). The compressed video is displayed on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.  The IP blocks related to the baseline BD encoder/decoder are currently not included yet, but will be added soon enough.
+The figure illustrates the end-to-end system pipeline, which takes a panoramic (equirectangular) video, projects it to both eyes, and compresses the projected videos using our (numerically lossy but perceptually lossless) compression algorithm, which works on top of the BD algorithm.  For the description of a variant of the BD algorithm, see [this paper](https://dl.acm.org/doi/10.1145/3352460.3358298) (among other sources you can find online). The compressed video is displayed on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/).
 
-<img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
-
-### 1.2 An Sample Output
+### 1.2 A Sample Output
 - Left: Original (BD compression rate = 34.62%), Right: Color-Optimized  (BD compression rate = 42.08%)
 
 <img src="doc_images/compares.png" alt="Alt text" width="800"/>
-
 
 ## 2. Directory Organization
 
@@ -73,7 +70,7 @@ For simplicity, the left- and right-eye images are exactly the same, since the i
 
 1. The script to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_<device>/per_frame_seq_pipeline.py`.  Read that file to see how to use and concatenate all modules together.
 
-2. You can also trigger each individual module; each module's folder has a readme file that describes briefly the function of each module and how to run it. For example, to trigger the persepective projection code, run:
+2. You can also trigger each individual module; each module's folder has a readme that describes briefly the function of each module and how to run it. For example, to trigger the persepective projection module, run:
 
 ```bash
 cd <top_folder>/host/projection
@@ -114,12 +111,14 @@ The output video will be `./videos/corrected_opt_images.mp4`
 
 ## 4. The GPU-FPGA Pipeline
 
-This pipeline are basically the same as overall pipeline, except that we add a `output_doubler` after the `lens_correction` since we use same image for both eye because of restriction comes from input equirectangular image as explaned above.
+This pipeline here is functionally very similar to the software pipeline, but has a bunch of modules to deal with host-FPGA communication and inter-IP data conversion.
+The overall pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.  The IP blocks related to the baseline BD encoder/decoder are currently not integrated into the pipeline yet, but will be added soon enough.
+
+<img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
 ### 4.1 Setup vivado block design and get bitstream for FPGA
-We provide the vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB). You can use it to generate bitstream for ZCU104.
 
-Hint: You can choose to skip this since we provide pre-generated .bit and .hwh [here](fpga/end2end_bitstream/).
+We provide the vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB). You can use it to generate bitstream for ZCU104.  If you just want to run the code without having to generate the bistream youserlf, you can find the pre-generated .bit and .hwh files [here](fpga/end2end_bitstream/).
 
 <!-- We provide fully automatic script that can build vivado block design and generate bitstream and hardware handoff file. See Readme in [sripts/vivado](sripts/vivado) for detailed tutorial and reminder. 
 ```bash
