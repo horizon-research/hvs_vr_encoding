@@ -30,7 +30,6 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
     - [len_correction/](host/len_correction/): lens correction.
     - [color_optimizer/](host/color_optimizer/): our compression algorithm
     - [base_delta/](host/base_delta/): the baseline BD encoder and decoder.
-    - [fpga_interfaceing/](host/fpga_interfaceing/): to be separated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
     - [video_processing/](host/video_processing/): video data pre/post-processing.
 
 - [fpga/](fpga/): Modules run on FPGA board.
