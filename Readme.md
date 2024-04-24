@@ -47,7 +47,7 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
 
 It is useful to run the pipeline in the software-only mode for quick visual debugging.  The pipeline is relatetively simple.
 
-<img src="doc_images/pipeline_software_only.png" alt="Alt text" width="800"/>
+<img src="doc_images/pipeline_software_only.svg" alt="Alt text" width="800"/>
 
 ### 3.1 Preparing equirectangular images
 First you need to prepare a panoramic video encoded in the equirectangular format.  If you don't have one, you can download our videos [here](https://drive.google.com/drive/folders/1A16SSEeHIVEVFFKJjBaMvGev1zm46eUa?usp=sharing), which has all 6 videos used in the paper.
