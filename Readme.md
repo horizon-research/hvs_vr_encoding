@@ -167,9 +167,7 @@ After running the code above, you should see a Pygame window and a GUI similar t
 
 ### End-to-End FPS
 
-The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image. 
-
-(1) Pipeline with: Projection → Lens Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). 
+The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.  For a fair comparison, Pipeline with: Projection → Lens Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). 
 
 | Config          | Squential SW (pipeline only \| whole loop w. display)
 |:-----------------:|:-------------:|
@@ -198,4 +196,4 @@ The results do not include the image loading time since that's a one-time cost; 
 
 *: GPU and CPU optimize both the red and blue channel, but the FPGA performs only the blue-channel optimization for now (basically a compression rate-vs-FPGA resource trade-off).
 
-†: The speed of BD DEC on 4060 is faster than 4090, the reason might be CPU difference, 4060 platform uses i9-13900HX which has significantly higher single thread performance than EPYC-Zen3 on 4090 platform.
+†: BD DEC on 4060 is faster than 4090.  The reason might be because of the CPU difference: our 4060 platform uses an i9-13900HX which has significantly higher single thread performance than the EPYC-Zen3 on our 4090 platform.
