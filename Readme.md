@@ -161,7 +161,7 @@ python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./deco
 
 After running the code above, you should see a Pygame window and a GUI similar to that in the GPU demo but with a button to switch videos.
 
-(2) In PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb).  You should see the video output on the display.
+(2) In PYNQ, run [board_demo.ipynb](fpga/pynq_scripts/host_setting.ipynb).  You should see the video output on the display.
 
 (3) You should see output on the display now. Don't forget to run the `hdmi_close` block in the PYNQ notebook before ending the demo.
 
