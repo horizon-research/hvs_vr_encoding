@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="1683.9082 -956.5 1000.0918 282" width="1000.0918" height="282">
+  <defs>
+    <font-face font-family="Avenir" font-size="20" panose-1="2 11 5 3 2 2 3 2 2 4" units-per-em="1000" underline-position="-75" underline-thickness="50" slope="0" x-height="468" cap-height="708" ascent="1e3" descent="-365.9973" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Avenir-Roman"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Avenir" font-size="20" panose-1="2 0 5 3 2 0 0 2 0 3" units-per-em="1000" underline-position="-75" underline-thickness="50" slope="0" x-height="468" cap-height="708" ascent="1e3" descent="-365.9973" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Avenir-Book"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 7 6" markerWidth="7" markerHeight="6" color="black">
+      <g>
+        <path d="M 4.8 0 L 0 -1.8 L 0 1.8 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.19.2\n2024-04-24 20:43:53 +0000</metadata>
+  <g id="Canvas_14" stroke-opacity="1" stroke="none" stroke-dasharray="none" fill-opacity="1" fill="none">
+    <title>Canvas 14</title>
+    <rect fill="white" x="1683.9082" y="-956.5" width="1000.0918" height="282"/>
+    <g id="Canvas_14_Layer_1">
+      <title>Layer 1</title>
+      <g id="Graphic_13">
+        <text transform="translate(1689.9082 -941.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="4.615891" y="20">Panoramic video</tspan>
+        </text>
+      </g>
+      <g id="Graphic_14">
+        <path d="M 1898.5 -955.5 L 2007.5 -955.5 C 2009.7091 -955.5 2011.5 -953.7091 2011.5 -951.5 L 2011.5 -904.5 C 2011.5 -902.2909 2009.7091 -900.5 2007.5 -900.5 L 1898.5 -900.5 C 1896.2909 -900.5 1894.5 -902.2909 1894.5 -904.5 L 1894.5 -951.5 C 1894.5 -953.7091 1896.2909 -955.5 1898.5 -955.5 Z" fill="#dead26"/>
+        <path d="M 1898.5 -955.5 L 2007.5 -955.5 C 2009.7091 -955.5 2011.5 -953.7091 2011.5 -951.5 L 2011.5 -904.5 C 2011.5 -902.2909 2009.7091 -900.5 2007.5 -900.5 L 1898.5 -900.5 C 1896.2909 -900.5 1894.5 -902.2909 1894.5 -904.5 L 1894.5 -951.5 C 1894.5 -953.7091 1896.2909 -955.5 1898.5 -955.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(1899.5 -955)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="27.33" y="20">Video </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="18.11" y="47">Decode</tspan>
+        </text>
+      </g>
+      <g id="Graphic_15">
+        <path d="M 2056.5 -955.5 L 2165.5 -955.5 C 2167.7091 -955.5 2169.5 -953.7091 2169.5 -951.5 L 2169.5 -904.5 C 2169.5 -902.2909 2167.7091 -900.5 2165.5 -900.5 L 2056.5 -900.5 C 2054.2909 -900.5 2052.5 -902.2909 2052.5 -904.5 L 2052.5 -951.5 C 2052.5 -953.7091 2054.2909 -955.5 2056.5 -955.5 Z" fill="#dead26"/>
+        <path d="M 2056.5 -955.5 L 2165.5 -955.5 C 2167.7091 -955.5 2169.5 -953.7091 2169.5 -951.5 L 2169.5 -904.5 C 2169.5 -902.2909 2167.7091 -900.5 2165.5 -900.5 L 2056.5 -900.5 C 2054.2909 -900.5 2052.5 -902.2909 2052.5 -904.5 L 2052.5 -951.5 C 2052.5 -953.7091 2054.2909 -955.5 2056.5 -955.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2057.5 -955)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="2.03" y="20">Perspective </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="8.7" y="47">Projection</tspan>
+        </text>
+      </g>
+      <g id="Graphic_16">
+        <path d="M 2214.5 -955.5 L 2323.5 -955.5 C 2325.7091 -955.5 2327.5 -953.7091 2327.5 -951.5 L 2327.5 -904.5 C 2327.5 -902.2909 2325.7091 -900.5 2323.5 -900.5 L 2214.5 -900.5 C 2212.2909 -900.5 2210.5 -902.2909 2210.5 -904.5 L 2210.5 -951.5 C 2210.5 -953.7091 2212.2909 -955.5 2214.5 -955.5 Z" fill="#dead26"/>
+        <path d="M 2214.5 -955.5 L 2323.5 -955.5 C 2325.7091 -955.5 2327.5 -953.7091 2327.5 -951.5 L 2327.5 -904.5 C 2327.5 -902.2909 2325.7091 -900.5 2323.5 -900.5 L 2214.5 -900.5 C 2212.2909 -900.5 2210.5 -902.2909 2210.5 -904.5 L 2210.5 -951.5 C 2210.5 -953.7091 2212.2909 -955.5 2214.5 -955.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2215.5 -955)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="16.13" y="20">Elliptical </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="8.52" y="47">Prediction</tspan>
+        </text>
+      </g>
+      <g id="Graphic_17">
+        <path d="M 2372.5 -955.5 L 2521 -955.5 C 2523.209 -955.5 2525 -953.7091 2525 -951.5 L 2525 -904.5 C 2525 -902.2909 2523.209 -900.5 2521 -900.5 L 2372.5 -900.5 C 2370.291 -900.5 2368.5 -902.2909 2368.5 -904.5 L 2368.5 -951.5 C 2368.5 -953.7091 2370.291 -955.5 2372.5 -955.5 Z" fill="#dead26"/>
+        <path d="M 2372.5 -955.5 L 2521 -955.5 C 2523.209 -955.5 2525 -953.7091 2525 -951.5 L 2525 -904.5 C 2525 -902.2909 2523.209 -900.5 2521 -900.5 L 2372.5 -900.5 C 2370.291 -900.5 2368.5 -902.2909 2368.5 -904.5 L 2368.5 -951.5 C 2368.5 -953.7091 2370.291 -955.5 2372.5 -955.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2373.5 -955)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="8.36" y="20">Pygame HDMI </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="32.51" y="47">Renderer</tspan>
+        </text>
+      </g>
+      <g id="Graphic_18">
+        <path d="M 2570 -955.5 L 2679 -955.5 C 2681.209 -955.5 2683 -953.7091 2683 -951.5 L 2683 -904.5 C 2683 -902.2909 2681.209 -900.5 2679 -900.5 L 2570 -900.5 C 2567.791 -900.5 2566 -902.2909 2566 -904.5 L 2566 -951.5 C 2566 -953.7091 2567.791 -955.5 2570 -955.5 Z" fill="#00bfc0"/>
+        <path d="M 2570 -955.5 L 2679 -955.5 C 2681.209 -955.5 2683 -953.7091 2683 -951.5 L 2683 -904.5 C 2683 -902.2909 2681.209 -900.5 2679 -900.5 L 2570 -900.5 C 2567.791 -900.5 2566 -902.2909 2566 -904.5 L 2566 -951.5 C 2566 -953.7091 2567.791 -955.5 2570 -955.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2571 -955)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="27.33" y="20">HDMI </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="27.2" y="47">Cable</tspan>
+        </text>
+      </g>
+      <g id="Graphic_19">
+        <path d="M 2570 -843 L 2679 -843 C 2681.209 -843 2683 -841.2091 2683 -839 L 2683 -792 C 2683 -789.7909 2681.209 -788 2679 -788 L 2570 -788 C 2567.791 -788 2566 -789.7909 2566 -792 L 2566 -839 C 2566 -841.2091 2567.791 -843 2570 -843 Z" fill="#68bc36"/>
+        <path d="M 2570 -843 L 2679 -843 C 2681.209 -843 2683 -841.2091 2683 -839 L 2683 -792 C 2683 -789.7909 2681.209 -788 2679 -788 L 2570 -788 C 2567.791 -788 2566 -789.7909 2566 -792 L 2566 -839 C 2566 -841.2091 2567.791 -843 2570 -843 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2571 -829)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="16.35" y="20">HDMI In</tspan>
+        </text>
+      </g>
+      <g id="Graphic_20">
+        <path d="M 2393.7816 -843 L 2502.7816 -843 C 2504.9908 -843 2506.7816 -841.2091 2506.7816 -839 L 2506.7816 -792 C 2506.7816 -789.7909 2504.9908 -788 2502.7816 -788 L 2393.7816 -788 C 2391.5725 -788 2389.7816 -789.7909 2389.7816 -792 L 2389.7816 -839 C 2389.7816 -841.2091 2391.5725 -843 2393.7816 -843 Z" fill="#68bc36"/>
+        <path d="M 2393.7816 -843 L 2502.7816 -843 C 2504.9908 -843 2506.7816 -841.2091 2506.7816 -839 L 2506.7816 -792 C 2506.7816 -789.7909 2504.9908 -788 2502.7816 -788 L 2393.7816 -788 C 2391.5725 -788 2389.7816 -789.7909 2389.7816 -792 L 2389.7816 -839 C 2389.7816 -841.2091 2391.5725 -843 2393.7816 -843 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2394.7816 -829)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="24.22" y="20">VDMA</tspan>
+        </text>
+      </g>
+      <g id="Graphic_21">
+        <path d="M 2217.5633 -843 L 2326.5633 -843 C 2328.7724 -843 2330.5633 -841.2091 2330.5633 -839 L 2330.5633 -792 C 2330.5633 -789.7909 2328.7724 -788 2326.5633 -788 L 2217.5633 -788 C 2215.3541 -788 2213.5633 -789.7909 2213.5633 -792 L 2213.5633 -839 C 2213.5633 -841.2091 2215.3541 -843 2217.5633 -843 Z" fill="#68bc36"/>
+        <path d="M 2217.5633 -843 L 2326.5633 -843 C 2328.7724 -843 2330.5633 -841.2091 2330.5633 -839 L 2330.5633 -792 C 2330.5633 -789.7909 2328.7724 -788 2326.5633 -788 L 2217.5633 -788 C 2215.3541 -788 2213.5633 -789.7909 2213.5633 -792 L 2213.5633 -839 C 2213.5633 -841.2091 2215.3541 -843 2217.5633 -843 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2218.5633 -829)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="30.33" y="20">DMA</tspan>
+        </text>
+      </g>
+      <g id="Graphic_22">
+        <path d="M 2041.345 -843 L 2150.345 -843 C 2152.554 -843 2154.345 -841.2091 2154.345 -839 L 2154.345 -792 C 2154.345 -789.7909 2152.554 -788 2150.345 -788 L 2041.345 -788 C 2039.1358 -788 2037.345 -789.7909 2037.345 -792 L 2037.345 -839 C 2037.345 -841.2091 2039.1358 -843 2041.345 -843 Z" fill="#68bc36"/>
+        <path d="M 2041.345 -843 L 2150.345 -843 C 2152.554 -843 2154.345 -841.2091 2154.345 -839 L 2154.345 -792 C 2154.345 -789.7909 2152.554 -788 2150.345 -788 L 2041.345 -788 C 2039.1358 -788 2037.345 -789.7909 2037.345 -792 L 2037.345 -839 C 2037.345 -841.2091 2039.1358 -843 2041.345 -843 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2042.345 -842.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="2.54" y="20">Data Width </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="9.07" y="47">Converter</tspan>
+        </text>
+      </g>
+      <g id="Graphic_23">
+        <path d="M 1688.9082 -843 L 1797.9082 -843 C 1800.1174 -843 1801.9082 -841.2091 1801.9082 -839 L 1801.9082 -792 C 1801.9082 -789.7909 1800.1174 -788 1797.9082 -788 L 1688.9082 -788 C 1686.699 -788 1684.9082 -789.7909 1684.9082 -792 L 1684.9082 -839 C 1684.9082 -841.2091 1686.699 -843 1688.9082 -843 Z" fill="#68bc36"/>
+        <path d="M 1688.9082 -843 L 1797.9082 -843 C 1800.1174 -843 1801.9082 -841.2091 1801.9082 -839 L 1801.9082 -792 C 1801.9082 -789.7909 1800.1174 -788 1797.9082 -788 L 1688.9082 -788 C 1686.699 -788 1684.9082 -789.7909 1684.9082 -792 L 1684.9082 -839 C 1684.9082 -841.2091 1686.699 -843 1688.9082 -843 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(1689.9082 -829)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="39.19" y="20">RIP</tspan>
+        </text>
+      </g>
+      <g id="Graphic_26">
+        <path d="M 1688.9082 -730.5 L 1797.9082 -730.5 C 1800.1174 -730.5 1801.9082 -728.7091 1801.9082 -726.5 L 1801.9082 -679.5 C 1801.9082 -677.2909 1800.1174 -675.5 1797.9082 -675.5 L 1688.9082 -675.5 C 1686.699 -675.5 1684.9082 -677.2909 1684.9082 -679.5 L 1684.9082 -726.5 C 1684.9082 -728.7091 1686.699 -730.5 1688.9082 -730.5 Z" fill="#68bc36"/>
+        <path d="M 1688.9082 -730.5 L 1797.9082 -730.5 C 1800.1174 -730.5 1801.9082 -728.7091 1801.9082 -726.5 L 1801.9082 -679.5 C 1801.9082 -677.2909 1800.1174 -675.5 1797.9082 -675.5 L 1688.9082 -675.5 C 1686.699 -675.5 1684.9082 -677.2909 1684.9082 -679.5 L 1684.9082 -726.5 C 1684.9082 -728.7091 1686.699 -730.5 1688.9082 -730.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(1689.9082 -730)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="2.54" y="20">Data Width </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="9.07" y="47">Converter</tspan>
+        </text>
+      </g>
+      <g id="Graphic_27">
+        <path d="M 1865.1266 -730.5 L 1974.1266 -730.5 C 1976.3357 -730.5 1978.1266 -728.7091 1978.1266 -726.5 L 1978.1266 -679.5 C 1978.1266 -677.2909 1976.3357 -675.5 1974.1266 -675.5 L 1865.1266 -675.5 C 1862.9174 -675.5 1861.1266 -677.2909 1861.1266 -679.5 L 1861.1266 -726.5 C 1861.1266 -728.7091 1862.9174 -730.5 1865.1266 -730.5 Z" fill="#68bc36"/>
+        <path d="M 1865.1266 -730.5 L 1974.1266 -730.5 C 1976.3357 -730.5 1978.1266 -728.7091 1978.1266 -726.5 L 1978.1266 -679.5 C 1978.1266 -677.2909 1976.3357 -675.5 1974.1266 -675.5 L 1865.1266 -675.5 C 1862.9174 -675.5 1861.1266 -677.2909 1861.1266 -679.5 L 1861.1266 -726.5 C 1861.1266 -728.7091 1862.9174 -730.5 1865.1266 -730.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(1866.1266 -716.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="30.33" y="20">DMA</tspan>
+        </text>
+      </g>
+      <g id="Graphic_28">
+        <path d="M 2041.345 -730.5 L 2150.345 -730.5 C 2152.554 -730.5 2154.345 -728.7091 2154.345 -726.5 L 2154.345 -679.5 C 2154.345 -677.2909 2152.554 -675.5 2150.345 -675.5 L 2041.345 -675.5 C 2039.1358 -675.5 2037.345 -677.2909 2037.345 -679.5 L 2037.345 -726.5 C 2037.345 -728.7091 2039.1358 -730.5 2041.345 -730.5 Z" fill="#68bc36"/>
+        <path d="M 2041.345 -730.5 L 2150.345 -730.5 C 2152.554 -730.5 2154.345 -728.7091 2154.345 -726.5 L 2154.345 -679.5 C 2154.345 -677.2909 2152.554 -675.5 2150.345 -675.5 L 2041.345 -675.5 C 2039.1358 -675.5 2037.345 -677.2909 2037.345 -679.5 L 2037.345 -726.5 C 2037.345 -728.7091 2039.1358 -730.5 2041.345 -730.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2042.345 -716.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="24.22" y="20">VDMA</tspan>
+        </text>
+      </g>
+      <g id="Graphic_29">
+        <path d="M 2214.5 -730.5 L 2323.5 -730.5 C 2325.7091 -730.5 2327.5 -728.7091 2327.5 -726.5 L 2327.5 -679.5 C 2327.5 -677.2909 2325.7091 -675.5 2323.5 -675.5 L 2214.5 -675.5 C 2212.2909 -675.5 2210.5 -677.2909 2210.5 -679.5 L 2210.5 -726.5 C 2210.5 -728.7091 2212.2909 -730.5 2214.5 -730.5 Z" fill="#68bc36"/>
+        <path d="M 2214.5 -730.5 L 2323.5 -730.5 C 2325.7091 -730.5 2327.5 -728.7091 2327.5 -726.5 L 2327.5 -679.5 C 2327.5 -677.2909 2325.7091 -675.5 2323.5 -675.5 L 2214.5 -675.5 C 2212.2909 -675.5 2210.5 -677.2909 2210.5 -679.5 L 2210.5 -726.5 C 2210.5 -728.7091 2212.2909 -730.5 2214.5 -730.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2215.5 -716.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="7.33" y="20">HDMI Out</tspan>
+        </text>
+      </g>
+      <g id="Graphic_30">
+        <path d="M 1865.1266 -843 L 1974.1266 -843 C 1976.3357 -843 1978.1266 -841.2091 1978.1266 -839 L 1978.1266 -792 C 1978.1266 -789.7909 1976.3357 -788 1974.1266 -788 L 1865.1266 -788 C 1862.9174 -788 1861.1266 -789.7909 1861.1266 -792 L 1861.1266 -839 C 1861.1266 -841.2091 1862.9174 -843 1865.1266 -843 Z" fill="#68bc36"/>
+        <path d="M 1865.1266 -843 L 1974.1266 -843 C 1976.3357 -843 1978.1266 -841.2091 1978.1266 -839 L 1978.1266 -792 C 1978.1266 -789.7909 1976.3357 -788 1974.1266 -788 L 1865.1266 -788 C 1862.9174 -788 1861.1266 -789.7909 1861.1266 -792 L 1861.1266 -839 C 1861.1266 -841.2091 1862.9174 -843 1865.1266 -843 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(1866.1266 -842.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="28.88" y="20">Color </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="2.03" y="47">Adjustment</tspan>
+        </text>
+      </g>
+      <g id="Graphic_31">
+        <path d="M 2392.25 -730.5 L 2501.25 -730.5 C 2503.459 -730.5 2505.25 -728.7091 2505.25 -726.5 L 2505.25 -679.5 C 2505.25 -677.2909 2503.459 -675.5 2501.25 -675.5 L 2392.25 -675.5 C 2390.041 -675.5 2388.25 -677.2909 2388.25 -679.5 L 2388.25 -726.5 C 2388.25 -728.7091 2390.041 -730.5 2392.25 -730.5 Z" fill="#00bfc0"/>
+        <path d="M 2392.25 -730.5 L 2501.25 -730.5 C 2503.459 -730.5 2505.25 -728.7091 2505.25 -726.5 L 2505.25 -679.5 C 2505.25 -677.2909 2503.459 -675.5 2501.25 -675.5 L 2392.25 -675.5 C 2390.041 -675.5 2388.25 -677.2909 2388.25 -679.5 L 2388.25 -726.5 C 2388.25 -728.7091 2390.041 -730.5 2392.25 -730.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2393.25 -730)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="27.33" y="20">HDMI </tspan>
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="27.2" y="47">Cable</tspan>
+        </text>
+      </g>
+      <g id="Graphic_32">
+        <path d="M 2570 -730.5 L 2679 -730.5 C 2681.209 -730.5 2683 -728.7091 2683 -726.5 L 2683 -679.5 C 2683 -677.2909 2681.209 -675.5 2679 -675.5 L 2570 -675.5 C 2567.791 -675.5 2566 -677.2909 2566 -679.5 L 2566 -726.5 C 2566 -728.7091 2567.791 -730.5 2570 -730.5 Z" fill="#00bfc0"/>
+        <path d="M 2570 -730.5 L 2679 -730.5 C 2681.209 -730.5 2683 -728.7091 2683 -726.5 L 2683 -679.5 C 2683 -677.2909 2681.209 -675.5 2679 -675.5 L 2570 -675.5 C 2567.791 -675.5 2566 -677.2909 2566 -679.5 L 2566 -726.5 C 2566 -728.7091 2567.791 -730.5 2570 -730.5 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <text transform="translate(2571 -716.5)" fill="black">
+          <tspan font-family="Avenir" font-size="20" font-weight="400" fill="black" x="20.91" y="20">Display</tspan>
+        </text>
+      </g>
+      <g id="Line_33">
+        <line x1="1853.5" y1="-928" x2="1880.6" y2="-928" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_34">
+        <line x1="2012.5" y1="-928" x2="2038.6" y2="-928" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_35">
+        <line x1="2170.5" y1="-928" x2="2196.6" y2="-928" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_36">
+        <line x1="2328.5" y1="-928" x2="2355.6" y2="-928" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_37">
+        <line x1="2526" y1="-928" x2="2552.1" y2="-928" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_38">
+        <line x1="2624.5" y1="-899.5" x2="2624.5" y2="-856.9" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_39">
+        <line x1="2565" y1="-815.5" x2="2520.6816" y2="-815.5" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_40">
+        <line x1="2388.7816" y1="-815.5" x2="2344.4633" y2="-815.5" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_41">
+        <line x1="2212.5633" y1="-815.5" x2="2167.245" y2="-815.5" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_42">
+        <line x1="2036.345" y1="-815.5" x2="1992.0266" y2="-815.5" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_43">
+        <line x1="1860.1266" y1="-815.5" x2="1815.8082" y2="-815.5" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_44">
+        <line x1="1743.4082" y1="-787" x2="1743.4082" y2="-744.4" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_45">
+        <line x1="1802.9082" y1="-703" x2="1848.2266" y2="-703" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_46">
+        <line x1="1979.1266" y1="-703" x2="2023.445" y2="-703" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_47">
+        <line x1="2155.345" y1="-703" x2="2196.6" y2="-703" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_48">
+        <line x1="2328.5" y1="-703" x2="2375.35" y2="-703" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_49">
+        <line x1="2506.25" y1="-703" x2="2552.1" y2="-703" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+    </g>
+  </g>
+</svg>
