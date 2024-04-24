@@ -35,7 +35,7 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
     - [rearrangment_hls/](fpga/rearrangment_hls/): Verilog and HLS implementation of 4x4 to 1x1 rearrangement IP (RIP) on FPGA, which is used to convert data format between the color optimizer IP and the lens correction IP
     - [double_output_hls/](fpga/double_output_hls/): copy left-eye image to the right eye (yes, this demo doesn't provide stereo depth cue --- see later; also has the `t_last` signal needed by DMA)
     - [pynq_scripts/](fpga/pynq_scripts/): Jupyter notebook running on the PS in ZCU104
-    - [end2end_bitstream/](fpga/end2end_bitstream/): bitstream generated for the GPU+FPGA demo.
+    - [end2end_bitstream/](fpga/end2end_bitstream/): pre-generated bitstream generated for the GPU+FPGA demo (so that you can skip building the project)
     - [ip_repo/](fpga/ip_repo/): exported HLS IPs needed by the GPU+FPGA demo
     - [BD_enc_hls/](fpga/BD_enc_hls/): BD encoder (not yet integrated into the pipeline)
     - [BD_dec_hls/](fpga/BD_dec_hls/): BD decoder (not yet integrated into the pipeline)
@@ -111,14 +111,13 @@ The output video will be `./videos/corrected_opt_images.mp4`
 
 ## 4. The GPU-FPGA Pipeline
 
-This pipeline here is functionally very similar to the software pipeline, but has a bunch of modules to deal with host-FPGA communication and inter-IP data conversion.
-The overall pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.  The IP blocks related to the baseline BD encoder/decoder are currently not integrated into the pipeline yet, but will be added soon enough.
+This pipeline here is functionally very similar to the software pipeline, but looks much more complicated but it has a bunch of modules to deal with host-FPGA communication and inter-IP data conversion. The overall pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.  The IP blocks related to the baseline BD encoder/decoder are currently not integrated into the pipeline yet, but will be added soon enough.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
 ### 4.1 Setup vivado block design and get bitstream for FPGA
 
-We provide the vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB). You can use it to generate bitstream for ZCU104.  If you just want to run the code without having to generate the bistream youserlf, you can find the pre-generated .bit and .hwh files [here](fpga/end2end_bitstream/).
+We provide the entire vivado project [here](https://drive.google.com/file/d/1ukujYRWgAs_QBbeWNI5sZ5nr2opewLNR/view?usp=drive_link) (1.6GB) which is used to generate the bitstream for ZCU104.  It's also useful if you want to check the detailed settings or use it to bootstrap your project.  If we get time, we will also share a script that's used to generate the vivado project (so that you don't need to download a giant file).  If you just want to run the code without having to generate the bistream youserlf, you can find the pre-generated .bit and .hwh files [here](fpga/end2end_bitstream/).
 
 <!-- We provide fully automatic script that can build vivado block design and generate bitstream and hardware handoff file. See Readme in [sripts/vivado](sripts/vivado) for detailed tutorial and reminder. 
 ```bash
@@ -131,14 +130,13 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 
 (1) Put the generated `end2end.bit` and `end2end.hwh` to a folder in ZCU104.
 
-(2) Put our [PYNQ scripts](fpga/pynq_scripts) to the SAME folder.
+(2) Put our [PYNQ scripts](fpga/pynq_scripts) to the **same** folder.
 
-(3) If this is the first time you run this demo, you need to config your diver:
-- First, plug HDMI to ZCU104's HDMI-IN, plug display to ZCU104's HDMI-OUT, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help your GPU driver recognize the ZCU104's HDMI (it will be treated as a display).
-- Turn off ANY augmentation on the display representing ZCU104, the reason is we want to send the raw Ellipsode data through HDMI port.
-- Set that display to be 4K@60Hz since we will use 4K@60Hz bandwidth.
-
-(4) Setup is done, run hdmi_close block in the script then close the notebook. (It is important or pynq will  likely crash)
+(3) If this is the first time you run this demo, you need to first configure your system:
+- First, plug HDMI to ZCU104's HDMI-IN, plug display to ZCU104's HDMI-OUT, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help the GPU driver on your host machine recognize the ZCU104's HDMI.  Your FPGA will be recognized as an external display on your host machine.
+- Turn off ANY augmentation on the display representing ZCU104.  The reason is that we are using HDMI to transmit data between the host machine and the FPGA board, and you don't want the GPU driver on your host machine to muck about the data, which they usually do to, let's just say, "optimize for visual experience".
+- Set that display to be 4K@60Hz since what the HDMI driver on the FPGA will use.
+(4) Now run the `hdmi_close` block in the PYNQ notebook and then close the notebook (which is important or PYNQ will likely crash).
 
 ### 4.3 Run the GPU+FPGA Pipeline
 
