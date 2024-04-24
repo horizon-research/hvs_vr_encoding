@@ -111,7 +111,12 @@ The output video will be `./videos/corrected_opt_images.mp4`
 
 ## 4. The GPU-FPGA Pipeline
 
-This pipeline here is functionally very similar to the software pipeline, but looks much more complicated but it has a bunch of modules to deal with host-FPGA communication and inter-IP data conversion. The overall pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.  The IP blocks related to the baseline BD encoder/decoder are currently not integrated into the pipeline yet, but will be added soon enough.
+The overall pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.
+This pipeline here is functionally very similar to the software pipeline, but looks much more complicated but it has a bunch of modules to deal with host-FPGA communication and inter-IP data conversion.
+
+Two notes:
+- The color optimizer is now split into two components: elliptical prediction, which runs on the host, and color adjustment, which runs on the FPGA.
+- The IP blocks related to the baseline BD encoder/decoder are currently not integrated into the pipeline yet, but will be added soon enough.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
@@ -167,9 +172,9 @@ After running the code above, you should see a Pygame window and a GUI similar t
 
 ### End-to-End FPS
 
-The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.  For a fair comparison, Pipeline with: Projection → Lens Correction → Ellipsoid prediction → Color optimizer (w/o Ellipsoid prediction). 
+The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.
 
-| Config          | Squential SW (pipeline only \| whole loop w. display)
+| Config          | Squential SW (pipeline only \| pipeline + display)
 |:-----------------:|:-------------:|
 | CPU (EPYC-Zen3)       | 0.66 \| 0.65 
 | GPU1 (RTX-4090)        | 51.0 \| 40.5 
