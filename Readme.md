@@ -40,73 +40,79 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
     - [pynq_scripts/](fpga/pynq_scripts/): Jupyter notebook running on the PS in ZCU104
     - [end2end_bitstream/](fpga/end2end_bitstream/): bitstream generated for the GPU+FPGA demo.
     - [ip_repo/](fpga/ip_repo/): exported HLS IPs needed by the GPU+FPGA demo
-    - [BD_enc_hls/](fpga/BD_enc_hls/): BD encoder
-    - [BD_dec_hls/](fpga/BD_dec_hls/): BD decoder
+    - [BD_enc_hls/](fpga/BD_enc_hls/): BD encoder (not yet integrated into the pipeline)
+    - [BD_dec_hls/](fpga/BD_dec_hls/): BD decoder (not yet integrated into the pipeline)
     - [dma_hls/](fpga/dma_hls/): a customized DMA (can deal with variable transaction size, etc., and is not yet integrated into the pipeline)
     - [vivado_scripts/](fpga/vivado_scripts/): scripts for generating and connecting all modules in the block design (TBD)
 
 
-## 3. Using Software-Only Pipeline (CPU or GPU/CUDA)
+## 3. The Software-Only Pipeline (CPU and/or GPU/CUDA)
 
-This section is about how to run the full pipeline in software only manner. It is useful for quick check of expected result. It mainly contains below pipeline
+It is useful to run the pipeline in the software-only mode for quick visual debugging.  The pipeline is relatetively simple.
 
 <img src="doc_images/pipeline_software_only.png" alt="Alt text" width="800"/>
 
-### 3.1 Equirectangular Images Preparation: 
-To start this experiment, you need to prepare a panoramic Video in equirectangular format.
+### 3.1 Preparing equirectangular images
+First you need to prepare a panoramic video encoded in the equirectangular format.  If you don't have one, you can download our videos [here](https://drive.google.com/drive/folders/1A16SSEeHIVEVFFKJjBaMvGev1zm46eUa?usp=sharing), which has all 6 videos used in the paper.
 
-If you don't have one, you can download our raw video from https://drive.google.com/drive/folders/1A16SSEeHIVEVFFKJjBaMvGev1zm46eUa?usp=sharing, it contains 6 videos used in the paper.
+Then run:
 
 ```bash
 cd <top_folder>
 # Decode Video to a Folder of Images
 python3 host/video_encode_decode/decode_video.py --video_path <downloaded_video.mp4> --out_images_folder ./decoded_images
 ```
-Now you can find decoded images in [decoded_images/](decoded_images/) in the main folder. 
-### 3.2 Run the Full color optimizer pipeline
 
-We provide scripts to run the full color optimizer pipeline in SW, including CPU, GPU implementations. All modules are corrently run in sequential order. It can be extend to ROS-like parrallel implementation in the future.
+Now you will find the decoded images in [decoded_images/](decoded_images/) in the main folder.
 
-For this project, the left and right eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
+### 3.2 Run the compression pipeline
 
-(1) The scripts to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_<device>/per_frame_seq_pipeline.py`, please refer them to see how to use and concatenate all modules implemented in CPU , GPU.
+We provide scripts to run the full pipeline in SW, including a CPU only and a CPU-GPU implementation. All modules currently run sequentially. It can be extend to use a ROS-like interface to enable pipelining.
 
-(2) Every module's main function also shows example of how to use it. For example, the example code for projection is drawing the cube map and test FPS, you can run it as follow:
+For simplicity, the left- and right-eye images are exactly the same, since the input is a single equirectangular image, which supports only 3 DoF.  If the input video is captured in, for instance, an Omni-Directional Stereo (ODS) format, we could render actual stereo disparity.  See [this slide deck](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf) for details.  Because of this limitation, observers don't get depth perception from stereo disparity.
+
+1. The script to run the whole pipeline for one frame is implemented in `scripts/pipeline_on_<device>/per_frame_seq_pipeline.py`.  Read that file to see how to use and concatenate all modules together.
+
+2. You can also trigger each individual module; each module's folder has a readme file that describes briefly the function of each module and how to run it. For example, to trigger the persepective projection code, run:
+
 ```bash
 cd <top_folder>/host/projection
 python3 equirect_to_pespective_cpu.py # if you want to use cuda acceleration, run: python3 equirect_to_pespective_cuda.py
 ```
-(3) Here is how to run whole pipeline on CPU and GPU
 
-See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
+3. Here is how to run the whole pipeline in the two modes.  See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args.
 
 - For CPU:
 ```bash
 cd <top_folder>
 python3 scripts/pipeline_on_cpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --foveated --save_imgs
 ```
+
 - For GPU:
 ```bash
 cd <top_folder>
 python3 scripts/pipeline_on_gpu/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated
 ```
 
-For GPU implementation, we also provide a GUI as below for real-time parameters adjustment.
+For the GPU implementation, we also provide a GUI for tuning certain parameters in real-time.
 
 <img src="doc_images/gui.png" alt="Input Image" style="width: 300px; margin-right: 20px;" />
 
 
-(4) After running the above codes, you will see output in [corrected_opt_images/](corrected_opt_images/) folder in main directory. (if you add --save_imgs)
+4. After running the code above, you will see the compressed output in the [corrected_opt_images/](corrected_opt_images/) folder in main directory (if you've added the `--save_imgs` argument)
 
-### 3.3 Video Encoding
-If you use CPU implementation and want to observe the realtime results. You can encode images back to video then playback it on your VR display in realtime.
+### 3.3 Video playback
+
+Once you get the compressed output, you can encode the compressed images into a video and playback the video on your VR display in realtime:
+
 ```bash
 cd <top_folder> 
 python3 host/video_encode_decode/encode_images_to_video.py --video_path ./videos/corrected_opt_images.mp4 --images_folder ./corrected_opt_images --fps 30
 ```
-The output video will be in ```./videos/corrected_opt_images.mp4```
 
-## 4. Using GPU-FPGA Pipeline
+The output video will be `./videos/corrected_opt_images.mp4`
+
+## 4. The GPU-FPGA Pipeline
 
 This pipeline are basically the same as overall pipeline, except that we add a `output_doubler` after the `lens_correction` since we use same image for both eye because of restriction comes from input equirectangular image as explaned above.
 
