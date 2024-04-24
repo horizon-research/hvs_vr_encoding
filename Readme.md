@@ -133,16 +133,15 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 (2) Put our [PYNQ scripts](fpga/pynq_scripts) to the **same** folder.
 
 (3) If this is the first time you run this demo, you need to first configure your system:
-- First, plug HDMI to ZCU104's HDMI-IN, plug display to ZCU104's HDMI-OUT, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help the GPU driver on your host machine recognize the ZCU104's HDMI.  Your FPGA will be recognized as an external display on your host machine.
-- Turn off ANY augmentation on the display representing ZCU104.  The reason is that we are using HDMI to transmit data between the host machine and the FPGA board, and you don't want the GPU driver on your host machine to muck about the data, which they usually do to, let's just say, "optimize for visual experience".
-- Set that display to be 4K@60Hz since what the HDMI driver on the FPGA will use.
+- First, connect your host machine with ZCU104's HDMI-IN port through an HDMI cable, and connect ZCU104's HDMI-OUT port with an external display, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help the GPU driver on your host machine recognize the ZCU104's HDMI.  Your FPGA will be recognized as an external display on your host machine.
+- Turn off ANY augmentation on the display representing ZCU104.  The reason is that we are using HDMI to transmit data between the host machine and the FPGA board, and you don't want the GPU driver on your host machine to muck about the data, which they usually do to "optimize visual experience".
+- Set the display representing the FPGA to use 4K@60Hz since what the HDMI driver on the FPGA will use.
+
 (4) Now run the `hdmi_close` block in the PYNQ notebook and then close the notebook (which is important or PYNQ will likely crash).
 
-### 4.3 Run the GPU+FPGA Pipeline
+### 4.3 Run the GPU+FPGA pipeline
 
-(1) On the host, run: (You need to prepare `./decoded_images` as shown in 3.2 before run this )
-
-See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (`--save_imgs` is not supported here)
+(1) On the host, run the following (assuming you have prepared `./decoded_images` as discussed in 3.2). See [<top_folder>/scripts/args.py](scripts/args.py) for all supported args. (`--save_imgs` is not supported here)
 
 ```bash
 cd <top_folder>
@@ -153,18 +152,18 @@ cp -r ./decoded_images ./decoded_images0
 python3 scripts/pipeline_on_gpu_fpga/per_frame_loop.py --in_images_folder ./decoded_images --out_images_folder ./corrected_opt_images --display --display_port 0 --foveated --video_num 1  # change the display port the display representing ZCU104
 ```
 
-After running the above code, you should see a Pygame window and a GUI similar to GPU demo, but with switch button for video switch.
+After running the code above, you should see a Pygame window and a GUI similar to that in the GPU demo but with a button to switch videos.
 
-(2) On the PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb) , then you will se output on the display.
+(2) In PYNQ, run [board_demo.ipynb](fpga/host_setting.ipynb).  You should see the video output on the display.
 
 (3) You should see output on the display now. Don't forget to close HDMI before ending the demo.
 
-
 ## 5. Performance Measurement
+
 ### Variants:
 - CPU : Parrallelized Numpy, Pytorch-CPU implementation.
 - GPU : Cupy, Pytorch-GPU, or Numba Cuda implementation.
-- GPU + FPGA: Offload color_optimizer  Lens correction + Display_rendering to FPGA.
+- GPU + FPGA: Offload color_optimizer, Lens correction, and Display_rendering to FPGA.
 
 ### End-to-End FPS
 
