@@ -21,29 +21,29 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
 
 
 - [scripts/](scripts/) : Scripts for running demo.
-    - [pipeline_on_cpu/](scripts/pipeline_on_cpu/): scripts for running software-only pipeline on CPU.
-    - [pipeline_on_gpu/](scripts/pipeline_on_gpu/): scripts for running software-only pipeline on GPU.
-    - [pipeline_on_gpu_fpga/](scripts/pipeline_on_gpu_fpga/): scripts for running pipeline on GPU + FPGA.
+    - [pipeline_on_cpu/](scripts/pipeline_on_cpu/): scripts for running software-only pipeline on CPU
+    - [pipeline_on_gpu/](scripts/pipeline_on_gpu/): scripts for running software-only pipeline on GPU
+    - [pipeline_on_gpu_fpga/](scripts/pipeline_on_gpu_fpga/): scripts for running pipeline on GPU + FPGA
 
 - [host/](host/): Modules run on the host machine (CPU and/or GPU)
-    - [projection/](host/projection/): perspective projection from eqirectangular images ([why such projections are necessary and how it's done?](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf))
-    - [len_correction/](host/len_correction/): lens correction.
-    - [color_optimizer/](host/color_optimizer/): our compression algorithm
-    - [base_delta/](host/base_delta/): the baseline BD encoder and decoder.
-    - [video_processing/](host/video_processing/): video data pre/post-processing.
+    - [projection/](host/projection/): perspective projection from eqirectangular images ([why such a projection is necessary and how it's done?](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf))
+    - [len_correction/](host/len_correction/): lens correction
+    - [color_optimizer/](host/color_optimizer/): color optimizer (the core of our compression algorithm)
+    - [base_delta/](host/base_delta/): the baseline BD encoder and decoder
+    - [video_processing/](host/video_processing/): video data pre/post-processing
 
-- [fpga/](fpga/): Modules run on FPGA board.
-    - [tile_color_optimizer_hls/](fpga/tile_color_optimizer_hls/): HLS implementation of color optimizer.
-    - [len_correction_hls/](fpga/len_correction_hls/): HLS implementation of lens correction.
-    - [rearrangment_hls/](fpga/rearrangment_hls/): Verilog and HLS implementation of 4x4 to 1x1 rearrangement IP (RIP) on FPGA. Which is used to bridge data format between color optimizer and lens correction.
-    - [double_output_hls/](fpga/double_output_hls/): HLS implementation of copy left image to right on FPGA. It also has t_last signal needed by DMA.
-    - [pynq_scripts/](fpga/pynq_scripts/): Jupyter note code run on PS of ZCU104.
-    - [end2end_bitstream/](fpga/end2end_bitstream/): Built bitstream for the GPU+FPGA demo.
-    - [ip_repo/](fpga/ip_repo/): Contain exported HLS IPs needed by GPU+FPGA demo.
-    - [BD_enc_hls/](fpga/BD_enc_hls/): HLS implementation of BD encoder on FPGA.
-    - [BD_dec_hls/](fpga/BD_dec_hls/): HLS implementation of BD decoder on FPGA.
-    - [dma_hls/](fpga/dma_hls/): HLS implementation of Customized DMA on FPGA, which can cooperate with BD enc/dec seamlessly.
-    - [vivado_scripts/](fpga/vivado_scripts/): scripts for generate and connect all modules in the block design. (TBD)
+- [fpga/](fpga/): Modules run on FPGA board (HLS implementations)
+    - [tile_color_optimizer_hls/](fpga/tile_color_optimizer_hls/): color optimizer (the core of our compression algorithm)
+    - [len_correction_hls/](fpga/len_correction_hls/): lens correction
+    - [rearrangment_hls/](fpga/rearrangment_hls/): Verilog and HLS implementation of 4x4 to 1x1 rearrangement IP (RIP) on FPGA, which is used to convert data format between the color optimizer IP and the lens correction IP
+    - [double_output_hls/](fpga/double_output_hls/): copy left-eye image to the right eye (yes, this demo doesn't provide stereo depth cue --- see later; also has the `t_last` signal needed by DMA)
+    - [pynq_scripts/](fpga/pynq_scripts/): Jupyter notebook running on the PS in ZCU104
+    - [end2end_bitstream/](fpga/end2end_bitstream/): bitstream generated for the GPU+FPGA demo.
+    - [ip_repo/](fpga/ip_repo/): exported HLS IPs needed by the GPU+FPGA demo
+    - [BD_enc_hls/](fpga/BD_enc_hls/): BD encoder
+    - [BD_dec_hls/](fpga/BD_dec_hls/): BD decoder
+    - [dma_hls/](fpga/dma_hls/): a customized DMA (can deal with variable transaction size, etc., and is not yet integrated into the pipeline)
+    - [vivado_scripts/](fpga/vivado_scripts/): scripts for generating and connecting all modules in the block design (TBD)
 
 
 ## 3. Using Software-Only Pipeline (CPU or GPU/CUDA)
