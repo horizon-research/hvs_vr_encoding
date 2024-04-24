@@ -174,7 +174,7 @@ After running the code above, you should see a Pygame window and a GUI similar t
 
 ### End-to-End FPS
 
-The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.  The "display" in "pipeline+display" refers to the operation that sends the generated pixels to the display (which in software pipelines would be things like `cv2.show()` and in the hardware pipeline is simply taken care of by VDMA).
+The results do not include the image loading time since that's a one-time cost; we preload the images before running.  FPS is measured under a 1080x960 image.  The "display" in "pipeline+display" refers to the operation that sends the generated pixels to the display (which in software pipelines would be things like `cv2.imshow()` and in the hardware pipeline is simply taken care of by VDMA).
 
 | Config          | Squential SW (pipeline only \| pipeline + display)
 |:-----------------:|:-------------:|
