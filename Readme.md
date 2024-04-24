@@ -3,22 +3,21 @@
 
 ## 1. Overview
 
-This is an FPGA demonstration of the color discrimination-guided framebuffer compression for VR described in our [ASPLOS 2024 paper](https://horizon-lab.org/pubs/asplos24-vr.pdf). Our algorithm leverages the (eccentricity-dependent) color discrimination of human visual system to bring pixel colors closer to each other and, thus, enhance the efficiency of the existing Base Delta algorithm used in today's framebuffer compression.
+This is an FPGA demonstration of the color discrimination-guided framebuffer compression for VR, which is described in our [ASPLOS 2024 paper](https://horizon-lab.org/pubs/asplos24-vr.pdf). Our algorithm leverages the (eccentricity-dependent) color discrimination of human visual system to bring pixel colors closer to each other and, thus, enhance the compression effectiveness of the existing Base Delta (BD) algorithm used in today's framebuffer compression.
 
-### 1.1 Overall Pipeline (BD not included now.)
+### 1.1 Overall Pipeline
 
-The figure illustrates the end-to-end system pipeline, which takes a panoramic (equirectangular) video, projects it to both eyes, and compresses the projected videos using a numerically lossy but perceptually lossless algorithm.  The projected videos are displayed on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA. The host machine handles video decoding, projection, parameter precomputation, and rearrangement. The FPGA accelerates color adjustment and lens correction. These two platforms are interconnected via an HDMI cable.
+The figure illustrates the end-to-end system pipeline, which takes a panoramic (equirectangular) video, projects it to both eyes, and compresses the projected videos using our (numerically lossy but perceptually lossless) compression algorithm, which works on top of the BD algorithm.  For the description of a variant of the BD algorithm, see [this paper](https://dl.acm.org/doi/10.1145/3352460.3358298) (among other sources you can find online). The compressed video is displayed on a [Waveshare OLED](https://www.amazon.com/gp/product/B083BKSVNP/) compatible with [Google Cardboard](https://arvr.google.com/cardboard/). The pipeline is divided into two groups: one operating on the host machine and the other on an FPGA board (which in this demo is [Zynq UltraScale+ ZCU104](https://www.xilinx.com/products/boards-and-kits/zcu104.html)). The host machine and the FPGA board are interconnected via an HDMI cable, as is the connection between the FPGA board and the display.  The IP blocks related to the baseline BD encoder/decoder are currently not included yet, but will be added soon enough.
 
 <img src="doc_images/pipeline.png" alt="Alt text" width="800"/>
 
-### 1.2 Examples of the foveated compressed output
+### 1.2 An Sample Output
 - Left: Original (BD compression rate = 34.62%), Right: Color-Optimized  (BD compression rate = 42.08%)
 
 <img src="doc_images/compares.png" alt="Alt text" width="800"/>
 
 
-
-## 2. Files Organization
+## 2. Directory Organization
 
 
 - [scripts/](scripts/) : Scripts for running demo.
@@ -26,13 +25,13 @@ The figure illustrates the end-to-end system pipeline, which takes a panoramic (
     - [pipeline_on_gpu/](scripts/pipeline_on_gpu/): scripts for running software-only pipeline on GPU.
     - [pipeline_on_gpu_fpga/](scripts/pipeline_on_gpu_fpga/): scripts for running pipeline on GPU + FPGA.
 
-- [host/](host/): Modules run on Host Machine. (CPU + GPU)
-    - [projection/](host/projection/): codes for eqirectangular to perspective images projection. 
-    - [len_correction/](host/len_correction/): codes for lens correction.
-    - [color_optimizer/](host/color_optimizer/): codes for color optimizer.
-    - [base_delta/](host/base_delta/): codes for base delta compression encoder and decoder.
-    - [fpga_interfaceing/](host/fpga_interfaceing/): To be separated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
-    - [video_processing/](host/video_processing/): codes for video data pre- and post- processing.
+- [host/](host/): Modules run on the host machine (CPU and/or GPU)
+    - [projection/](host/projection/): perspective projection from eqirectangular images ([why such projections are necessary and how it's done?](https://cs.rochester.edu/courses/572/fall2022/decks/lect17-immersive.pdf))
+    - [len_correction/](host/len_correction/): lens correction.
+    - [color_optimizer/](host/color_optimizer/): our compression algorithm
+    - [base_delta/](host/base_delta/): the baseline BD encoder and decoder.
+    - [fpga_interfaceing/](host/fpga_interfaceing/): to be separated from scripts/pipeline_on_gpu_fpga/per_frame_seq_pipeline.py
+    - [video_processing/](host/video_processing/): video data pre/post-processing.
 
 - [fpga/](fpga/): Modules run on FPGA board.
     - [tile_color_optimizer_hls/](fpga/tile_color_optimizer_hls/): HLS implementation of color optimizer.
