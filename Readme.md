@@ -1,4 +1,4 @@
-# Gaze-Contingent Framebuffer Compression for Virtual Reality: An FPGA Demo
+# Exploiting Human Color Discrimination for Memoryand Energy-Efficient Image Encoding in Virtual Reality: An FPGA Demo
 [Weikai Lin](https://linwk20.github.io/)
 
 ## 1. Overview
@@ -139,8 +139,10 @@ source sripts/vivado/timing_check.sh # make sure the implemented result meet tim
 
 (3) If this is the first time you run this demo, you need to first configure your system:
 - First, connect your host machine with ZCU104's HDMI-IN port through an HDMI cable, and connect ZCU104's HDMI-OUT port with an external display, then run [host_setting.ipynb](fpga/host_setting.ipynb). This will help the GPU driver on your host machine recognize the ZCU104's HDMI.  Your FPGA will be recognized as an external display on your host machine.
-- Turn off ANY augmentation on the display representing ZCU104.  The reason is that we are using HDMI to transmit data between the host machine and the FPGA board, and you don't want the GPU driver on your host machine to muck about the data, which they usually do to "optimize visual experience".
+- Turn off ANY video augmentation setting on the display representing ZCU104.  If you use Nvidia Control Panel on a Windows machine, for instance, the setting might look something like the screenshot below.  The reason is that we are using HDMI to transmit data between the host machine and the FPGA board, and you don't want the GPU driver on your host machine to muck about the data, which they usually do to "optimize visual experience".
 - Set the display representing the FPGA to use 4K@60Hz since what the HDMI driver on the FPGA will use.
+
+<img src="doc_images/display_setting.png" alt="Alt text" width="800"/>
 
 (4) Now run the `hdmi_close` block in the PYNQ notebook and then close the notebook (which is important or PYNQ will likely crash).
 
