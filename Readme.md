@@ -189,7 +189,7 @@ The results do not include the image loading time since that's a one-time cost; 
 
 ### FPS of individal modules
 
-| HW          | Projection | Lens correction | Ellipsoid prediction | Color optimizer (w/o Ellipsoid prediction) | BD ENC | BD DEC
+| HW          | Projection | Lens correction | Ellipsoid prediction (part of Color optimizer) | The rest of Color optimizer | BD ENC | BD DEC
 |:----------------:|:----------:|:--------------:|:--------------------:|:---------------:|:---------------:|:---------------:|
 | CPU (EPYC-Zen3)   | 6          | 6.5            | 4.3                  | 1.3               | 7.2 | 23.4
 | GPU (RTX-4090)   | 1060       | 1246           | 275                  | 65.7              | 614.4 |  511.8
